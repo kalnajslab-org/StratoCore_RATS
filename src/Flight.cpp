@@ -55,6 +55,7 @@ void StratoRATS::FlightMode()
         break;
     case FL_SEND_TELEMETRY:
         inst_substate = FL_MEASURE;
+        scheduler.AddAction(START_TELEMETRY, 10); 
         log_nominal("Entering FL_MEASURE");
         break;
     case FL_ERROR:
