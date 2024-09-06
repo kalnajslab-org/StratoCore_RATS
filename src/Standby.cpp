@@ -26,7 +26,7 @@ void StratoRATS::StandbyMode()
         if (CheckAction(SEND_IMR)) {
             log_nominal("Sending mode request to OBC");
             zephyrTX.IMR();
-            scheduler.AddAction(SEND_IMR, 20);
+            scheduler.AddAction(SEND_IMR, 5);
         }
         break;
     case SB_SHUTDOWN:
