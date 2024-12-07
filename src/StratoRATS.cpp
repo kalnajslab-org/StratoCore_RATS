@@ -21,9 +21,45 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
     String dbg_msg = "";
 
     switch (telecommand) {
-    case FULLRETRACT:
-        log_nominal("TC: Full Retract");
-        ZephyrLogFine("TC: Full Retract");
+    case RATSSAMPERATESECS:
+        log_nominal("TC: Set sample rate");
+        ZephyrLogFine("TC: Set sample rate");
+        break;
+    case RATSDATAPROCTYPE:
+        log_nominal("TC: Set processing mode");
+        ZephyrLogFine("TC: Set processing mode");
+        break;
+    case RATSTSENONOFF:
+        log_nominal("TC: TSEN enable");
+        ZephyrLogFine("TC: TSEN enable");
+        break;
+    case RATSRS41ONOFF:
+        log_nominal("TC: RS41 enable");
+        ZephyrLogFine("TC: RS41 enable");
+        break;
+    case RATSRS41REGEN:
+        log_nominal("TC: RS41 regen");
+        ZephyrLogFine("TC: RS41 regen");
+        break;
+    case RATSDEPLOY:
+        log_nominal("TC: ECU deploy");
+        ZephyrLogFine("TC: ECU deploy");
+        break;
+    case RATSRETRACT:
+        log_nominal("TC: ECU retract");
+        ZephyrLogFine("TC: ECU retract");
+        break;
+    case RATSHOME:
+        log_nominal("TC: ECU Home");
+        ZephyrLogFine("TC: ECU Home");
+        break;
+    case RATSMOTORLIMITS:
+        log_nominal("TC: Motor limits");
+        ZephyrLogFine("TC: Motor limits");
+        break;
+    case RATSMOTORRESET:
+        log_nominal("TC: Motor reset");
+        ZephyrLogFine("TC: Motor reset");
         break;
     default:
         ZephyrLogWarn("Unknown TC received");
