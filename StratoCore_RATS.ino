@@ -51,9 +51,15 @@ void setup()
 
   ZEPHYR_SERIAL.begin(115200);
 
-  //Increase serial buffer sizes for Teensy 4.1
-  ZEPHYR_SERIAL.addMemoryForRead(&Zephyr_serial_RX_buffer, sizeof(Zephyr_serial_RX_buffer));
-  ZEPHYR_SERIAL.addMemoryForWrite(&Zephyr_serial_TX_buffer, sizeof(Zephyr_serial_TX_buffer));
+#if (ZEPHYR_COMMS_ON_DEBUG_PORT)
+    log_error("Configured for sending Zephyr msgs to debug port\n**** WILL NOT WORK FOR FLIGHT OPERATIONS!");
+#else
+    //Increase serial buffer sizes for Teensy 4.1
+    ZEPHYR_SERIAL.addMemoryForRead(&Zephyr_serial_RX_buffer, sizeof(Zephyr_serial_RX_buffer));
+    ZEPHYR_SERIAL.addMemoryForWrite(&Zephyr_serial_TX_buffer, sizeof(Zephyr_serial_TX_buffer));
+    log_nominal("Configured for standard Zephyr port");
+#endif
+
   // Timer interrupt setup for main loop timing
   Timer1.initialize(100000); // 0.1 s
   Timer1.attachInterrupt(ControlLoopTimer);
