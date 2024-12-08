@@ -22,42 +22,55 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
 
     switch (telecommand) {
     case RATSSAMPERATESECS:
+        Set_sampleRateSecs = ratsParam.sampleRateSecs;
         log_nominal("TC: Set sample rate");
         ZephyrLogFine("TC: Set sample rate");
         break;
     case RATSDATAPROCTYPE:
+        Set_dataProcMethod = ratsParam.dataProcMethod;
         log_nominal("TC: Set processing mode");
         ZephyrLogFine("TC: Set processing mode");
         break;
     case RATSTSENONOFF:
+        Set_tsenOn = ratsParam.tsenOn;
         log_nominal("TC: TSEN enable");
         ZephyrLogFine("TC: TSEN enable");
         break;
     case RATSRS41ONOFF:
+        Set_rs41On = ratsParam.rs41On;
         log_nominal("TC: RS41 enable");
         ZephyrLogFine("TC: RS41 enable");
         break;
     case RATSRS41REGEN:
+        Set_rs41regen = true;
         log_nominal("TC: RS41 regen");
         ZephyrLogFine("TC: RS41 regen");
         break;
     case RATSDEPLOY:
+        Set_deployRevs = ratsParam.deployRevs;
+        Set_deploySpeed = ratsParam.deploySpeed;
         log_nominal("TC: ECU deploy");
         ZephyrLogFine("TC: ECU deploy");
         break;
     case RATSRETRACT:
+        Set_retractRevs = ratsParam.retractRevs;
+        Set_retractSpeed = ratsParam.retractSpeed;
         log_nominal("TC: ECU retract");
         ZephyrLogFine("TC: ECU retract");
         break;
     case RATSHOME:
+        Set_motorHome = true;
         log_nominal("TC: ECU Home");
         ZephyrLogFine("TC: ECU Home");
         break;
     case RATSMOTORLIMITS:
+        Set_motorCurrentLimit = ratsParam.motorCurrentLimit;
+        Set_motorTorqueLimit = ratsParam.motorTorqueLimit;
         log_nominal("TC: Motor limits");
         ZephyrLogFine("TC: Motor limits");
         break;
     case RATSMOTORRESET:
+        Set_motorReset = true;
         log_nominal("TC: Motor reset");
         ZephyrLogFine("TC: Motor reset");
         break;

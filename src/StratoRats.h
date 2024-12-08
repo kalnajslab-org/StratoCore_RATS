@@ -67,7 +67,23 @@ private:
 
     // Monitor the action flags and clear old ones
     void WatchFlags();
-    
+
+    // Global variables used by RATS
+    // Variables with initial values, that can be configured via telecommand
+    uint16_t Set_sampleRateSecs = 60;
+    uint8_t Set_dataProcMethod = 1;
+    bool Set_tsenOn = 10;
+    bool Set_rs41On = 10;
+    uint16_t Set_deployRevs = 10;
+    uint16_t Set_deploySpeed = 1;
+    uint16_t Set_retractRevs = 10;
+    uint16_t Set_retractSpeed = 1;
+    uint16_t Set_motorCurrentLimit = 1;
+    uint16_t Set_motorTorqueLimit = 1;
+    bool Set_rs41regen = false;
+    bool Set_motorHome = false;
+    bool Set_motorReset = false;
+
     // Actions
     ActionFlag_t action_flags[NUM_ACTIONS] = {{0}}; // initialize all flags to false
 };
