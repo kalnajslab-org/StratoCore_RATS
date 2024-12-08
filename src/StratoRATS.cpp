@@ -143,3 +143,63 @@ void StratoRATS::WatchFlags()
 void StratoRATS::RATS_Shutdown()
 {
 }
+
+void StratoRATS::statusMsgCheck(int repeat_secs) {
+    static bool first = true;
+    if (first) {
+        scheduler.AddAction(SEND_STATUS, 1);
+        first = false;
+    }
+    if (CheckAction(SEND_STATUS)) {
+        log_nominal("Send status");
+        sendTMstatusMsg();
+        scheduler.AddAction(SEND_STATUS, repeat_secs);
+    }
+}
+
+void StratoRATS::sendTMstatusMsg() {
+    
+    // Create the binary status payload
+    uint8_t status[8];
+    for (int i = 0; i < sizeof(status); i++) {
+        status[i] = i+1;
+    }
+    
+    String Message = "";
+
+    // First
+    Message = "RATS status";
+    zephyrTX.setStateFlagValue(1, FINE);
+    zephyrTX.setStateDetails(1, Message);
+
+    // Second
+    Message = "Other";
+    zephyrTX.setStateFlagValue(2, FINE);
+    zephyrTX.setStateDetails(2, Message);
+
+    // Third: GPS Position
+    Message = "";   
+    zephyrTX.setStateFlagValue(3, FINE);
+    Message.concat(zephyrRX.zephyr_gps.latitude);
+    Message.concat(',');
+    Message.concat(zephyrRX.zephyr_gps.longitude);
+    Message.concat(',');
+    Message.concat(zephyrRX.zephyr_gps.altitude);
+    zephyrTX.setStateDetails(3, Message);
+    Message = "";
+    
+    // Add the initial timestamp
+    zephyrTX.addTm((uint32_t)now());
+
+    // And the status size (bytes)
+    zephyrTX.addTm(uint16_t(sizeof(status)));
+    
+    // Add the samples
+    for (int i = 0; i < sizeof(status); i++)
+    {
+        zephyrTX.addTm(status[i]);
+    }
+
+    zephyrTX.TM();
+
+}

@@ -32,6 +32,7 @@ enum ScheduleAction_t : uint8_t {
     START_TELEMETRY,
     RESEND_SAFETY,
     GPS_WAIT_MSG,
+    SEND_STATUS,
     NUM_ACTIONS
 };
 
@@ -67,6 +68,9 @@ private:
 
     // Monitor the action flags and clear old ones
     void WatchFlags();
+
+    void statusMsgCheck(int repeat_secs);
+    void sendTMstatusMsg();
 
     // Global variables used by RATS
     // Variables with initial values, that can be configured via telecommand

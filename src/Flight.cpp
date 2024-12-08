@@ -20,6 +20,9 @@ enum FLStates_t : uint8_t {
 //  * it is up to the FL_EXIT logic perform any actions for leaving flight mode
 void StratoRATS::FlightMode()
 {
+    // Send the status message
+    statusMsgCheck(60);
+
     switch (inst_substate) {
     case FL_ENTRY:
         // perform setup
