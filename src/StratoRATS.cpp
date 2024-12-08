@@ -18,66 +18,80 @@ void StratoRATS::InstrumentLoop()
 // The telecommand handler must return ACK/NAK
 bool StratoRATS::TCHandler(Telecommand_t telecommand)
 {
-    String dbg_msg = "";
+
+    // Set up the TC summary message
+    String msg;
+    String comma(",");
+    LOG_LEVEL_t summary_level = LOG_NOMINAL;
 
     switch (telecommand) {
     case RATSSAMPERATESECS:
         Set_sampleRateSecs = ratsParam.sampleRateSecs;
-        log_nominal("TC: Set sample rate");
-        ZephyrLogFine("TC: Set sample rate");
+        msg = (String("TC set sample rate")+comma+String(Set_sampleRateSecs));
         break;
     case RATSDATAPROCTYPE:
         Set_dataProcMethod = ratsParam.dataProcMethod;
-        log_nominal("TC: Set processing mode");
-        ZephyrLogFine("TC: Set processing mode");
+        msg = (String("TC set processing mode")+comma+String(Set_dataProcMethod));
         break;
     case RATSTSENONOFF:
         Set_tsenOn = ratsParam.tsenOn;
-        log_nominal("TC: TSEN enable");
-        ZephyrLogFine("TC: TSEN enable");
+        msg = (String("TC TSEN enable")+comma+String(Set_tsenOn));
         break;
     case RATSRS41ONOFF:
         Set_rs41On = ratsParam.rs41On;
-        log_nominal("TC: RS41 enable");
-        ZephyrLogFine("TC: RS41 enable");
+        msg = (String("TC RS41 enable")+comma+String(Set_rs41On));
         break;
     case RATSRS41REGEN:
         Set_rs41regen = true;
-        log_nominal("TC: RS41 regen");
-        ZephyrLogFine("TC: RS41 regen");
+        msg = String("TC RS41 regen");
         break;
     case RATSDEPLOY:
         Set_deployRevs = ratsParam.deployRevs;
         Set_deploySpeed = ratsParam.deploySpeed;
-        log_nominal("TC: ECU deploy");
-        ZephyrLogFine("TC: ECU deploy");
+        msg = (String("TC ECU deploy")+comma+String(Set_deployRevs)+comma+String(Set_deploySpeed));
         break;
     case RATSRETRACT:
         Set_retractRevs = ratsParam.retractRevs;
         Set_retractSpeed = ratsParam.retractSpeed;
-        log_nominal("TC: ECU retract");
-        ZephyrLogFine("TC: ECU retract");
+        msg = (String("TC ECU retract")+comma+String(Set_retractRevs)+comma+String(Set_retractSpeed));
         break;
     case RATSHOME:
         Set_motorHome = true;
-        log_nominal("TC: ECU Home");
-        ZephyrLogFine("TC: ECU Home");
+        msg = String("TC ECU Home");
         break;
     case RATSMOTORLIMITS:
         Set_motorCurrentLimit = ratsParam.motorCurrentLimit;
         Set_motorTorqueLimit = ratsParam.motorTorqueLimit;
-        log_nominal("TC: Motor limits");
-        ZephyrLogFine("TC: Motor limits");
+        msg = (String("TC motor limits")+comma+String(Set_motorCurrentLimit)+comma+String(Set_motorTorqueLimit));
         break;
     case RATSMOTORRESET:
         Set_motorReset = true;
-        log_nominal("TC: Motor reset");
-        ZephyrLogFine("TC: Motor reset");
+        msg = String("TC motor reset");
         break;
     default:
-        ZephyrLogWarn("Unknown TC received");
+        msg = String("Unknown TC received");
+        summary_level = LOG_ERROR;
         break;
     }
+
+    // Send TC summary to the StratoCore log and as a TM
+    switch (summary_level) {
+        case LOG_DEBUG:
+            log_debug(msg.c_str());
+            break;
+        case LOG_NOMINAL:
+            log_nominal(msg.c_str());
+            ZephyrLogFine(msg.c_str());
+            break;
+        case LOG_ERROR:
+            log_error(msg.c_str());
+            ZephyrLogWarn(msg.c_str());
+            break;
+        default:
+            log_error(msg.c_str());
+            ZephyrLogWarn(msg.c_str());
+    }
+
     return true;
 }
 
