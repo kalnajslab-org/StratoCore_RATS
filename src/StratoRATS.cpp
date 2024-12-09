@@ -13,6 +13,10 @@ void StratoRATS::InstrumentSetup()
 void StratoRATS::InstrumentLoop()
 {
     WatchFlags();
+    // Send the status message
+    statusMsgCheck(60);
+
+
 }
 
 // The telecommand handler must return ACK/NAK
