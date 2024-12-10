@@ -10,13 +10,14 @@ enum SBStates_t : uint8_t {
 
 void StratoRATS::StandbyMode()
 {
+    statusMsgCheck(STATUS_MSG_PERIOD_SECS);
     switch (inst_substate) {
     case SB_ENTRY:
         log_nominal("Entering SB");
         RATS_Shutdown();
         // send mode request in first loop
         scheduler.AddAction(SEND_IMR, 0);
-
+        scheduler.AddAction(SEND_STATUS, 1);
         inst_substate = SB_LOOP;
         break;
     case SB_LOOP:

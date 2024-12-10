@@ -12,10 +12,12 @@ enum EFStates_t : uint8_t {
 
 void StratoRATS::EndOfFlightMode()
 {
+    statusMsgCheck(STATUS_MSG_PERIOD_SECS);
     switch (inst_substate) {
     case EF_ENTRY:
         // perform setup
         log_nominal("Entering EF");
+        scheduler.AddAction(SEND_STATUS, 1);
         inst_substate = EF_LOOP;
         break;
     case EF_LOOP:

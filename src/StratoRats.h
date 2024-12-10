@@ -3,6 +3,8 @@
 
 #include <time.h>
 #include "StratoCore.h"
+#include "RATSConfigs.h"
+#include "MCBComm.h"
 #include "RS41.h"
 
 // WARNING: DO NOT CHECK CODE INTO GIT WIH THIS OPTION ENABLED. 
@@ -19,9 +21,14 @@
 
 #define INSTRUMENT      RATS
 #define ZEPHYR_SERIAL_BUFFER_SIZE 4096
+#define MCB_SERIAL      Serial2
+#define STATUS_MSG_PERIOD_SECS 10
 
 // number of loops before a flag becomes stale and is reset
 #define FLAG_STALE      2
+
+#define MCB_BUFFER_SIZE     MAX_MCB_BINARY
+
 
 // todo: perhaps more creative/useful enum here by mode with separate arrays?
 // WARNING: this construct assumes that NUM_ACTIONS will be equal to the number
@@ -33,7 +40,18 @@ enum ScheduleAction_t : uint8_t {
     RESEND_SAFETY,
     GPS_WAIT_MSG,
     SEND_STATUS,
+
+    ACTION_MOTION_TIMEOUT,
+
     NUM_ACTIONS
+};
+
+enum MCBMotion_t : uint8_t {
+    NO_MOTION,
+    MOTION_REEL_IN,
+    MOTION_REEL_OUT,
+    MOTION_DOCK,
+    MOTION_IN_NO_LW
 };
 
 class StratoRATS : public StratoCore {
@@ -47,7 +65,16 @@ public:
     // called at the end of each loop
     void InstrumentLoop();
 
+    // called in each main loop
+    void RunMCBRouter();
+
 private:
+    // internal serial interface objects for the MCB and ECU
+    MCBComm mcbComm;
+
+    // EEPROM interface object
+    RATSConfigs ratsConfigs;
+
     // Mode functions (implemented in unique source files)
     void StandbyMode();
     void FlightMode();
@@ -68,6 +95,44 @@ private:
 
     // Monitor the action flags and clear old ones
     void WatchFlags();
+
+    // Handle messages from the MCB (in MCBRouter.cpp)
+    void HandleMCBASCII();
+    void HandleMCBAck();
+    void HandleMCBBin();
+    void HandleMCBString();
+
+    // Send a telemetry packet with MCB binary info
+    void SendMCBTM(StateFlag_t state_flag, const char * message);
+
+    uint8_t binary_mcb[MCB_BUFFER_SIZE];
+
+    // flags for MCB state tracking
+    bool mcb_low_power = false;
+    bool mcb_motion_ongoing = false;
+    bool mcb_dock_ongoing = false;
+    uint32_t max_profile_seconds = 0;
+    bool mcb_reeling_in = false;
+    uint16_t mcb_tm_counter = 0;
+
+    // array of error values for MCB motion fault
+    uint16_t motion_fault[8] = {0};
+
+    // tracks the current type of motion
+    MCBMotion_t mcb_motion = NO_MOTION;
+
+    // uint32_t start time of the current profile in millis
+    uint32_t profile_start = 0;
+
+    // Add an MCB motion TM packet to the binary TM buffer
+    void AddMCBTM();
+
+    // Set variables and TM buffer after a profile starts
+    void NoteProfileStart();
+
+    // Send a telemetry packet with EEPROM contents
+    void SendMCBEEPROM();
+    void SendRATSEEPROM();
 
     void statusMsgCheck(int repeat_secs);
     void sendTMstatusMsg();

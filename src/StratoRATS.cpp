@@ -2,39 +2,42 @@
 
 StratoRATS::StratoRATS()
     : StratoCore(&ZEPHYR_SERIAL, INSTRUMENT)
+    , mcbComm(&MCB_SERIAL)
 {
 }
 
 void StratoRATS::InstrumentSetup()
 {   
+    if (!ratsConfigs.Initialize()) {
+        ZephyrLogWarn("Error loading from EEPROM! Reconfigured");
+    }
+
+    mcbComm.AssignBinaryRXBuffer(binary_mcb, MCB_BUFFER_SIZE);
 
 }
 
 void StratoRATS::InstrumentLoop()
 {
     WatchFlags();
-    // Send the status message
-    statusMsgCheck(60);
-
-
 }
 
 // The telecommand handler must return ACK/NAK
 bool StratoRATS::TCHandler(Telecommand_t telecommand)
 {
-
     // Set up the TC summary message
-    String msg;
+    String msg("TC reply undefined");
     String comma(",");
     LOG_LEVEL_t summary_level = LOG_NOMINAL;
 
     switch (telecommand) {
     case RATSSAMPERATESECS:
         Set_sampleRateSecs = ratsParam.sampleRateSecs;
+        ratsConfigs.sampleRateSecs.Write(ratsParam.sampleRateSecs);
         msg = (String("TC set sample rate")+comma+String(Set_sampleRateSecs));
         break;
     case RATSDATAPROCTYPE:
         Set_dataProcMethod = ratsParam.dataProcMethod;
+        ratsConfigs.dataProcMethod.Write(ratsParam.dataProcMethod);
         msg = (String("TC set processing mode")+comma+String(Set_dataProcMethod));
         break;
     case RATSTSENONOFF:
@@ -52,11 +55,15 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
     case RATSDEPLOY:
         Set_deployRevs = ratsParam.deployRevs;
         Set_deploySpeed = ratsParam.deploySpeed;
+        ratsConfigs.deployRevs.Write(ratsParam.deployRevs);
+        ratsConfigs.deploySpeed.Write(ratsParam.deploySpeed);
         msg = (String("TC ECU deploy")+comma+String(Set_deployRevs)+comma+String(Set_deploySpeed));
         break;
     case RATSRETRACT:
         Set_retractRevs = ratsParam.retractRevs;
         Set_retractSpeed = ratsParam.retractSpeed;
+        ratsConfigs.retractRevs.Write(ratsParam.retractRevs);
+        ratsConfigs.retractSpeed.Write(ratsParam.retractSpeed);
         msg = (String("TC ECU retract")+comma+String(Set_retractRevs)+comma+String(Set_retractSpeed));
         break;
     case RATSHOME:
@@ -66,12 +73,23 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
     case RATSMOTORLIMITS:
         Set_motorCurrentLimit = ratsParam.motorCurrentLimit;
         Set_motorTorqueLimit = ratsParam.motorTorqueLimit;
+        ratsConfigs.motorCurrentLimit.Write(ratsParam.motorCurrentLimit);
+        ratsConfigs.motorTorqueLimit.Write(ratsParam.motorTorqueLimit);
         msg = (String("TC motor limits")+comma+String(Set_motorCurrentLimit)+comma+String(Set_motorTorqueLimit));
         break;
     case RATSMOTORRESET:
         Set_motorReset = true;
         msg = String("TC motor reset");
         break;
+    case GETRATSEEPROM:
+        msg = String("TC get RATS EEPROM");
+        if (mcb_motion_ongoing) {
+            ZephyrLogWarn("Motion ongoing, request RATS EEPROM later");
+        } else {
+            SendRATSEEPROM();
+        }
+        break;
+
     default:
         msg = String("Unknown TC received");
         summary_level = LOG_ERROR;
@@ -149,11 +167,6 @@ void StratoRATS::RATS_Shutdown()
 }
 
 void StratoRATS::statusMsgCheck(int repeat_secs) {
-    static bool first = true;
-    if (first) {
-        scheduler.AddAction(SEND_STATUS, 1);
-        first = false;
-    }
     if (CheckAction(SEND_STATUS)) {
         log_nominal("Send status");
         sendTMstatusMsg();
@@ -206,4 +219,130 @@ void StratoRATS::sendTMstatusMsg() {
 
     zephyrTX.TM();
 
+}
+
+void StratoRATS::NoteProfileStart()
+{
+    mcb_motion_ongoing = true;
+    profile_start = millis();
+
+    if (MOTION_DOCK == mcb_motion || MOTION_IN_NO_LW == mcb_motion) mcb_dock_ongoing = true;
+
+    mcb_tm_counter = 0;
+
+    zephyrTX.clearTm(); // empty the TM buffer for incoming MCB motion data
+
+    // Add the start time to the MCB TM Header if not in real-time mode
+    // TODO What is real-time mcb mode?
+    if (!ratsConfigs.real_time_mcb.Read()) {
+        zephyrTX.addTm((uint32_t) now()); // as a header, add the current seconds since epoch
+    }
+}
+
+void StratoRATS::AddMCBTM()
+{
+    // make sure it's the correct size
+    if (mcbComm.binary_rx.bin_length != MOTION_TM_SIZE) {
+        log_error("invalid motion TM size");
+        return;
+    }
+
+    // if not in real-time mode, add the sync and time
+    if (!ratsConfigs.real_time_mcb.Read()) {
+        // sync byte
+        if (!zephyrTX.addTm((uint8_t) 0xA5)) {
+            log_error("unable to add sync byte to MCB TM buffer");
+            return;
+        }
+
+        // tenths of seconds since start
+        if (!zephyrTX.addTm((uint16_t) ((millis() - profile_start) / 100))) {
+            log_error("unable to add seconds bytes to MCB TM buffer");
+            return;
+        }
+    }
+
+    // add each byte of data to the message
+    for (int i = 0; i < MOTION_TM_SIZE; i++) {
+        if (!zephyrTX.addTm(mcbComm.binary_rx.bin_buffer[i])) {
+            log_error("unable to add data byte to MCB TM buffer");
+            return;
+        }
+    }
+
+    // if real-time mode, send the TM packet
+    if (ratsConfigs.real_time_mcb.Read()) {
+        snprintf(log_array, LOG_ARRAY_SIZE, "MCB TM Packet %u", ++mcb_tm_counter);
+        zephyrTX.setStateDetails(1, log_array);
+        zephyrTX.setStateFlagValue(1, FINE);
+        zephyrTX.setStateFlagValue(2, NOMESS);
+        zephyrTX.setStateFlagValue(3, NOMESS);
+        zephyrTX.TM();
+        log_nominal(log_array);
+    }
+}
+
+void StratoRATS::SendMCBEEPROM()
+{
+    // the binary buffer has been prepared by the MCBRouter
+    zephyrTX.clearTm();
+    zephyrTX.addTm(mcbComm.binary_rx.bin_buffer, mcbComm.binary_rx.bin_length);
+
+    // use only the first flag to preface the contents
+    zephyrTX.setStateDetails(1, "MCB EEPROM Contents");
+    zephyrTX.setStateFlagValue(1, FINE);
+    zephyrTX.setStateFlagValue(2, NOMESS);
+    zephyrTX.setStateFlagValue(3, NOMESS);
+
+    // send as TM
+    TM_ack_flag = NO_ACK;
+    zephyrTX.TM();
+
+    log_nominal("Sent MCB EEPROM as TM");
+}
+
+void StratoRATS::SendMCBTM(StateFlag_t state_flag, const char * message)
+{
+    // use only the first flag to report the motion
+    zephyrTX.setStateDetails(1, message);
+    zephyrTX.setStateFlagValue(1, state_flag);
+    zephyrTX.setStateFlagValue(2, NOMESS);
+    zephyrTX.setStateFlagValue(3, NOMESS);
+
+    TM_ack_flag = NO_ACK;
+    zephyrTX.TM();
+
+    log_nominal(log_array);
+
+    if (!WriteFileTM("MCB")) {
+        log_error("Unable to write MCB TM to SD file");
+    }
+}
+
+void StratoRATS::SendRATSEEPROM()
+{
+    // create a buffer from the EEPROM (cheat, and use the preallocated MCBComm Binary RX buffer)
+    mcbComm.binary_rx.bin_length = ratsConfigs.Bufferize(mcbComm.binary_rx.bin_buffer, MAX_MCB_BINARY);
+
+    if (0 == mcbComm.binary_rx.bin_length) {
+        log_error("Unable to bufferize RATS EEPROM");
+        return;
+    }
+
+    // prepare the TM buffer
+    zephyrTX.clearTm();
+    zephyrTX.addTm(mcbComm.binary_rx.bin_buffer, mcbComm.binary_rx.bin_length);
+
+    // use only the first flag to preface the contents
+    zephyrTX.setStateDetails(1, "RATS EEPROM Contents");
+    zephyrTX.setStateFlagValue(1, FINE);
+    zephyrTX.setStateFlagValue(2, NOMESS);
+    zephyrTX.setStateFlagValue(3, NOMESS);
+
+    // send as TM
+    TM_ack_flag = NO_ACK;
+    log_nominal((String("Sending TM with EEPROM bytes:")+String(mcbComm.binary_rx.bin_length)).c_str());
+    zephyrTX.TM();
+
+    log_nominal("Sent RATS EEPROM as TM");
 }

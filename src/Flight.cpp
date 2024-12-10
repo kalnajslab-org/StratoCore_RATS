@@ -20,11 +20,13 @@ enum FLStates_t : uint8_t {
 //  * it is up to the FL_EXIT logic perform any actions for leaving flight mode
 void StratoRATS::FlightMode()
 {
+    statusMsgCheck(STATUS_MSG_PERIOD_SECS);
     switch (inst_substate) {
     case FL_ENTRY:
         // perform setup
         log_nominal("Entering FL");
         scheduler.AddAction(GPS_WAIT_MSG, 5);
+        scheduler.AddAction(SEND_STATUS, 1);
         inst_substate = FL_GPS_WAIT;
         break;
     case FL_GPS_WAIT:

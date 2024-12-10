@@ -79,6 +79,7 @@ void loop()
   strato.KickWatchdog();
   strato.RunScheduler();
   strato.RunRouter();
+  strato.RunMCBRouter();
   strato.RunMode();
   strato.InstrumentLoop();
 

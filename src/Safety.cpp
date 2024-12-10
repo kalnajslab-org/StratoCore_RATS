@@ -13,9 +13,11 @@ enum SAStates_t : uint8_t {
 
 void StratoRATS::SafetyMode()
 {
+    statusMsgCheck(STATUS_MSG_PERIOD_SECS);
     switch (inst_substate) {
     case SA_ENTRY:
         RATS_Shutdown();
+        scheduler.AddAction(SEND_STATUS, 1);
         log_nominal(" Shut down, Entering SA");
         inst_substate = SA_SEND_S;
         break;
