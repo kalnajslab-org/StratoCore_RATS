@@ -19,16 +19,19 @@
 #define ZEPHYR_SERIAL   Serial
 #endif
 
+// Our instrument name
 #define INSTRUMENT      RATS
+// Buffers for msg reception and transmission to/from Zephyr. Should be large enough
+// to hold a complete TM, some of which which will contain the measurement data.
 #define ZEPHYR_SERIAL_BUFFER_SIZE 4096
-#define MCB_SERIAL      Serial2
-#define STATUS_MSG_PERIOD_SECS 10
-
-// number of loops before a flag becomes stale and is reset
+// Serial connection to MCB
+#define MCB_SERIAL      Serial3
+// Reporting period for status message generation, including TM transmission.
+#define STATUS_MSG_PERIOD_SECS 60
+// Number of loops before a flag becomes stale and is reset
 #define FLAG_STALE      2
-
-#define MCB_BUFFER_SIZE     MAX_MCB_BINARY
-
+// The size of a buffer used for binary transfers between RATS and MCB.
+#define MCB_BINARY_BUFFER_SIZE MAX_MCB_BINARY
 
 // todo: perhaps more creative/useful enum here by mode with separate arrays?
 // WARNING: this construct assumes that NUM_ACTIONS will be equal to the number
@@ -105,7 +108,7 @@ private:
     // Send a telemetry packet with MCB binary info
     void SendMCBTM(StateFlag_t state_flag, const char * message);
 
-    uint8_t binary_mcb[MCB_BUFFER_SIZE];
+    uint8_t binary_mcb[MCB_BINARY_BUFFER_SIZE];
 
     // flags for MCB state tracking
     bool mcb_low_power = false;
