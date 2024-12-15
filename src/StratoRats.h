@@ -32,6 +32,7 @@
 #define FLAG_STALE      2
 // The size of a buffer used for binary transfers between RATS and MCB.
 #define MCB_BINARY_BUFFER_SIZE MAX_MCB_BINARY
+#define HEARTBEAT_LED_PIN	3
 
 // todo: perhaps more creative/useful enum here by mode with separate arrays?
 // WARNING: this construct assumes that NUM_ACTIONS will be equal to the number

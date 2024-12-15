@@ -9,6 +9,7 @@ StratoRATS strato;
 
 // timer control variables
 volatile uint8_t timer_counter = 0;
+uint8_t heartbeat_led = 0;
 volatile bool loop_flag = false;
  // Serial Buffers for T4.1
 uint8_t Zephyr_serial_TX_buffer[ZEPHYR_SERIAL_BUFFER_SIZE];
@@ -31,6 +32,7 @@ void ControlLoopTimer(void) {
     timer_counter = 0;
     loop_flag = true;
   }
+  digitalWrite(HEARTBEAT_LED_PIN, ((heartbeat_led++/20 & 1) ? LOW : HIGH));
 }
 
 // Loop timing function
@@ -43,6 +45,10 @@ void WaitForControlTimer(void) {
 // Standard Arduino setup function
 void setup()
 {
+  // Pulse LED setup
+  pinMode(HEARTBEAT_LED_PIN, OUTPUT);
+  digitalWrite(HEARTBEAT_LED_PIN, LOW);
+
   Serial.begin(115200);
   Serial.print("StratoCore_RATS build ");
   Serial.print(__DATE__);
