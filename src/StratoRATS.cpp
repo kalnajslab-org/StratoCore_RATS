@@ -246,36 +246,31 @@ void StratoRATS::AddMCBTM()
 
     // if not in real-time mode, add the sync and time
     if (!ratsConfigs.real_time_mcb.Read()) {
-        // sync byte
-        if (!zephyrTX.addTm((uint8_t) 0xA5)) {
-            log_error("unable to add sync byte to MCB TM buffer");
-            return;
-        }
-
+        // sync byte        
+        MCB_TM_buffer[MCB_TM_buffer_idx++] = (uint8_t) 0xA5;
+                
         // tenths of seconds since start
-        if (!zephyrTX.addTm((uint16_t) ((millis() - profile_start) / 100))) {
-            log_error("unable to add seconds bytes to MCB TM buffer");
-            return;
-        }
+        uint16_t elapsed_time = (uint16_t)((millis() - profile_start) / 100);
+        MCB_TM_buffer[MCB_TM_buffer_idx++] = (uint8_t) (elapsed_time >> 8);
+        MCB_TM_buffer[MCB_TM_buffer_idx++] = (uint8_t) (elapsed_time & 0xFF);
     }
 
     // add each byte of data to the message
     for (int i = 0; i < MOTION_TM_SIZE; i++) {
-        if (!zephyrTX.addTm(mcbComm.binary_rx.bin_buffer[i])) {
-            log_error("unable to add data byte to MCB TM buffer");
-            return;
-        }
+        MCB_TM_buffer[MCB_TM_buffer_idx++] = mcbComm.binary_rx.bin_buffer[i];
     }
 
     // if real-time mode, send the TM packet
     if (ratsConfigs.real_time_mcb.Read()) {
         snprintf(log_array, LOG_ARRAY_SIZE, "MCB TM Packet %u", ++mcb_tm_counter);
+        zephyrTX.addTm(MCB_TM_buffer,MCB_TM_buffer_idx);
         zephyrTX.setStateDetails(1, log_array);
         zephyrTX.setStateFlagValue(1, FINE);
         zephyrTX.setStateFlagValue(2, NOMESS);
         zephyrTX.setStateFlagValue(3, NOMESS);
         zephyrTX.TM();
         log_nominal(log_array);
+        MCB_TM_buffer_idx = 0; //reser the MCB buffer pointer
     }
 }
 
@@ -301,6 +296,7 @@ void StratoRATS::SendMCBEEPROM()
 void StratoRATS::SendMCBTM(StateFlag_t state_flag, const char * message)
 {
     // use only the first flag to report the motion
+    zephyrTX.addTm(MCB_TM_buffer,MCB_TM_buffer_idx);
     zephyrTX.setStateDetails(1, message);
     zephyrTX.setStateFlagValue(1, state_flag);
     zephyrTX.setStateFlagValue(2, NOMESS);
@@ -310,7 +306,6 @@ void StratoRATS::SendMCBTM(StateFlag_t state_flag, const char * message)
     zephyrTX.TM();
 
     log_nominal(log_array);
-
     if (!WriteFileTM("MCB")) {
         log_error("Unable to write MCB TM to SD file");
     }

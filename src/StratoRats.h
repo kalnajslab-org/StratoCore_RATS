@@ -120,6 +120,8 @@ private:
 
     // array of error values for MCB motion fault
     uint16_t motion_fault[8] = {0};
+    uint8_t MCB_TM_buffer[8192] = {0};
+    uint16_t MCB_TM_buffer_idx = 0;
 
     // tracks the current type of motion
     MCBMotion_t mcb_motion = NO_MOTION;
