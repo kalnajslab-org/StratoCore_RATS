@@ -9,6 +9,33 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
     LOG_LEVEL_t summary_level = LOG_NOMINAL;
 
     switch (telecommand) {
+    case ZEROREEL:
+        if (mcb_dock_ongoing) {
+            ZephyrLogWarn("Can't zero reel, motion ongoing");
+        }
+        mcbComm.TX_ASCII(MCB_ZERO_REEL);
+        msg = String("TC Zero Reel");
+        break;
+    case TORQUELIMITS:
+        if (!mcbComm.TX_Torque_Limits(mcbParam.torqueLimits[0],mcbParam.torqueLimits[1])) {
+            ZephyrLogWarn("Error sending torque limits to MCB");
+        }
+        msg = String("TC Torque Limits");
+        break;
+    case CURRLIMITS:
+        if (!mcbComm.TX_Curr_Limits(mcbParam.currLimits[0],mcbParam.currLimits[1])) {
+            ZephyrLogWarn("Error sending curr limits to MCB");
+        }
+        msg = String("TC Current Limits");
+        break;
+    case IGNORELIMITS:
+        mcbComm.TX_ASCII(MCB_IGNORE_LIMITS);
+        msg = String("TC Ignore Limits");
+        break;
+    case USELIMITS:
+        mcbComm.TX_ASCII(MCB_USE_LIMITS);
+        msg = String("TC Use Limits");
+        break;
     case GETMCBEEPROM:
         if (mcb_motion_ongoing) {
             ZephyrLogWarn("Motion ongoing, request MCB EEPROM later");
@@ -41,21 +68,6 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
         ratsConfigs.retractRevs.Write(ratsParam.retractRevs);
         ratsConfigs.retractSpeed.Write(ratsParam.retractSpeed);
         msg = String("TC ECU retract")+comma+String(Set_retractRevs)+comma+String(Set_retractSpeed);
-        break;
-    case RATSHOME:
-        Set_motorHome = true;
-        msg = String("TC ECU Home");
-        break;
-    case RATSMOTORLIMITS:
-        Set_motorCurrentLimit = ratsParam.motorCurrentLimit;
-        Set_motorTorqueLimit = ratsParam.motorTorqueLimit;
-        ratsConfigs.motorCurrentLimit.Write(ratsParam.motorCurrentLimit);
-        ratsConfigs.motorTorqueLimit.Write(ratsParam.motorTorqueLimit);
-        msg = String("TC motor limits")+comma+String(Set_motorCurrentLimit)+comma+String(Set_motorTorqueLimit);
-        break;
-    case RATSMOTORRESET:
-        Set_motorReset = true;
-        msg = String("TC motor reset");
         break;
     case GETRATSEEPROM:
         msg = String("TC get RATS EEPROM");

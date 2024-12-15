@@ -153,10 +153,6 @@ private:
     uint16_t Set_deploySpeed = 1;
     uint16_t Set_retractRevs = 10;
     uint16_t Set_retractSpeed = 1;
-    uint16_t Set_motorCurrentLimit = 1;
-    uint16_t Set_motorTorqueLimit = 1;
-    bool Set_motorHome = false;
-    bool Set_motorReset = false;
 
     // Actions
     ActionFlag_t action_flags[NUM_ACTIONS] = {{0}}; // initialize all flags to false

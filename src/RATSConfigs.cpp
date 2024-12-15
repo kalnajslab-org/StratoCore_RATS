@@ -15,8 +15,6 @@ RATSConfigs::RATSConfigs()
     deploySpeed(10),
     retractRevs(100),
     retractSpeed(10),
-    motorCurrentLimit(10),
-    motorTorqueLimit(10),
     real_time_mcb(false)
 
     // ----------------------------------------------------
@@ -32,8 +30,6 @@ void RATSConfigs::RegisterAll()
     success &= Register(&deploySpeed);
     success &= Register(&retractRevs);
     success &= Register(&retractSpeed);
-    success &= Register(&motorCurrentLimit);
-    success &= Register(&motorTorqueLimit);
 
     if (!success) {
         debug_serial->println("Error registering EEPROM configs");
