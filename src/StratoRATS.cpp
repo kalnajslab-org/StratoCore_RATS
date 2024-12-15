@@ -145,6 +145,12 @@ bool StratoRATS::CheckAction(uint8_t action)
     }
 }
 
+void StratoRATS::SetAction(uint8_t action)
+{
+    action_flags[action].flag_value = true;
+    action_flags[action].stale_count = 0;
+}
+
 void StratoRATS::WatchFlags()
 {
     // monitor for and clear stale flags

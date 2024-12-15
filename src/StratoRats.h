@@ -96,6 +96,9 @@ private:
     // Safely check and clear action flags
     bool CheckAction(uint8_t action);
 
+    // Correctly set an action flag
+    void SetAction(uint8_t action);
+
     // Monitor the action flags and clear old ones
     void WatchFlags();
 
