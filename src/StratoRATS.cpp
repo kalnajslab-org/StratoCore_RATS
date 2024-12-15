@@ -31,10 +31,11 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
 
     switch (telecommand) {
     case GETMCBEEPROM:
-            if (mcb_motion_ongoing) {
+        if (mcb_motion_ongoing) {
             ZephyrLogWarn("Motion ongoing, request MCB EEPROM later");
         } else {
             mcbComm.TX_ASCII(MCB_GET_EEPROM);
+            Serial.println("Request MCBEEPROM");
         }
         msg = String("TC get MCB EEPROM");
         break;
@@ -47,18 +48,6 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
         Set_dataProcMethod = ratsParam.dataProcMethod;
         ratsConfigs.dataProcMethod.Write(ratsParam.dataProcMethod);
         msg = String("TC set processing mode")+comma+String(Set_dataProcMethod);
-        break;
-    case RATSTSENONOFF:
-        Set_tsenOn = ratsParam.tsenOn;
-        msg = String("TC TSEN enable")+comma+String(Set_tsenOn);
-        break;
-    case RATSRS41ONOFF:
-        Set_rs41On = ratsParam.rs41On;
-        msg = String("TC RS41 enable")+comma+String(Set_rs41On);
-        break;
-    case RATSRS41REGEN:
-        Set_rs41regen = true;
-        msg = String("TC RS41 regen");
         break;
     case RATSDEPLOY:
         Set_deployRevs = ratsParam.deployRevs;
@@ -99,7 +88,7 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
         break;
 
     default:
-        msg = String("Unknown TC received");
+        msg = String("Unknown TC ") + String(telecommand) + String(" received");
         summary_level = LOG_ERROR;
         break;
     }
