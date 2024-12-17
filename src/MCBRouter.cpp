@@ -128,7 +128,7 @@ void StratoRATS::HandleMCBAck()
         ZephyrLogFine("MCB acked use limits");
         break;
     default:
-        log_error("Unknown MCB ack received");
+        log_error(String(String("Unexpected MCB ACK received:")+String(mcbComm.ack_id)).c_str());
         break;
     }
 }

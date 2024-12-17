@@ -56,6 +56,7 @@ void setup()
   Serial.println(__TIME__);
 
   ZEPHYR_SERIAL.begin(115200);
+  MCB_SERIAL.begin(115200);
 
 #if (ZEPHYR_COMMS_ON_DEBUG_PORT)
     log_error("Configured for sending Zephyr msgs to debug port\n**** WILL NOT WORK FOR FLIGHT OPERATIONS!");
