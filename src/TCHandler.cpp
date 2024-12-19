@@ -41,7 +41,7 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
             ZephyrLogWarn("Motion ongoing, request MCB EEPROM later");
         } else {
             mcbComm.TX_ASCII(MCB_GET_EEPROM);
-            Serial.println("Request MCBEEPROM");
+            SendMCBEEPROM();
         }
         msg = String("TC get MCB EEPROM");
         break;
