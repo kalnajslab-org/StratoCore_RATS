@@ -40,10 +40,14 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
         if (mcb_motion_ongoing) {
             ZephyrLogWarn("Motion ongoing, request MCB EEPROM later");
         } else {
+            // Request the MCB EEPROM. MCBRouter will handle the response
             mcbComm.TX_ASCII(MCB_GET_EEPROM);
-            SendMCBEEPROM();
         }
         msg = String("TC get MCB EEPROM");
+        break;
+    case GETMCBVOLTS:
+        mcbComm.TX_ASCII(MCB_GET_VOLTAGES);
+        msg = String("TC get MCB voltages");
         break;
     case RATSSAMPERATESECS:
         Set_sampleRateSecs = ratsParam.sampleRateSecs;

@@ -192,6 +192,8 @@ void StratoRATS::SendMCBEEPROM()
     // the binary buffer has been prepared by the MCBRouter
     zephyrTX.clearTm();
     zephyrTX.addTm(mcbComm.binary_rx.bin_buffer, mcbComm.binary_rx.bin_length);
+    Serial.print("MCB EEPROM bytes: ");
+    Serial.println(mcbComm.binary_rx.bin_length);
 
     // use only the first flag to preface the contents
     zephyrTX.setStateDetails(1, "MCB EEPROM Contents");

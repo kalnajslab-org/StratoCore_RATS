@@ -12,6 +12,10 @@
 void StratoRATS::RunMCBRouter()
 {
     SerialMessage_t rx_msg = mcbComm.RX();
+    if (rx_msg) {
+        Serial.print("MCB RX message: ");
+        Serial.println(rx_msg);
+    }
 
     while (NO_MESSAGE != rx_msg) {
         if (ASCII_MESSAGE == rx_msg) {
@@ -33,6 +37,16 @@ void StratoRATS::RunMCBRouter()
 void StratoRATS::HandleMCBASCII()
 {
     switch (mcbComm.ascii_rx.msg_id) {
+    case MCB_VOLTAGES:
+        float mcb_voltages[4];
+        if (mcbComm.RX_Voltages(mcb_voltages, mcb_voltages+1, mcb_voltages+2, mcb_voltages+3)) {
+            snprintf(log_array, LOG_ARRAY_SIZE, "MCB voltages: %.1f,%.1f,%.1f,%.1f", mcb_voltages[0], mcb_voltages[1],
+                     mcb_voltages[2], mcb_voltages[3]);
+            SendMCBTM(FINE, log_array);
+        } else {
+            SendMCBTM(CRIT, "Error receiving MCB voltages");
+        }
+        break;
     case MCB_MOTION_FINISHED:
         CheckAction(ACTION_MOTION_TIMEOUT); // clear the timeout
         log_nominal("MCB motion finished"); // state machine will report to Zephyr
@@ -126,6 +140,12 @@ void StratoRATS::HandleMCBAck()
         break;
     case MCB_USE_LIMITS:
         ZephyrLogFine("MCB acked use limits");
+        break;
+    case MCB_GET_EEPROM:
+        ZephyrLogFine("MCB acked get MCB eeprom");
+        break;
+    case MCB_GET_VOLTAGES:
+        ZephyrLogFine("MCB acked get MCB voltages");
         break;
     default:
         log_error(String(String("Unexpected MCB ACK received:")+String(mcbComm.ack_id)).c_str());
