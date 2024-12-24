@@ -20,6 +20,9 @@
 
 // Our instrument name
 #define INSTRUMENT      RATS
+#define ZEPHYR_SERIAL_BUFFER_SIZE 4096
+#define MCB_SERIAL_BUFFER_SIZE    4096
+
 // Buffers for msg reception and transmission to/from Zephyr. Should be large enough
 // to hold a complete TM, some of which which will contain the measurement data.
 #define ZEPHYR_SERIAL_BUFFER_SIZE 4096

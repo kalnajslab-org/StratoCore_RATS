@@ -11,9 +11,13 @@ StratoRATS strato;
 volatile uint8_t timer_counter = 0;
 uint8_t heartbeat_led = 0;
 volatile bool loop_flag = false;
+
  // Serial Buffers for T4.1
 uint8_t Zephyr_serial_TX_buffer[ZEPHYR_SERIAL_BUFFER_SIZE];
 uint8_t Zephyr_serial_RX_buffer[ZEPHYR_SERIAL_BUFFER_SIZE];
+uint8_t mcb_serial_TX_buffer[MCB_SERIAL_BUFFER_SIZE];
+uint8_t mcb_serial_RX_buffer[MCB_SERIAL_BUFFER_SIZE];
+
 // ISR for Zephyr port (on LPC)
 // void serialEvent2()
 // {
@@ -60,10 +64,15 @@ void setup()
 
 #if (ZEPHYR_COMMS_ON_DEBUG_PORT)
     log_error("Configured for sending Zephyr msgs to debug port\n**** WILL NOT WORK FOR FLIGHT OPERATIONS!");
+    //Increase serial buffer sizes for Teensy 4.1
+    MCB_SERIAL.addMemoryForRead(&Zephyr_serial_RX_buffer, sizeof(Zephyr_serial_RX_buffer));
+    MCB_SERIAL.addMemoryForWrite(&Zephyr_serial_TX_buffer, sizeof(Zephyr_serial_TX_buffer));
 #else
     //Increase serial buffer sizes for Teensy 4.1
     ZEPHYR_SERIAL.addMemoryForRead(&Zephyr_serial_RX_buffer, sizeof(Zephyr_serial_RX_buffer));
     ZEPHYR_SERIAL.addMemoryForWrite(&Zephyr_serial_TX_buffer, sizeof(Zephyr_serial_TX_buffer));
+    MCB_SERIAL.addMemoryForRead(&Zephyr_serial_RX_buffer, sizeof(Zephyr_serial_RX_buffer));
+    MCB_SERIAL.addMemoryForWrite(&Zephyr_serial_TX_buffer, sizeof(Zephyr_serial_TX_buffer));
     log_nominal("Configured for standard Zephyr port");
 #endif
 
