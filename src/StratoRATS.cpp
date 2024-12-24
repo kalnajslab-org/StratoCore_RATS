@@ -187,6 +187,24 @@ void StratoRATS::AddMCBTM()
     }
 }
 
+void StratoRATS::SendMCBTM(StateFlag_t state_flag, const char * message)
+{
+    // use only the first flag to report the motion
+    zephyrTX.addTm(MCB_TM_buffer,MCB_TM_buffer_idx);
+    zephyrTX.setStateDetails(1, message);
+    zephyrTX.setStateFlagValue(1, state_flag);
+    zephyrTX.setStateFlagValue(2, NOMESS);
+    zephyrTX.setStateFlagValue(3, NOMESS);
+
+    TM_ack_flag = NO_ACK;
+    zephyrTX.TM();
+
+    log_nominal(log_array);
+    if (!WriteFileTM("MCB")) {
+        log_error("Unable to write MCB TM to SD file");
+    }
+}
+
 void StratoRATS::SendMCBEEPROM()
 {
     // the binary buffer has been prepared by the MCBRouter
@@ -208,24 +226,6 @@ void StratoRATS::SendMCBEEPROM()
     log_nominal("Sent MCB EEPROM as TM");
 }
 
-void StratoRATS::SendMCBTM(StateFlag_t state_flag, const char * message)
-{
-    // use only the first flag to report the motion
-    zephyrTX.addTm(MCB_TM_buffer,MCB_TM_buffer_idx);
-    zephyrTX.setStateDetails(1, message);
-    zephyrTX.setStateFlagValue(1, state_flag);
-    zephyrTX.setStateFlagValue(2, NOMESS);
-    zephyrTX.setStateFlagValue(3, NOMESS);
-
-    TM_ack_flag = NO_ACK;
-    zephyrTX.TM();
-
-    log_nominal(log_array);
-    if (!WriteFileTM("MCB")) {
-        log_error("Unable to write MCB TM to SD file");
-    }
-}
-
 void StratoRATS::SendRATSEEPROM()
 {
     // create a buffer from the EEPROM (cheat, and use the preallocated MCBComm Binary RX buffer)
@@ -241,14 +241,13 @@ void StratoRATS::SendRATSEEPROM()
     zephyrTX.addTm(mcbComm.binary_rx.bin_buffer, mcbComm.binary_rx.bin_length);
 
     // use only the first flag to preface the contents
-    zephyrTX.setStateDetails(1, "RATS EEPROM Contents");
+    zephyrTX.setStateDetails(1, String("RATS EEPROM; length ") + String(mcbComm.binary_rx.bin_length));
     zephyrTX.setStateFlagValue(1, FINE);
     zephyrTX.setStateFlagValue(2, NOMESS);
     zephyrTX.setStateFlagValue(3, NOMESS);
 
     // send as TM
     TM_ack_flag = NO_ACK;
-    log_nominal((String("Sending TM with EEPROM bytes:")+String(mcbComm.binary_rx.bin_length)).c_str());
     zephyrTX.TM();
 
     log_nominal("Sent RATS EEPROM as TM");
