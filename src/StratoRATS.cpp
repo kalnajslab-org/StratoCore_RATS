@@ -91,7 +91,8 @@ void StratoRATS::sendTMstatusMsg() {
     for (int i = 0; i < sizeof(status); i++) {
         status[i] = i+1;
     }
-    
+    status[0] = flight_mode_substate; 
+
     String Message = "";
 
     // First

@@ -2,6 +2,7 @@
 #define STRATORATS_H
 
 #include <time.h>
+#include <map>
 #include "StratoCore.h"
 #include "RATSConfigs.h"
 #include "MCBComm.h"
@@ -81,6 +82,9 @@ private:
     // EEPROM interface object
     RATSConfigs ratsConfigs;
 
+    // Initialize the flight mode status values
+    void FlightModeInit();
+
     // Mode functions (implemented in unique source files)
     void StandbyMode();
     void FlightMode();
@@ -115,6 +119,9 @@ private:
     void SendMCBTM(StateFlag_t state_flag, const char * message);
 
     uint8_t binary_mcb[MCB_BINARY_BUFFER_SIZE];
+
+    // Global variable to track flight_substate_map[inst_subst] during flight mode
+    uint8_t flight_mode_substate = 0;
 
     // flags for MCB state tracking
     bool mcb_low_power = false;

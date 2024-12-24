@@ -14,6 +14,7 @@ enum FLStates_t : uint8_t {
     FL_EXIT = MODE_EXIT
 };
 
+
 // this function is called at the defined rate
 //  * when flight mode is entered, it will start in FL_ENTRY state
 //  * it is then up to this function to change state as needed by updating the inst_substate variable
@@ -25,6 +26,8 @@ void StratoRATS::FlightMode()
     // Send a status TM, if it is time. 
     // statusMsgCheck() will reschedule the action.
     statusMsgCheck(STATUS_MSG_PERIOD_SECS);
+    // Save the flight mode substate to the global variable
+    flight_mode_substate= inst_substate;
     switch (inst_substate) {
     case FL_ENTRY:
         log_nominal("Entering FL");
