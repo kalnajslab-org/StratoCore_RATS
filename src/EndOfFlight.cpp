@@ -17,7 +17,8 @@ void StratoRATS::EndOfFlightMode()
     case EF_ENTRY:
         // perform setup
         log_nominal("Entering EF");
-        scheduler.AddAction(SEND_STATUS, 1);
+        // Register ACTION_SEND_STATUS to trigger the first status message 
+        scheduler.AddAction(ACTION_SEND_STATUS, 1);
         inst_substate = EF_LOOP;
         break;
     case EF_LOOP:
