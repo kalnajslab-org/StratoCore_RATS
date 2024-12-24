@@ -77,10 +77,10 @@ void StratoRATS::RATS_Shutdown()
 }
 
 void StratoRATS::statusMsgCheck(int repeat_secs) {
-    if (CheckAction(SEND_STATUS)) {
+    if (CheckAction(ACTION_SEND_STATUS)) {
         log_nominal("Send status");
         sendTMstatusMsg();
-        scheduler.AddAction(SEND_STATUS, repeat_secs);
+        scheduler.AddAction(ACTION_SEND_STATUS, repeat_secs);
     }
 }
 
@@ -250,3 +250,15 @@ void StratoRATS::SendRATSEEPROM()
 
     log_nominal("Sent RATS EEPROM as TM");
 }
+
+    uint32_t StratoRATS::lora_count_check(bool reset) {
+        if (reset) {
+            lora_count = 0;
+            scheduler.AddAction(ACTION_SIM_LORA_MSG, 1);
+        }
+        if (CheckAction(ACTION_SIM_LORA_MSG)) {
+            lora_count++;
+            scheduler.AddAction(ACTION_SIM_LORA_MSG, 1);
+        }
+        return lora_count;
+    }

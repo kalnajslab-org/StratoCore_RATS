@@ -4,7 +4,9 @@ enum FLStates_t : uint8_t {
     FL_ENTRY = MODE_ENTRY,
     // add any desired states between entry and shutdown
     FL_GPS_WAIT,
-    FL_IDLE,
+    FL_LORA_WAIT1,
+    FL_CONFIG_ECU,
+    FL_LORA_WAIT2,
     FL_MEASURE,
     FL_SEND_TELEMETRY,
     FL_ERROR,
@@ -20,35 +22,72 @@ enum FLStates_t : uint8_t {
 //  * it is up to the FL_EXIT logic perform any actions for leaving flight mode
 void StratoRATS::FlightMode()
 {
+    // Send a status TM, if it is time. 
+    // statusMsgCheck() will reschedule the action.
     statusMsgCheck(STATUS_MSG_PERIOD_SECS);
     switch (inst_substate) {
     case FL_ENTRY:
-        // perform setup
         log_nominal("Entering FL");
-        scheduler.AddAction(GPS_WAIT_MSG, 5);
-        scheduler.AddAction(SEND_STATUS, 1);
+        // Register ACTION_SEND_STATUS action to trigger the first status message 
+        scheduler.AddAction(ACTION_SEND_STATUS, 1);
+        // Set trigger for received LOra message
+        scheduler.AddAction(ACTION_SIM_LORA_MSG, 30);
+        // Transition to waiting for a GPS message.
+        scheduler.AddAction(ACTION_GPS_WAIT_MSG, 5);
         inst_substate = FL_GPS_WAIT;
+        log_nominal("Entering FL_GPS_WAIT");
         break;
     case FL_GPS_WAIT:
         // wait for a Zephyr GPS message to set the time before moving on
-        if (CheckAction(GPS_WAIT_MSG)) {
+        if (CheckAction(ACTION_GPS_WAIT_MSG)) {
             log_nominal("FL_GPS_WAIT waiting for GPS Time");
-            scheduler.AddAction(GPS_WAIT_MSG, 5);
+            scheduler.AddAction(ACTION_GPS_WAIT_MSG, 5);
         }
-        if (time_valid)
-        {
-            inst_substate = FL_IDLE; // automatically go to idle
-            log_nominal("Entering FL_IDLE");
+        // time_valid is set when StratoCore::RouteRXMessage() receives a GPS message
+        if (time_valid) {
+            // Transition to waiting for LoRa
+            scheduler.AddAction(ACTION_LORA_WAIT_MSG, 1);
+            // Reset lora count
+            lora_count_check(true);
+            inst_substate = FL_LORA_WAIT1;
+            log_nominal("Entering FL_LORA_WAIT1");
         }
         break;
-    case FL_IDLE:
-        // some logic here to determine when to leave idle
-        inst_substate = FL_MEASURE;                
-        scheduler.AddAction(START_TELEMETRY, 60); 
-        log_nominal("Entering FL_MEASURE");
+    case FL_LORA_WAIT1:
+        if (CheckAction(ACTION_LORA_WAIT_MSG)) {
+            log_nominal("FL_LORA_WAIT waiting for LoRa message");
+            scheduler.AddAction(ACTION_LORA_WAIT_MSG, 1);
+            // Wait for 6 LoRa message to arrive.
+            if (lora_count_check() >= 6) { 
+                log_nominal("FL_LORA_WAIT LoRa 6 messages received");
+                inst_substate = FL_CONFIG_ECU;
+                log_nominal("Entering FL_CONFIG_ECU");
+            }
+        }
+        break;
+    case FL_CONFIG_ECU:
+        // Configure the ECU here.
+        inst_substate = FL_LORA_WAIT2;
+        // Reset lora count
+        lora_count_check(true);
+        log_nominal("Entering FL_LORA_WAIT2");
+        break;
+    case FL_LORA_WAIT2:
+        if (CheckAction(ACTION_LORA_WAIT_MSG)) {
+            log_nominal("FL_LORA_WAIT waiting for LoRa message");
+            scheduler.AddAction(ACTION_LORA_WAIT_MSG, 1);
+            // Wait for 6 LoRa messages to arrive.
+            if (lora_count_check() >= 6) { 
+                // Configure ECU here.
+                log_nominal("FL_LORA_WAIT LoRa 6 messages received");
+                scheduler.AddAction(ACTION_START_TELEMETRY, 0); 
+                inst_substate = FL_MEASURE;
+                log_nominal("Entering FL_MEASURE");
+            }
+        }
         break;
     case FL_MEASURE:
-        if (CheckAction(START_TELEMETRY)) {
+        if (CheckAction(ACTION_START_TELEMETRY)) {
             inst_substate = FL_SEND_TELEMETRY;
             log_nominal("Entering FL_SEND_TELEMETRY");
             break;
@@ -57,7 +96,7 @@ void StratoRATS::FlightMode()
         break;
     case FL_SEND_TELEMETRY:
         inst_substate = FL_MEASURE;
-        scheduler.AddAction(START_TELEMETRY, 60); 
+        scheduler.AddAction(ACTION_START_TELEMETRY, 60); 
         log_nominal("Entering FL_MEASURE");
         break;
     case FL_ERROR:

@@ -7,8 +7,8 @@
 #include "MCBComm.h"
 
 // WARNING: DO NOT CHECK CODE INTO GIT WIH THIS OPTION ENABLED. 
-//          MAKE SURE THIS OPTION IS DISABLED FOR FLIGHT DEPLOYED FIRMWARE.
-#define ZEPHYR_COMMS_ON_DEBUG_PORT 1
+//          MAKE SURE THIS OPTION IS FALSE FOR FLIGHT DEPLOYED FIRMWARE.
+#define ZEPHYR_COMMS_ON_DEBUG_PORT true
 
 #if not ZEPHYR_COMMS_ON_DEBUG_PORT
 #define ZEPHYR_SERIAL   Serial8
@@ -42,13 +42,13 @@
 enum ScheduleAction_t : uint8_t {
     NO_ACTION = NO_SCHEDULED_ACTION,
     SEND_IMR,
-    START_TELEMETRY,
+    ACTION_START_TELEMETRY,
     RESEND_SAFETY,
-    GPS_WAIT_MSG,
-    SEND_STATUS,
-
+    ACTION_GPS_WAIT_MSG,
+    ACTION_LORA_WAIT_MSG,
+    ACTION_SEND_STATUS,
     ACTION_MOTION_TIMEOUT,
-
+    ACTION_SIM_LORA_MSG,
     NUM_ACTIONS
 };
 
@@ -134,6 +134,13 @@ private:
 
     // uint32_t start time of the current profile in millis
     uint32_t profile_start = 0;
+
+
+    // Count incoming lora messages. If reset is set, the
+    // count is set to 0. 
+    // Return the current count.
+    uint32_t lora_count_check(bool reset=false);
+    uint32_t lora_count = 0;
 
     // Add an MCB motion TM packet to the binary TM buffer
     void AddMCBTM();
