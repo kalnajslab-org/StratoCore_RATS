@@ -22,6 +22,10 @@ RATSConfigs::RATSConfigs()
 
 void RATSConfigs::RegisterAll()
 {
+    // Called from the base class Initialize method,
+    // this method registers all EEPROMData objects
+    // and thus determines the length of the bufferized data
+
     bool success = true;
 
     success &= Register(&sampleRateSecs);
@@ -30,6 +34,7 @@ void RATSConfigs::RegisterAll()
     success &= Register(&deploySpeed);
     success &= Register(&retractRevs);
     success &= Register(&retractSpeed);
+    success &= Register(&real_time_mcb);
 
     if (!success) {
         debug_serial->println("Error registering EEPROM configs");
