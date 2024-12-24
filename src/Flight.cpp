@@ -44,7 +44,7 @@ void StratoRATS::FlightMode()
     case FL_IDLE:
         // some logic here to determine when to leave idle
         inst_substate = FL_MEASURE;                
-        scheduler.AddAction(START_TELEMETRY, 10); 
+        scheduler.AddAction(START_TELEMETRY, 60); 
         log_nominal("Entering FL_MEASURE");
         break;
     case FL_MEASURE:
@@ -57,7 +57,7 @@ void StratoRATS::FlightMode()
         break;
     case FL_SEND_TELEMETRY:
         inst_substate = FL_MEASURE;
-        scheduler.AddAction(START_TELEMETRY, 10); 
+        scheduler.AddAction(START_TELEMETRY, 60); 
         log_nominal("Entering FL_MEASURE");
         break;
     case FL_ERROR:
