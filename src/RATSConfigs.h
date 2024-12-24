@@ -25,7 +25,7 @@ public:
     RATSConfigs();
 
     // constants, manually change version number here to force update
-    static const uint16_t CONFIG_VERSION = 0x0002;
+    static const uint16_t CONFIG_VERSION = 0x0003;
     static const uint16_t BASE_ADDRESS = 0x0000;
 
     // ------------------ Configurations ------------------
