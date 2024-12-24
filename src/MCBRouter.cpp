@@ -12,10 +12,6 @@
 void StratoRATS::RunMCBRouter()
 {
     SerialMessage_t rx_msg = mcbComm.RX();
-    if (rx_msg) {
-        Serial.print("MCB RX message: ");
-        Serial.println(rx_msg);
-    }
 
     while (NO_MESSAGE != rx_msg) {
         if (ASCII_MESSAGE == rx_msg) {
