@@ -9,6 +9,42 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
     LOG_LEVEL_t summary_level = LOG_NOMINAL;
 
     switch (telecommand) {
+            // MCB Telecommands -----------------------------------
+    case DEPLOYx:
+        deploy_length = mcbParam.deployLen;
+        SetAction(ACTION_REEL_OUT);
+        break;
+    case DEPLOYv:
+        ratsConfigs.deploy_velocity.Write(mcbParam.deployVel);
+        snprintf(log_array, LOG_ARRAY_SIZE, "Set deploy_velocity: %f", ratsConfigs.deploy_velocity.Read());
+        ZephyrLogFine(log_array);
+        break;
+    case DEPLOYa:
+        if (!mcbComm.TX_Out_Acc(mcbParam.deployAcc)) {
+            ZephyrLogWarn("Error sending deploy acc to MCB");
+        }
+        break;
+    case RETRACTx:
+        retract_length = mcbParam.retractLen;
+        SetAction(ACTION_REEL_IN); // will be ignored if wrong mode
+        break;
+    case RETRACTv:
+        ratsConfigs.retract_velocity.Write(mcbParam.retractVel);
+        snprintf(log_array, LOG_ARRAY_SIZE, "Set retract_velocity: %f", ratsConfigs.retract_velocity.Read());
+        ZephyrLogFine(log_array);
+        break;
+    case RETRACTa:
+        if (!mcbComm.TX_In_Acc(mcbParam.retractAcc)) {
+            ZephyrLogWarn("Error sending retract acc to MCB");
+        }
+        break;
+    case FULLRETRACT:
+        // todo: determine implementation
+        break;
+    case CANCELMOTION:
+        mcbComm.TX_ASCII(MCB_CANCEL_MOTION); // no matter what, attempt to send (irrespective of mode)
+        SetAction(ACTION_MOTION_STOP);
+        break;
     case ZEROREEL:
         if (mcb_dock_ongoing) {
             ZephyrLogWarn("Can't zero reel, motion ongoing");
