@@ -31,10 +31,13 @@ public:
     // ------------------ Configurations ------------------
     EEPROMData<uint16_t> sampleRateSecs;
     EEPROMData<uint16_t> dataProcMethod;
+
+    EEPROMData<float> deploy_velocity;
+    EEPROMData<float> retract_velocity;
     EEPROMData<uint16_t> deployRevs;
-    EEPROMData<uint16_t> deploySpeed;
     EEPROMData<uint16_t> retractRevs;
-    EEPROMData<uint16_t> retractSpeed;
+    EEPROMData<uint16_t> motion_timeout;
+
     
     // MCB TM mode
     EEPROMData<bool> real_time_mcb;

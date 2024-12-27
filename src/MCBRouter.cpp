@@ -101,9 +101,6 @@ void StratoRATS::HandleMCBAck()
     case MCB_REEL_OUT:
         if (MOTION_REEL_OUT == mcb_motion) NoteProfileStart();
         break;
-    case MCB_DOCK:
-        if (MOTION_DOCK == mcb_motion) NoteProfileStart();
-        break;
     case MCB_IN_NO_LW:
         if (MOTION_IN_NO_LW == mcb_motion) NoteProfileStart();
         break;
@@ -115,9 +112,6 @@ void StratoRATS::HandleMCBAck()
         break;
     case MCB_OUT_ACC:
         ZephyrLogFine("MCB acked deploy acc");
-        break;
-    case MCB_DOCK_ACC:
-        ZephyrLogFine("MCB acked dock acc");
         break;
     case MCB_ZERO_REEL:
         ZephyrLogFine("MCB acked zero reel");

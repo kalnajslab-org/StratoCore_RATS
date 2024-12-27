@@ -61,16 +61,16 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
         break;
     case RATSDEPLOY:
         Set_deployRevs = ratsParam.deployRevs;
-        Set_deploySpeed = ratsParam.deploySpeed;
+        Set_deploySpeed = ratsParam.deploy_velocity;
         ratsConfigs.deployRevs.Write(ratsParam.deployRevs);
-        ratsConfigs.deploySpeed.Write(ratsParam.deploySpeed);
+        ratsConfigs.deploy_velocity.Write(ratsParam.deploy_velocity);
         msg = String("TC ECU deploy")+comma+String(Set_deployRevs)+comma+String(Set_deploySpeed);
         break;
     case RATSRETRACT:
         Set_retractRevs = ratsParam.retractRevs;
-        Set_retractSpeed = ratsParam.retractSpeed;
+        Set_retractSpeed = ratsParam.retract_velocity;
         ratsConfigs.retractRevs.Write(ratsParam.retractRevs);
-        ratsConfigs.retractSpeed.Write(ratsParam.retractSpeed);
+        ratsConfigs.retract_velocity.Write(ratsParam.retract_velocity);
         msg = String("TC ECU retract")+comma+String(Set_retractRevs)+comma+String(Set_retractSpeed);
         break;
     case GETRATSEEPROM:

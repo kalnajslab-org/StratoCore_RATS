@@ -11,10 +11,11 @@ RATSConfigs::RATSConfigs()
     // TODO Assign correct default values here
     sampleRateSecs(60),
     dataProcMethod(1),
-    deployRevs(100),
-    deploySpeed(10),
+    deploy_velocity(250.0f),
+    retract_velocity(250.0f),
     retractRevs(100),
-    retractSpeed(10),
+    deployRevs(100),
+    motion_timeout(30),
     real_time_mcb(false)
 
     // ----------------------------------------------------
@@ -31,9 +32,9 @@ void RATSConfigs::RegisterAll()
     success &= Register(&sampleRateSecs);
     success &= Register(&dataProcMethod);
     success &= Register(&deployRevs);
-    success &= Register(&deploySpeed);
+    success &= Register(&deploy_velocity);
     success &= Register(&retractRevs);
-    success &= Register(&retractSpeed);
+    success &= Register(&retract_velocity);
     success &= Register(&real_time_mcb);
 
     if (!success) {

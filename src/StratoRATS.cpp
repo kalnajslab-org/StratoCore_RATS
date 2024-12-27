@@ -132,22 +132,35 @@ void StratoRATS::sendTMstatusMsg() {
 
 }
 
-void StratoRATS::NoteProfileStart()
+bool StratoRATS::StartMCBMotion()
 {
-    mcb_motion_ongoing = true;
-    profile_start = millis();
+    bool success = false;
 
-    if (MOTION_DOCK == mcb_motion || MOTION_IN_NO_LW == mcb_motion) mcb_dock_ongoing = true;
-
-    mcb_tm_counter = 0;
-
-    zephyrTX.clearTm(); // empty the TM buffer for incoming MCB motion data
-
-    // Add the start time to the MCB TM Header if not in real-time mode
-    // TODO What is real-time mcb mode?
-    if (!ratsConfigs.real_time_mcb.Read()) {
-        zephyrTX.addTm((uint32_t) now()); // as a header, add the current seconds since epoch
+    switch (mcb_motion) {
+    case MOTION_REEL_IN:
+        snprintf(log_array, LOG_ARRAY_SIZE, "Retracting %0.1f revs", retract_length);
+        success = mcbComm.TX_Reel_In(retract_length, ratsConfigs.retract_velocity.Read());
+        max_profile_seconds = 60 * (retract_length / ratsConfigs.retract_velocity.Read()) + ratsConfigs.motion_timeout.Read();
+        break;
+    case MOTION_REEL_OUT:
+        snprintf(log_array, LOG_ARRAY_SIZE, "Deploying %0.1f revs", deploy_length);
+        success = mcbComm.TX_Reel_Out(deploy_length, ratsConfigs.deploy_velocity.Read());
+        max_profile_seconds = 60 * (deploy_length / ratsConfigs.deploy_velocity.Read()) + ratsConfigs.motion_timeout.Read();
+        break;
+    case MOTION_IN_NO_LW:
+        snprintf(log_array, LOG_ARRAY_SIZE, "Reel in (no LW) %0.1f revs", retract_length);
+        success = mcbComm.TX_In_No_LW(retract_length, ratsConfigs.retract_velocity.Read());
+        max_profile_seconds = 60 * (retract_length / ratsConfigs.retract_velocity.Read()) + ratsConfigs.motion_timeout.Read();
+        break;
+    default:
+        mcb_motion = NO_MOTION;
+        log_error("Unknown motion type to start");
+        return false;
     }
+
+    ZephyrLogFine(log_array);
+
+    return success;
 }
 
 void StratoRATS::AddMCBTM()
@@ -185,6 +198,24 @@ void StratoRATS::AddMCBTM()
         zephyrTX.TM();
         log_nominal(log_array);
         MCB_TM_buffer_idx = 0; //reser the MCB buffer pointer
+    }
+}
+
+void StratoRATS::NoteProfileStart()
+{
+    mcb_motion_ongoing = true;
+    profile_start = millis();
+
+    if (MOTION_IN_NO_LW == mcb_motion) mcb_dock_ongoing = true;
+
+    mcb_tm_counter = 0;
+
+    zephyrTX.clearTm(); // empty the TM buffer for incoming MCB motion data
+
+    // Add the start time to the MCB TM Header if not in real-time mode
+    // TODO What is real-time mcb mode?
+    if (!ratsConfigs.real_time_mcb.Read()) {
+        zephyrTX.addTm((uint32_t) now()); // as a header, add the current seconds since epoch
     }
 }
 

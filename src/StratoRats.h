@@ -32,24 +32,34 @@
 // Reporting period for status message generation, including TM transmission.
 #define STATUS_MSG_PERIOD_SECS 60
 // Number of loops before a flag becomes stale and is reset
-#define FLAG_STALE      2
+#define FLAG_STALE      3
+//
+#define MCB_RESEND_TIMEOUT      10
+
 // The size of a buffer used for binary transfers between RATS and MCB.
 #define MCB_BINARY_BUFFER_SIZE MAX_MCB_BINARY
 #define HEARTBEAT_LED_PIN	3
 
+#define ZEPHYR_RESEND_TIMEOUT   60
+
 // todo: perhaps more creative/useful enum here by mode with separate arrays?
-// WARNING: this construct assumes that NUM_ACTIONS will be equal to the number
-// of actions. Never seen this coding style before; seems dangerous.
 enum ScheduleAction_t : uint8_t {
     NO_ACTION = NO_SCHEDULED_ACTION,
     SEND_IMR,
-    ACTION_START_TELEMETRY,
+
+    RESEND_RA,
+    RESEND_MOTION_COMMAND,
+    RESEND_TM,
     RESEND_SAFETY,
+
+    ACTION_START_TELEMETRY,
     ACTION_GPS_WAIT_MSG,
     ACTION_LORA_WAIT_MSG,
     ACTION_SEND_STATUS,
+    ACTION_MOTION_STOP,
     ACTION_MOTION_TIMEOUT,
     ACTION_SIM_LORA_MSG,
+
     NUM_ACTIONS
 };
 
@@ -57,7 +67,6 @@ enum MCBMotion_t : uint8_t {
     NO_MOTION,
     MOTION_REEL_IN,
     MOTION_REEL_OUT,
-    MOTION_DOCK,
     MOTION_IN_NO_LW
 };
 
@@ -93,6 +102,11 @@ private:
     void EndOfFlightMode();
     
     void RATS_Shutdown();
+
+    // Flight states (each in own .cpp file)
+    // when starting the state, call with restart_state = true
+    // then call with restart_state = false until the function returns true meaning it's completed
+    bool Flight_ManualMotion(bool restart_state);
 
     // Telcommand handler - returns ack/nak
     bool TCHandler(Telecommand_t telecommand);
@@ -138,6 +152,8 @@ private:
 
     // tracks the current type of motion
     MCBMotion_t mcb_motion = NO_MOTION;
+    float deploy_length = 0.0f;
+    float retract_length = 0.0f;
 
     // uint32_t start time of the current profile in millis
     uint32_t profile_start = 0;
@@ -148,6 +164,9 @@ private:
     // Return the current count.
     uint32_t lora_count_check(bool reset=false);
     uint32_t lora_count = 0;
+
+    // Start any type of MCB motion
+    bool StartMCBMotion();
 
     // Add an MCB motion TM packet to the binary TM buffer
     void AddMCBTM();
