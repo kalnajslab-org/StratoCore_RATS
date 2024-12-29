@@ -70,6 +70,8 @@ void StratoRATS::HandleMCBASCII()
                      motion_fault[2], motion_fault[3], motion_fault[4], motion_fault[5], motion_fault[6], motion_fault[7]);
             SendMCBTM(CRIT, log_array);
             inst_substate = MODE_ERROR;
+            log_error("Entering FL_ERROR");
+
         } else {
             if (mcb_dock_ongoing) {
                 SendMCBTM(FINE, "MCB dock detected: error receiving expected fault info");
@@ -80,6 +82,8 @@ void StratoRATS::HandleMCBASCII()
             mcb_motion_ongoing = false;
             SendMCBTM(CRIT, "MCB Fault: error receiving parameters");
             inst_substate = MODE_ERROR;
+            log_error("Entering FL_ERROR");
+
         }
         break;
     default:
@@ -91,6 +95,10 @@ void StratoRATS::HandleMCBASCII()
 void StratoRATS::HandleMCBAck()
 {
     switch (mcbComm.ack_id) {
+    case MCB_CANCEL_MOTION:
+        log_nominal("MCB canceled motion");
+        mcb_motion = NO_MOTION;
+        break;
     case MCB_GO_LOW_POWER:
         log_nominal("MCB in low power");
         mcb_low_power = true;
@@ -173,6 +181,8 @@ void StratoRATS::HandleMCBString()
         if (mcbComm.RX_Error(log_array, LOG_ARRAY_SIZE)) {
             ZephyrLogCrit(log_array);
             inst_substate = MODE_ERROR;
+            log_error("Entering FL_ERROR");
+
         }
         break;
     default:

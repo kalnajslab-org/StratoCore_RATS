@@ -16,10 +16,10 @@ void StratoRATS::EndOfFlightMode()
     switch (inst_substate) {
     case EF_ENTRY:
         // perform setup
-        log_nominal("Entering EF");
         // Register ACTION_SEND_STATUS to trigger the first status message 
         scheduler.AddAction(ACTION_SEND_STATUS, 1);
         inst_substate = EF_LOOP;
+        log_nominal("Entering EF_LOOP");
         break;
     case EF_LOOP:
         // nominal ops
@@ -37,6 +37,7 @@ void StratoRATS::EndOfFlightMode()
         // todo: throw error
         log_error("Unknown substate in EF");
         inst_substate = EF_ENTRY; // reset
+        log_nominal("Entering EF_ENTRY");
         break;
     }
 }

@@ -15,8 +15,9 @@ static bool resend_attempted = false;
 
 bool StratoRATS::Flight_ManualMotion(bool restart_state)
 {
-    if (restart_state) manualmotion_state = ST_ENTRY;
-
+    if (restart_state) {
+        manualmotion_state = ST_ENTRY;
+    }
     switch (manualmotion_state) {
     case ST_ENTRY:
     case ST_SEND_RA:
@@ -57,6 +58,7 @@ bool StratoRATS::Flight_ManualMotion(bool restart_state)
         if (mcb_motion_ongoing) {
             ZephyrLogWarn("Motion commanded while motion ongoing");
             inst_substate = MODE_ERROR; // will force exit of Flight_Profile
+            log_nominal("Entering MODE_ERROR");
         }
 
         if (StartMCBMotion()) {
@@ -66,6 +68,7 @@ bool StratoRATS::Flight_ManualMotion(bool restart_state)
         } else {
             ZephyrLogWarn("Motion start error");
             inst_substate = MODE_ERROR; // will force exit of Flight_Profile
+            log_nominal("Entering MODE_ERROR");
         }
         break;
 
@@ -86,11 +89,13 @@ bool StratoRATS::Flight_ManualMotion(bool restart_state)
                 resend_attempted = false;
                 ZephyrLogWarn("MCB never confirmed motion");
                 inst_substate = MODE_ERROR; // will force exit of Flight_Profile
+                log_nominal("Entering MODE_ERROR");
             }
         }
         break;
 
     case ST_MONITOR_MOTION:
+        log_nominal("ST_MONITOR_MOTION Monitoring motion");
         if (CheckAction(ACTION_MOTION_STOP)) {
             // todo: verification of motion stop
             ZephyrLogFine("Commanded motion stop");
@@ -102,6 +107,7 @@ bool StratoRATS::Flight_ManualMotion(bool restart_state)
             SendMCBTM(CRIT, "MCB Motion took longer than expected");
             mcbComm.TX_ASCII(MCB_CANCEL_MOTION);
             inst_substate = MODE_ERROR; // will force exit of Flight_Profile
+            log_nominal("Entering MODE_ERROR");
             break;
         }
 

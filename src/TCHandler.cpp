@@ -4,46 +4,54 @@
 bool StratoRATS::TCHandler(Telecommand_t telecommand)
 {
     // Set up the TC summary message
-    String msg("TC reply undefined");
+    String msg("Unhandled TC " + String(telecommand) + " received");
     String comma(",");
     LOG_LEVEL_t summary_level = LOG_NOMINAL;
 
     switch (telecommand) {
-            // MCB Telecommands -----------------------------------
+    // MCB Telecommands -----------------------------------
     case DEPLOYx:
         deploy_length = mcbParam.deployLen;
         SetAction(ACTION_REEL_OUT);
+        msg = String("TC Deploy Length");
         break;
     case DEPLOYv:
         ratsConfigs.deploy_velocity.Write(mcbParam.deployVel);
         snprintf(log_array, LOG_ARRAY_SIZE, "Set deploy_velocity: %f", ratsConfigs.deploy_velocity.Read());
         ZephyrLogFine(log_array);
+        msg = String("TC Deploy Velocity");
         break;
     case DEPLOYa:
         if (!mcbComm.TX_Out_Acc(mcbParam.deployAcc)) {
             ZephyrLogWarn("Error sending deploy acc to MCB");
         }
+        msg = String("TC Deploy Acceleration");
         break;
     case RETRACTx:
         retract_length = mcbParam.retractLen;
         SetAction(ACTION_REEL_IN); // will be ignored if wrong mode
+        msg = String("TC Retract Length");
         break;
     case RETRACTv:
         ratsConfigs.retract_velocity.Write(mcbParam.retractVel);
         snprintf(log_array, LOG_ARRAY_SIZE, "Set retract_velocity: %f", ratsConfigs.retract_velocity.Read());
         ZephyrLogFine(log_array);
+        msg = String("TC Retract Velocity");
         break;
     case RETRACTa:
         if (!mcbComm.TX_In_Acc(mcbParam.retractAcc)) {
             ZephyrLogWarn("Error sending retract acc to MCB");
         }
+        msg = String("TC Retract Acceleration");
         break;
     case FULLRETRACT:
         // todo: determine implementation
+        msg = String("TC Full Retract");
         break;
     case CANCELMOTION:
         mcbComm.TX_ASCII(MCB_CANCEL_MOTION); // no matter what, attempt to send (irrespective of mode)
         SetAction(ACTION_MOTION_STOP);
+        msg = String("TC Cancel Motion");
         break;
     case ZEROREEL:
         if (mcb_dock_ongoing) {
@@ -56,7 +64,7 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
         if (!mcbComm.TX_Torque_Limits(mcbParam.torqueLimits[0],mcbParam.torqueLimits[1])) {
             ZephyrLogWarn("Error sending torque limits to MCB");
         }
-        msg = String("TC Torque Limits");
+                msg = String("TC Torque Limits");
         break;
     case CURRLIMITS:
         if (!mcbComm.TX_Curr_Limits(mcbParam.currLimits[0],mcbParam.currLimits[1])) {
@@ -111,6 +119,8 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
         break;
     case GETRATSEEPROM:
         msg = String("TC get RATS EEPROM");
+        summary_level = LOG_NOMINAL;
+
         if (mcb_motion_ongoing) {
             ZephyrLogWarn("Motion ongoing, request RATS EEPROM later");
         } else {
@@ -119,8 +129,8 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
         break;
 
     default:
-        msg = String("Unknown TC ") + String(telecommand) + String(" received");
         summary_level = LOG_ERROR;
+        msg = String("Unknown TC ") + String(telecommand) + String(" received");
         break;
     }
 

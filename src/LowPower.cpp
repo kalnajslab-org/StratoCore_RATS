@@ -18,6 +18,7 @@ void StratoRATS::LowPowerMode()
         log_nominal("Entering LP");
         RATS_Shutdown();
         inst_substate = LP_LOOP;
+        log_nominal("Entering LP_LOOP");
         break;
     case LP_LOOP:
         // nominal ops
@@ -36,6 +37,7 @@ void StratoRATS::LowPowerMode()
         // todo: throw error
         log_error("Unknown substate in LP");
         inst_substate = LP_ENTRY; // reset
+        log_nominal("Entering LP_ENTRY");
         break;
     }
 }

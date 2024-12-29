@@ -30,8 +30,11 @@ void StratoRATS::FlightMode()
     // Send a status TM, if it is time. 
     // statusMsgCheck() will reschedule the action.
     statusMsgCheck(STATUS_MSG_PERIOD_SECS);
-    // Save the flight mode substate to the global variable
+
+    // Save the flight mode substate to the global variable 
+    // so that it can be accessed by the status message
     flight_mode_substate= inst_substate;
+
     switch (inst_substate) {
     case FL_ENTRY:
         log_nominal("Entering FL");
@@ -65,8 +68,8 @@ void StratoRATS::FlightMode()
             log_nominal("FL_LORA_WAIT waiting for LoRa message");
             scheduler.AddAction(ACTION_LORA_WAIT_MSG, 1);
             // Wait for 6 LoRa message to arrive.
-            if (lora_count_check() >= 6) { 
-                log_nominal("FL_LORA_WAIT LoRa 6 messages received");
+            if (lora_count_check() >= LORA_MSG_COUNT) { 
+                log_nominal("FL_LORA_WAIT LoRa messages received");
                 inst_substate = FL_CONFIG_ECU;
                 log_nominal("Entering FL_CONFIG_ECU");
             }
@@ -84,9 +87,9 @@ void StratoRATS::FlightMode()
             log_nominal("FL_LORA_WAIT waiting for LoRa message");
             scheduler.AddAction(ACTION_LORA_WAIT_MSG, 1);
             // Wait for 6 LoRa messages to arrive.
-            if (lora_count_check() >= 6) { 
+            if (lora_count_check() >= LORA_MSG_COUNT) { 
                 // Configure ECU here.
-                log_nominal("FL_LORA_WAIT LoRa 6 messages received");
+                log_nominal("FL_LORA_WAIT LoRa messages received");
                 scheduler.AddAction(ACTION_START_TELEMETRY, 0); 
                 inst_substate = FL_MEASURE;
                 log_nominal("Entering FL_MEASURE");
@@ -104,11 +107,13 @@ void StratoRATS::FlightMode()
                 mcb_motion = MOTION_REEL_OUT;
                 Flight_ManualMotion(true);
                 inst_substate = FLM_MANUAL_MOTION;
+                log_nominal("Entering FLM_MANUAL_MOTION");
             } else if (CheckAction(ACTION_REEL_IN)) {
                 log_nominal("Reel in manual command");
                 mcb_motion = MOTION_REEL_IN;
                 Flight_ManualMotion(true);
                 inst_substate = FLM_MANUAL_MOTION;
+                log_nominal("Entering FLM_MANUAL_MOTION");
             }
         }
         log_debug("FL Measure");
@@ -149,17 +154,20 @@ void StratoRATS::ManualFlight()
             mcb_motion = MOTION_REEL_IN;
             Flight_ManualMotion(true);
             inst_substate = FLM_MANUAL_MOTION;
+            log_nominal("Entering FLM_MANUAL_MOTION");
         } else if (CheckAction(ACTION_REEL_OUT)) {
             log_nominal("Reel out manual command");
             mcb_motion = MOTION_REEL_OUT;
             Flight_ManualMotion(true);
             inst_substate = FLM_MANUAL_MOTION;
+            log_nominal("Entering FLM_MANUAL_MOTION");
         }
         break;
 
     case FLM_MANUAL_MOTION:
         if (Flight_ManualMotion(false)) {
             inst_substate = FLM_IDLE;
+            log_nominal("Entering FLM_IDLE");
         }
         break;
 

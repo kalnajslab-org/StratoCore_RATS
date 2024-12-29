@@ -11,6 +11,9 @@
 //          MAKE SURE THIS OPTION IS FALSE FOR FLIGHT DEPLOYED FIRMWARE.
 #define ZEPHYR_COMMS_ON_DEBUG_PORT true
 
+// Reporting period for status message generation, including TM transmission.
+#define STATUS_MSG_PERIOD_SECS 300
+
 #if not ZEPHYR_COMMS_ON_DEBUG_PORT
 #define ZEPHYR_SERIAL   Serial8
 #else
@@ -21,6 +24,10 @@
 
 // Our instrument name
 #define INSTRUMENT      RATS
+
+// Number of LoRa messages to wait for before moving on
+#define LORA_MSG_COUNT  2
+
 #define ZEPHYR_SERIAL_BUFFER_SIZE 4096
 #define MCB_SERIAL_BUFFER_SIZE    4096
 
@@ -29,8 +36,6 @@
 #define ZEPHYR_SERIAL_BUFFER_SIZE 4096
 // Serial connection to MCB
 #define MCB_SERIAL      Serial3
-// Reporting period for status message generation, including TM transmission.
-#define STATUS_MSG_PERIOD_SECS 60
 // Number of loops before a flag becomes stale and is reset
 #define FLAG_STALE      3
 //

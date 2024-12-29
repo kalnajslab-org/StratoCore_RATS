@@ -20,6 +20,7 @@ void StratoRATS::StandbyMode()
         // Register ACTION_SEND_STATUS to trigger the first status message 
         scheduler.AddAction(ACTION_SEND_STATUS, 1);
         inst_substate = SB_LOOP;
+        log_nominal("Entering SB_LOOP");
         break;
     case SB_LOOP:
         // nominal ops
@@ -44,6 +45,7 @@ void StratoRATS::StandbyMode()
         // todo: throw error
         log_error("Unknown substate in SB");
         inst_substate = SB_ENTRY; // reset
+        log_nominal("Entering SB_ENTRY");
         break;
     }
 }

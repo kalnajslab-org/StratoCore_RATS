@@ -21,12 +21,14 @@ void StratoRATS::SafetyMode()
         scheduler.AddAction(ACTION_SEND_STATUS, 1);
         log_nominal(" Shut down, Entering SA");
         inst_substate = SA_SEND_S;
+        log_nominal("Entering SA_SEND_S");
         break;
     case SA_SEND_S:
         log_nominal("Sending safety message");
         zephyrTX.S();
         scheduler.AddAction(RESEND_SAFETY, 60);
         inst_substate = SA_ACK_WAIT;
+        log_nominal("Entering SA_ACK_WAIT");
         break;
     case SA_ACK_WAIT:
         log_debug("Waiting on safety ack");
@@ -35,6 +37,7 @@ void StratoRATS::SafetyMode()
             // clear the ack flag and go to the loop
             S_ack_flag = NO_ACK;
             inst_substate = SA_LOOP;
+            log_nominal("Entering SA_LOOP");
         } else if (S_ack_flag == NAK) {
             // just clear the ack flag -- a resend is already scheduled
             S_ack_flag = NO_ACK;
@@ -42,6 +45,7 @@ void StratoRATS::SafetyMode()
         // if a minute has passed, resend safety
         if (CheckAction(RESEND_SAFETY)) {
             inst_substate = SA_SEND_S;
+            log_nominal("Entering SA_SEND_S");
         }
         break;
     case SA_LOOP:
