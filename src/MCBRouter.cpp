@@ -160,7 +160,8 @@ void StratoRATS::HandleMCBAck()
 
 void StratoRATS::HandleMCBBin()
 {
-    float reel_pos = 0;
+    // TODO: Doesn't this shadow the class member?
+    //float reel_pos = 0;
     uint16_t reel_pos_index = 21; // todo: don't hard-code this
 
     switch (mcbComm.binary_rx.bin_id) {
@@ -169,7 +170,7 @@ void StratoRATS::HandleMCBBin()
             snprintf(log_array, 101, "Reel position: %ld", (int32_t) reel_pos);
             log_nominal(log_array);
         } else {
-            log_nominal("Recieved MCB bin: unable to read position");
+            log_nominal("Received MCB bin: unable to read position");
         }
         AddMCBTM();
         break;
