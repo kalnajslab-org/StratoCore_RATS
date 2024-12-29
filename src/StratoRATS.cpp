@@ -136,21 +136,29 @@ bool StratoRATS::StartMCBMotion()
 {
     bool success = false;
 
+    String msg;
+
     switch (mcb_motion) {
     case MOTION_REEL_IN:
-        snprintf(log_array, LOG_ARRAY_SIZE, "Retracting %0.1f revs", retract_length);
         success = mcbComm.TX_Reel_In(retract_length, ratsConfigs.retract_velocity.Read());
         max_profile_seconds = 60 * (retract_length / ratsConfigs.retract_velocity.Read()) + ratsConfigs.motion_timeout.Read();
+        msg = String("Reel in ") + String(retract_length,1) 
+            + " revs, timeout " + String(max_profile_seconds) 
+            + "s, velocity " + String(ratsConfigs.retract_velocity.Read(),1);
         break;
     case MOTION_REEL_OUT:
-        snprintf(log_array, LOG_ARRAY_SIZE, "Deploying %0.1f revs", deploy_length);
         success = mcbComm.TX_Reel_Out(deploy_length, ratsConfigs.deploy_velocity.Read());
         max_profile_seconds = 60 * (deploy_length / ratsConfigs.deploy_velocity.Read()) + ratsConfigs.motion_timeout.Read();
+        msg = String("Reel out ") + String(deploy_length,1) 
+            + " revs, timeout " + String(max_profile_seconds) 
+            + "s, velocity " + String(ratsConfigs.deploy_velocity.Read(),1);
         break;
     case MOTION_IN_NO_LW:
-        snprintf(log_array, LOG_ARRAY_SIZE, "Reel in (no LW) %0.1f revs", retract_length);
         success = mcbComm.TX_In_No_LW(retract_length, ratsConfigs.retract_velocity.Read());
         max_profile_seconds = 60 * (retract_length / ratsConfigs.retract_velocity.Read()) + ratsConfigs.motion_timeout.Read();
+        msg = String("Reel in (no LW) ") + String(retract_length,1) 
+            + " revs, timeout " + String(max_profile_seconds) 
+            + "s, velocity " + String(ratsConfigs.retract_velocity.Read(),1);
         break;
     default:
         mcb_motion = NO_MOTION;
@@ -158,7 +166,8 @@ bool StratoRATS::StartMCBMotion()
         return false;
     }
 
-    ZephyrLogFine(log_array);
+    ZephyrLogFine(msg.c_str());
+    log_nominal(msg.c_str());
 
     return success;
 }

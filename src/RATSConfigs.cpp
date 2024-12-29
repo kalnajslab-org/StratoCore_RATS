@@ -11,11 +11,11 @@ RATSConfigs::RATSConfigs()
     // TODO Assign correct default values here
     sampleRateSecs(60),
     dataProcMethod(1),
-    deploy_velocity(250.0f),
-    retract_velocity(250.0f),
+    deploy_velocity(60.0f),
+    retract_velocity(60.0f),
     retractRevs(100),
     deployRevs(100),
-    motion_timeout(30),
+    motion_timeout(10),
     real_time_mcb(false)
 
     // ----------------------------------------------------

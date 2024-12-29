@@ -63,8 +63,9 @@ bool StratoRATS::Flight_ManualMotion(bool restart_state)
     case ST_START_MOTION:
         if (mcb_motion_ongoing) {
             ZephyrLogWarn("Motion commanded while motion ongoing");
+            log_error("Motion commanded while motion ongoing");
             inst_substate = MODE_ERROR; // will force exit of Flight_Profile
-            log_nominal("Entering MODE_ERROR");
+            log_error("Entering MODE_ERROR");
         }
 
         if (StartMCBMotion()) {
@@ -73,14 +74,16 @@ bool StratoRATS::Flight_ManualMotion(bool restart_state)
             log_nominal("Entering ST_VERIFY_MOTION");
         } else {
             ZephyrLogWarn("Motion start error");
+            log_error("Motion start error");
             inst_substate = MODE_ERROR; // will force exit of Flight_Profile
-            log_nominal("Entering MODE_ERROR");
+            log_error("Entering MODE_ERROR");
         }
         break;
 
     case ST_VERIFY_MOTION:
         if (mcb_motion_ongoing) { // set in the Ack handler
             log_nominal("MCB commanded motion");
+            // max_profile_seconds was set in StartMCBMotion()
             scheduler.AddAction(ACTION_MOTION_TIMEOUT, max_profile_seconds);
             manual_motion_state = ST_MONITOR_MOTION;
             log_nominal("Entering ST_MONITOR_MOTION");
@@ -94,8 +97,9 @@ bool StratoRATS::Flight_ManualMotion(bool restart_state)
             } else {
                 resend_attempted = false;
                 ZephyrLogWarn("MCB never confirmed motion");
+                log_error("MCB never confirmed motion");
                 inst_substate = MODE_ERROR; // will force exit of Flight_Profile
-                log_nominal("Entering MODE_ERROR");
+                log_error("Entering MODE_ERROR");
             }
         }
         break;
@@ -110,9 +114,10 @@ bool StratoRATS::Flight_ManualMotion(bool restart_state)
 
         if (CheckAction(ACTION_MOTION_TIMEOUT)) {
             SendMCBTM(CRIT, "MCB Motion took longer than expected");
+            log_error("MCB Motion took longer than expected");
             mcbComm.TX_ASCII(MCB_CANCEL_MOTION);
             inst_substate = MODE_ERROR; // will force exit of Flight_Profile
-            log_nominal("Entering MODE_ERROR");
+            log_error("Entering MODE_ERROR");
             break;
         }
 
