@@ -68,6 +68,9 @@ void setup()
     // Zephyr serial is on USB so buffer doesn't need to be increased
     log_error("Configured for sending Zephyr msgs to debug port\n**** WILL NOT WORK FOR FLIGHT OPERATIONS!");
 #endif
+#if DISABLE_DEVEL_ERROR_CHECKING
+    log_error("DISABLE_DEVEL_ERROR_CHECKING is enabled, some error checking is disabled!\n**** DO NOT USE FOR FLIGHT OPERATIONS!");
+#endif
 
     // MCB serial will always be on digital I/O pins
     MCB_SERIAL.addMemoryForRead(&Zephyr_serial_RX_buffer, sizeof(Zephyr_serial_RX_buffer));
