@@ -9,7 +9,12 @@
 
 // WARNING: DO NOT CHECK CODE INTO GIT WIH THIS OPTION ENABLED. 
 //          MAKE SURE THIS OPTION IS FALSE FOR FLIGHT DEPLOYED FIRMWARE.
-#define ZEPHYR_COMMS_ON_DEBUG_PORT true
+#define ZEPHYR_COMMS_ON_DEBUG_PORT false
+
+// WARNING: DO NOT CHECK CODE INTO GIT WIH THIS OPTION ENABLED. 
+//          MAKE SURE THIS OPTION IS FALSE FOR FLIGHT DEPLOYED FIRMWARE.
+// Define this to disable some error checking and logging during development testing.
+#define DISABLE_DEVEL_ERROR_CHECKING false
 
 // Reporting period for status message generation, including TM transmission.
 #define STATUS_MSG_PERIOD_SECS 300

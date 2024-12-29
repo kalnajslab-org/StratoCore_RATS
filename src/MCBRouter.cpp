@@ -180,9 +180,12 @@ void StratoRATS::HandleMCBString()
     case MCB_ERROR:
         if (mcbComm.RX_Error(log_array, LOG_ARRAY_SIZE)) {
             ZephyrLogCrit(log_array);
+#if not DISABLE_DEVEL_ERROR_CHECKING
             inst_substate = MODE_ERROR;
             log_error("Entering FL_ERROR");
-
+#else
+            log_error(String(String("DISABLE_DEVEL_ERROR_CHECKING is enabled, MCB error will be ignored: ")+log_array).c_str();  
+#endif
         }
         break;
     default:
