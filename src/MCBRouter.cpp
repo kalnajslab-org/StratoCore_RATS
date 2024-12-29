@@ -70,7 +70,7 @@ void StratoRATS::HandleMCBASCII()
                      motion_fault[2], motion_fault[3], motion_fault[4], motion_fault[5], motion_fault[6], motion_fault[7]);
             SendMCBTM(CRIT, log_array);
             inst_substate = MODE_ERROR;
-            log_error("Entering FL_ERROR");
+            log_error("Entering FL_ERROR  HandleMCBASCII() #1");
 
         } else {
             if (mcb_dock_ongoing) {
@@ -82,7 +82,7 @@ void StratoRATS::HandleMCBASCII()
             mcb_motion_ongoing = false;
             SendMCBTM(CRIT, "MCB Fault: error receiving parameters");
             inst_substate = MODE_ERROR;
-            log_error("Entering FL_ERROR");
+            log_error("Entering FL_ERROR HandleMCBASCII() #2");
 
         }
         break;
@@ -96,21 +96,28 @@ void StratoRATS::HandleMCBAck()
 {
     switch (mcbComm.ack_id) {
     case MCB_CANCEL_MOTION:
-        log_nominal("MCB canceled motion");
+        log_nominal("MCB acked cancel motion");
         mcb_motion = NO_MOTION;
+        mcb_motion_ongoing = false;
         break;
     case MCB_GO_LOW_POWER:
-        log_nominal("MCB in low power");
+        log_nominal("MCB acked in low power");
         mcb_low_power = true;
         break;
     case MCB_REEL_IN:
-        if (MOTION_REEL_IN == mcb_motion) NoteProfileStart();
+        if (MOTION_REEL_IN == mcb_motion) { 
+            NoteProfileStart();
+        }
         break;
     case MCB_REEL_OUT:
-        if (MOTION_REEL_OUT == mcb_motion) NoteProfileStart();
+        if (MOTION_REEL_OUT == mcb_motion) {
+            NoteProfileStart();
+        }
         break;
     case MCB_IN_NO_LW:
-        if (MOTION_IN_NO_LW == mcb_motion) NoteProfileStart();
+        if (MOTION_IN_NO_LW == mcb_motion) {
+            NoteProfileStart();
+        }
         break;
     case MCB_FULL_RETRACT:
         mcb_reeling_in = true;
@@ -182,9 +189,9 @@ void StratoRATS::HandleMCBString()
             ZephyrLogCrit(log_array);
 #if not DISABLE_DEVEL_ERROR_CHECKING
             inst_substate = MODE_ERROR;
-            log_error("Entering FL_ERROR");
+            log_error("Entering FL_ERROR HandleMCBString()");
 #else
-            log_error(String(String("DISABLE_DEVEL_ERROR_CHECKING is enabled, MCB error will be ignored: ")+log_array).c_str();  
+            log_error((String("DISABLE_DEVEL_ERROR_CHECKING is enabled, MCB error will be ignored: ")+log_array).c_str());  
 #endif
         }
         break;

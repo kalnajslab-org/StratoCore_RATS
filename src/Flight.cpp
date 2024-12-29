@@ -9,9 +9,7 @@ enum FLStates_t : uint8_t {
     FL_LORA_WAIT2,
     FL_MEASURE,
     FL_SEND_TELEMETRY,
-
-    FLM_IDLE,
-    FLM_MANUAL_MOTION,
+    FL_MANUAL_MOTION,
 
     FL_ERROR = MODE_ERROR,
     FL_SHUTDOWN = MODE_SHUTDOWN,
@@ -103,20 +101,26 @@ void StratoRATS::FlightMode()
             break;
         } else {
             if(CheckAction(ACTION_REEL_OUT)) {
-                log_nominal("Reel out manual command");
                 mcb_motion = MOTION_REEL_OUT;
+                inst_substate = FL_MANUAL_MOTION;
+                log_nominal("Entering FL_MANUAL_MOTION (reel out)");
+                // START the Flight Manual Motion state machine
                 Flight_ManualMotion(true);
-                inst_substate = FLM_MANUAL_MOTION;
-                log_nominal("Entering FLM_MANUAL_MOTION");
             } else if (CheckAction(ACTION_REEL_IN)) {
-                log_nominal("Reel in manual command");
                 mcb_motion = MOTION_REEL_IN;
+                inst_substate = FL_MANUAL_MOTION;
+                log_nominal("Entering FL_MANUAL_MOTION (reel in)");
+                // START the Flight Manual Motion state machine
                 Flight_ManualMotion(true);
-                inst_substate = FLM_MANUAL_MOTION;
-                log_nominal("Entering FLM_MANUAL_MOTION");
             }
         }
         log_debug("FL Measure");
+        break;
+    case FL_MANUAL_MOTION:
+        if (Flight_ManualMotion(false)) {
+            inst_substate = FL_MEASURE;
+            log_nominal("Entering FL_MEASURE");
+        }
         break;
     case FL_SEND_TELEMETRY:
         inst_substate = FL_MEASURE;
@@ -138,42 +142,8 @@ void StratoRATS::FlightMode()
         log_nominal("Exiting FL");
         break;
     default:
-        // we've made it here because we're in a FLM state
-        ManualFlight();
+        log_error((String("Unknown substate ") + String(inst_substate) + " in FL").c_str());
         break;
     }
-}
-
-void StratoRATS::ManualFlight()
-{
-    switch (inst_substate) {
-    case FLM_IDLE:
-        log_debug("FL Manual Idle");
-        if (CheckAction(ACTION_REEL_IN)) {
-            log_nominal("Reel in manual command");
-            mcb_motion = MOTION_REEL_IN;
-            Flight_ManualMotion(true);
-            inst_substate = FLM_MANUAL_MOTION;
-            log_nominal("Entering FLM_MANUAL_MOTION");
-        } else if (CheckAction(ACTION_REEL_OUT)) {
-            log_nominal("Reel out manual command");
-            mcb_motion = MOTION_REEL_OUT;
-            Flight_ManualMotion(true);
-            inst_substate = FLM_MANUAL_MOTION;
-            log_nominal("Entering FLM_MANUAL_MOTION");
-        }
-        break;
-
-    case FLM_MANUAL_MOTION:
-        if (Flight_ManualMotion(false)) {
-            inst_substate = FLM_IDLE;
-            log_nominal("Entering FLM_IDLE");
-        }
-        break;
-
-    default:
-        log_error("Unknown manual substate");
-        break;
-    };
 }
 
