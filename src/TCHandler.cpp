@@ -94,26 +94,26 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
         msg = String("TC get MCB voltages");
         break;
     case RATSSAMPERATESECS:
-        Set_sampleRateSecs = ratsParam.sampleRateSecs;
-        ratsConfigs.sampleRateSecs.Write(ratsParam.sampleRateSecs);
+        Set_sampleRateSecs = ratsParam.sample_rate_secs;
+        ratsConfigs.sample_rate_secs.Write(ratsParam.sample_rate_secs);
         msg = String("TC set sample rate")+comma+String(Set_sampleRateSecs);
         break;
     case RATSDATAPROCTYPE:
-        Set_dataProcMethod = ratsParam.dataProcMethod;
-        ratsConfigs.dataProcMethod.Write(ratsParam.dataProcMethod);
+        Set_dataProcMethod = ratsParam.data_proc_method;
+        ratsConfigs.data_proc_method.Write(ratsParam.data_proc_method);
         msg = String("TC set processing mode")+comma+String(Set_dataProcMethod);
         break;
     case RATSDEPLOY:
-        Set_deployRevs = ratsParam.deployRevs;
+        Set_deployRevs = ratsParam.deploy_revs;
         Set_deploySpeed = ratsParam.deploy_velocity;
-        ratsConfigs.deployRevs.Write(ratsParam.deployRevs);
+        ratsConfigs.deploy_revs.Write(ratsParam.deploy_revs);
         ratsConfigs.deploy_velocity.Write(ratsParam.deploy_velocity);
         msg = String("TC ECU deploy")+comma+String(Set_deployRevs)+comma+String(Set_deploySpeed);
         break;
     case RATSRETRACT:
-        Set_retractRevs = ratsParam.retractRevs;
+        Set_retractRevs = ratsParam.retract_revs;
         Set_retractSpeed = ratsParam.retract_velocity;
-        ratsConfigs.retractRevs.Write(ratsParam.retractRevs);
+        ratsConfigs.retract_revs.Write(ratsParam.retract_revs);
         ratsConfigs.retract_velocity.Write(ratsParam.retract_velocity);
         msg = String("TC ECU retract")+comma+String(Set_retractRevs)+comma+String(Set_retractSpeed);
         break;
