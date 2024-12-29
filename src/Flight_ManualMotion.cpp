@@ -24,7 +24,7 @@ bool StratoRATS::Flight_ManualMotion(bool restart_state)
         zephyrTX.RA();
         manualmotion_state = ST_WAIT_RAACK;
         scheduler.AddAction(RESEND_RA, ZEPHYR_RESEND_TIMEOUT);
-        log_nominal("Sending RA");
+        log_nominal("Entering ST_WAIT_RAACK");
         break;
 
     case ST_WAIT_RAACK:
@@ -35,7 +35,7 @@ bool StratoRATS::Flight_ManualMotion(bool restart_state)
         if (ACK == RA_ack_flag) {
             manualmotion_state = ST_START_MOTION;
             resend_attempted = false;
-            log_nominal("RA ACK");
+            log_nominal("Entering ST_START_MOTION");
         } else if (NAK == RA_ack_flag) {
             resend_attempted = false;
             ZephyrLogWarn("Cannot perform motion, RA NAK");
@@ -44,6 +44,7 @@ bool StratoRATS::Flight_ManualMotion(bool restart_state)
             if (!resend_attempted) {
                 resend_attempted = true;
                 manualmotion_state = ST_SEND_RA;
+                log_nominal("Entering ST_SEND_RA");
             } else {
                 ZephyrLogWarn("Never received RAAck");
                 resend_attempted = false;
@@ -61,6 +62,7 @@ bool StratoRATS::Flight_ManualMotion(bool restart_state)
         if (StartMCBMotion()) {
             manualmotion_state = ST_VERIFY_MOTION;
             scheduler.AddAction(RESEND_MOTION_COMMAND, MCB_RESEND_TIMEOUT);
+            log_nominal("Entering ST_VERIFY_MOTION");
         } else {
             ZephyrLogWarn("Motion start error");
             inst_substate = MODE_ERROR; // will force exit of Flight_Profile
@@ -72,12 +74,14 @@ bool StratoRATS::Flight_ManualMotion(bool restart_state)
             log_nominal("MCB commanded motion");
             scheduler.AddAction(ACTION_MOTION_TIMEOUT, max_profile_seconds);
             manualmotion_state = ST_MONITOR_MOTION;
+            log_nominal("Entering ST_MONITOR_MOTION");
         }
 
         if (CheckAction(RESEND_MOTION_COMMAND)) {
             if (!resend_attempted) {
                 resend_attempted = true;
                 manualmotion_state = ST_START_MOTION;
+                log_nominal("Entering ST_START_MOTION");
             } else {
                 resend_attempted = false;
                 ZephyrLogWarn("MCB never confirmed motion");
@@ -105,6 +109,7 @@ bool StratoRATS::Flight_ManualMotion(bool restart_state)
             SendMCBTM(FINE, "Finished commanded manual motion");
             manualmotion_state = ST_TM_ACK;
             scheduler.AddAction(RESEND_TM, ZEPHYR_RESEND_TIMEOUT);
+            log_nominal("Entering ST_TM_ACK");
         }
         break;
 

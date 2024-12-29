@@ -105,6 +105,8 @@ private:
     void SafetyMode();
     void EndOfFlightMode();
     
+    void ManualFlight();
+
     void RATS_Shutdown();
 
     // Flight states (each in own .cpp file)
