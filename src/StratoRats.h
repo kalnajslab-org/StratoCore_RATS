@@ -2,19 +2,20 @@
 #define STRATORATS_H
 
 #include <time.h>
-#include <map>
+//#include <map>
 #include "StratoCore.h"
+#include "RATSHardware.h"
 #include "RATSConfigs.h"
 #include "MCBComm.h"
 
 // WARNING: DO NOT CHECK CODE INTO GIT WIH THIS OPTION ENABLED. 
 //          MAKE SURE THIS OPTION IS FALSE FOR FLIGHT DEPLOYED FIRMWARE.
-#define ZEPHYR_COMMS_ON_DEBUG_PORT false
+#define ZEPHYR_COMMS_ON_DEBUG_PORT true
 
 // WARNING: DO NOT CHECK CODE INTO GIT WIH THIS OPTION ENABLED. 
 //          MAKE SURE THIS OPTION IS FALSE FOR FLIGHT DEPLOYED FIRMWARE.
 // Define this to disable some error checking and logging during development testing.
-#define DISABLE_DEVEL_ERROR_CHECKING false
+#define DISABLE_DEVEL_ERROR_CHECKING true
 
 // Reporting period for status message generation, including TM transmission.
 #define STATUS_MSG_PERIOD_SECS 300
@@ -39,8 +40,6 @@
 // Buffers for msg reception and transmission to/from Zephyr. Should be large enough
 // to hold a complete TM, some of which which will contain the measurement data.
 #define ZEPHYR_SERIAL_BUFFER_SIZE 4096
-// Serial connection to MCB
-#define MCB_SERIAL      Serial3
 // Number of loops before a flag becomes stale and is reset
 #define FLAG_STALE      3
 //
@@ -51,6 +50,13 @@
 #define HEARTBEAT_LED_PIN	3
 
 #define ZEPHYR_RESEND_TIMEOUT   60
+
+//LoRa Settings
+#define FREQUENCY 868E6
+#define BANDWIDTH 250E3
+#define SF 9
+#define RF_POWER 19
+#define LORA_TM_TIMEOUT 600
 
 // todo: perhaps more creative/useful enum here by mode with separate arrays?
 enum ScheduleAction_t : uint8_t {
@@ -119,6 +125,10 @@ private:
 
     void RATS_Shutdown();
 
+    // LoRa
+    void LoRaInit();
+    void LoRaRX();
+
     // Flight states (each in own .cpp file)
     // when starting the state, call with restart_state = true
     // then call with restart_state = false until the function returns true meaning it's completed
@@ -160,6 +170,8 @@ private:
     uint32_t max_profile_seconds = 0;
     bool mcb_reeling_in = false;
     uint16_t mcb_tm_counter = 0;
+    float reel_pos = 0.0;
+
 
     // array of error values for MCB motion fault
     uint16_t motion_fault[8] = {0};
@@ -208,5 +220,17 @@ private:
 
     // Actions
     ActionFlag_t action_flags[NUM_ACTIONS] = {{0}}; // initialize all flags to false
+
+    //Variables for LoRa TMs and Status strings
+    bool Send_LoRa_TM = true;
+    bool Send_LoRa_status = true;
+    char LoRa_RX_buffer[256] = {0};
+    char LoRa_PU_status[256] = {0};
+    
+    uint8_t LoRa_TM_buffer[8192] = {0};
+    uint16_t LoRa_TM_buffer_idx = 0;
+    uint16_t pu_tm_counter = 0;
+    long LoRa_rx_time = 0;
+
 };
 #endif /* STRATORATS_H */
