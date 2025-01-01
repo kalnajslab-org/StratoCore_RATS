@@ -14,4 +14,11 @@
 #define LORA_MISO       39
 #define LORA_MOSI       26
 
+//LoRa Settings
+#define FREQUENCY 868E6
+#define BANDWIDTH 250E3
+#define SF 9
+#define RF_POWER 19
+
+
 #endif /* _RATSHARDWARE_H_ */

@@ -1,13 +1,5 @@
 #include "StratoRATS.h"
 #include <SPI.h>
-#include <LoRa.h>
-
-int PacketSize = 0;
-//ISR for LoRa reception, needs to be outside the class for some reason
-void onReceive(int Size)
-{
-    PacketSize = Size;
-}
 
 StratoRATS::StratoRATS()
     : StratoCore(&ZEPHYR_SERIAL, INSTRUMENT)
@@ -20,19 +12,13 @@ void StratoRATS::InstrumentSetup()
     // safe pin required by Zephyr
     pinMode(SAFE_PIN, OUTPUT);
     digitalWrite(SAFE_PIN, LOW);
-
-    // Set up the second SPI Port for the LoRa Module
-    SPI1.setSCK(LORA_SCK);
-    SPI1.setMISO(LORA_MISO);
-    SPI1.setMOSI(LORA_MOSI);
-
-    LoRa.setSPI(SPI1);
-    LoRa.setPins(SS_PIN, RESET_PIN,INTERUPT_PIN);
     
-    LoRaInit();  //initialize the LoRa modem
-
-    LoRa.onReceive(onReceive);
-    LoRa.receive();
+    if (!ECULoRaInit(SS_PIN, RESET_PIN, INTERUPT_PIN, &SPI1, LORA_SCK, LORA_MISO, LORA_MOSI)) {
+        log_error("WARN: LoRa Initialization Failed");
+        ZephyrLogWarn("WARN: LoRa Initialization Failed");
+    } else {
+        log_nominal("LoRa Initialized");
+    }; 
 
     if (!ratsConfigs.Initialize()) {
         ZephyrLogWarn("Error loading from EEPROM! Reconfigured");
@@ -49,100 +35,30 @@ void StratoRATS::InstrumentLoop()
 }
 
 
-void StratoRATS::LoRaInit()
-{
-   if (!LoRa.begin(FREQUENCY)){
-       ZephyrLogWarn("Starting LoRa failed!");
-       Serial.println("WARN: LoRa Initializtion Failed");
-    }
-    delay(1);
-    LoRa.setSpreadingFactor(SF);
-    delay(1);
-    LoRa.setSignalBandwidth(BANDWIDTH);
-    delay(1);
-    LoRa.setTxPower(RF_POWER);
-}
-
 void StratoRATS::LoRaRX()
 {
-    int i = 0;
+    if (get_ecu_lora_data(lora_buffer, ECU_LORA_BUFSIZE)) {
+        total_lora_count++;
+        if (ecu_lora_msg_count != total_lora_count) {
+            log_error(String(String("LoRa message count mismatch ") + String(ecu_lora_msg_count) + " " + String(total_lora_count)).c_str());
+            total_lora_count = ecu_lora_msg_count;
+        }   
+        //log_nominal(String(String("LoRa RX ") + String(ecu_lora_msg_count)).c_str());
+    }
 
-    if (PacketSize > 0) //if LoRa data is available
+    /**
     {
-        PacketSize = 0;
-        Serial.print("Received Packet with RSSI :");
-        Serial.print(LoRa.packetRssi());
-        int BytesToRead = LoRa.available();
-        Serial.printf(" Bytes Read: %d\n",BytesToRead);
-        for (i = 0; i <  BytesToRead; i++)
-           LoRa_RX_buffer[i] = LoRa.read();
-        
-        //for (i = 0; i< BytesToRead; i++ ) //for debug write buffer to consols
-        //    Serial.write(LoRa_RX_buffer[i]);
-        //Serial.println();
-
-        if (strncmp(LoRa_RX_buffer,"ST",2) == 0)//it is a status packet
-        { 
-            LoRa_RX_buffer[BytesToRead] = '\0'; //null terminate buffer to make a string
-            snprintf(log_array, LOG_ARRAY_SIZE, "ECU %s,%0.1f", LoRa_RX_buffer, reel_pos);
-            ZephyrLogFine(LoRa_RX_buffer);
-
-        }
-
-        else if (strncmp(LoRa_RX_buffer,"TM",2) == 0) //it is a profile TM packet
-        {
-                Serial.print("TM Packet idx: ");
-                Serial.println(LoRa_TM_buffer_idx);
-                LoRa_rx_time = millis();  //record the time we received last LoRa TM
-                if (LoRa_TM_buffer_idx + BytesToRead > 6005) //if the incomming packet will over fill a TM send what we have
-                {
-                    //send the LoRa PU data to zephyr as a TM
-                    //snprintf(log_array, LOG_ARRAY_SIZE, "PU LoRa TM: %u.%u, %0.1f, %0.4f, %0.4f, %0.1f",pibConfigs.profile_id.Read(),++pu_tm_counter,reel_pos,profile_start_latitude, profile_start_longitude, profile_start_altitude);
-                    snprintf(log_array, LOG_ARRAY_SIZE, "LoRa TM");
-                    //zephyrTX.addTm(LoRa_TM_buffer,LoRa_TM_buffer_idx);
-                    zephyrTX.setStateDetails(1, log_array);
-                    zephyrTX.setStateFlagValue(1, FINE);
-                    zephyrTX.setStateFlagValue(2, NOMESS);
-                    zephyrTX.setStateFlagValue(3, NOMESS);
-                    zephyrTX.TM();
-                    log_nominal(log_array);
-                    LoRa_TM_buffer_idx = 0; //reset the buffer
-                    zephyrTX.clearTm();
-                }
-                
-                for(i = 0; i < BytesToRead-2; i++)
-                    LoRa_TM_buffer[LoRa_TM_buffer_idx++] = LoRa_RX_buffer[i+2];
-                BytesToRead = 0;
-            
-        }
-
-        else
-        {
-            snprintf(log_array, LOG_ARRAY_SIZE, "Received Unknown LoRa Packet");
-            log_nominal(log_array);
-        }
-
-        
+        char pbuf[100];
+        snprintf(pbuf, sizeof(pbuf),
+            "rssi:%5d snr:%6.1f ferr:%6ld",
+            LoRa.packetRssi(), LoRa.packetSnr(), LoRa.packetFrequencyError());
+        // received a packet
+        SerialUSB.print(pbuf);
+        SerialUSB.print(" <");
+        SerialUSB.print((char*)lora_buffer);
+        SerialUSB.println(">");
     }
-
-    //if it has been a while since we received a LoRa TM, assume it is done and send remaining data
-    if (LoRa_TM_buffer_idx > 0){
-        if ((millis() - LoRa_rx_time) > LORA_TM_TIMEOUT*1000) 
-        {
-                    zephyrTX.addTm(LoRa_TM_buffer,LoRa_TM_buffer_idx);            
-                    //send the LoRa_TM_Buffer to zephyr as a TM
-                    //snprintf(log_array, LOG_ARRAY_SIZE, "ECU LoRa TM: %u.%u, %0.1f, %0.4f, %0.4f, %0.1f",ratsConfigs.profile_id.Read(),++pu_tm_counter,reel_pos,profile_start_latitude, profile_start_longitude, profile_start_altitude);
-                    snprintf(log_array, LOG_ARRAY_SIZE, "LoRa TM");
-                    zephyrTX.setStateDetails(1, log_array);
-                    zephyrTX.setStateFlagValue(1, FINE);
-                    zephyrTX.setStateFlagValue(2, NOMESS);
-                    zephyrTX.setStateFlagValue(3, NOMESS);
-                    zephyrTX.TM();
-                    log_nominal(log_array);
-                    LoRa_TM_buffer_idx = 0; //reset the buffer
-                    pu_tm_counter = 0; //reset the TM counter
-        }
-    }
+    **/
 }
 
 void StratoRATS::ActionHandler(uint8_t action)
@@ -418,12 +334,7 @@ void StratoRATS::SendRATSEEPROM()
 
     uint32_t StratoRATS::lora_count_check(bool reset) {
         if (reset) {
-            lora_count = 0;
-            scheduler.AddAction(ACTION_SIM_LORA_MSG, 1);
-        }
-        if (CheckAction(ACTION_SIM_LORA_MSG)) {
-            lora_count++;
-            scheduler.AddAction(ACTION_SIM_LORA_MSG, 1);
-        }
-        return lora_count;
+            lora_count = total_lora_count;;
+        } 
+        return ecu_lora_msg_count - lora_count;
     }

@@ -54,7 +54,8 @@ void StratoRATS::FlightMode()
         // time_valid is set when StratoCore::RouteRXMessage() receives a GPS message
         if (time_valid) {
             // Transition to waiting for LoRa
-            scheduler.AddAction(ACTION_LORA_WAIT_MSG, 1);
+            scheduler.AddAction(ACTION_LORA_COUNT_MSGS, 1);
+            scheduler.AddAction(ACTION_LORA_WAIT_TIMEOUT, LORA_MSG_TIMEOUT);
             // Reset lora count
             lora_count_check(true);
             inst_substate = FL_LORA_WAIT1;
@@ -62,39 +63,61 @@ void StratoRATS::FlightMode()
         }
         break;
     case FL_LORA_WAIT1:
-        if (CheckAction(ACTION_LORA_WAIT_MSG)) {
-            log_nominal("FL_LORA_WAIT waiting for LoRa message");
-            scheduler.AddAction(ACTION_LORA_WAIT_MSG, 1);
-            // Wait for 6 LoRa message to arrive.
+        if (CheckAction(ACTION_LORA_COUNT_MSGS)) {
+            log_nominal("FL_LORA_WAIT1 waiting for LoRa message");
+            // Wait for enough LoRa message to arrive.
             if (lora_count_check() >= LORA_MSG_COUNT) { 
-                log_nominal("FL_LORA_WAIT LoRa messages received");
+                log_nominal("FL_LORA_WAIT1 Expected LoRa messages received");
                 inst_substate = FL_CONFIG_ECU;
                 log_nominal("Entering FL_CONFIG_ECU");
+            } else {
+                scheduler.AddAction(ACTION_LORA_COUNT_MSGS, 1);
             }
         }
+        if (CheckAction(ACTION_LORA_WAIT_TIMEOUT)) {
+            log_error("FL_LORA_WAIT1 Expected LoRa messages not received");
+            ZephyrLogWarn("LoRa messages not received during first wait");
+            inst_substate = FL_ERROR;
+            log_error("Entering FL_ERROR");
+        }
+
         break;
     case FL_CONFIG_ECU:
+        // Cancel LORA timeout action
+        CheckAction(ACTION_LORA_WAIT_TIMEOUT);
         // Configure the ECU here.
+        log_nominal("FL_CONFIG_ECU Configuring ECU");
+        scheduler.AddAction(ACTION_LORA_COUNT_MSGS, 1);
+        scheduler.AddAction(ACTION_LORA_WAIT_TIMEOUT, LORA_MSG_TIMEOUT);
         inst_substate = FL_LORA_WAIT2;
         // Reset lora count
         lora_count_check(true);
         log_nominal("Entering FL_LORA_WAIT2");
         break;
     case FL_LORA_WAIT2:
-        if (CheckAction(ACTION_LORA_WAIT_MSG)) {
-            log_nominal("FL_LORA_WAIT waiting for LoRa message");
-            scheduler.AddAction(ACTION_LORA_WAIT_MSG, 1);
-            // Wait for 6 LoRa messages to arrive.
+        if (CheckAction(ACTION_LORA_COUNT_MSGS)) {
+            log_nominal("FL_LORA_WAIT2 waiting for LoRa message");
+            // Wait for enough LoRa messages to arrive.
             if (lora_count_check() >= LORA_MSG_COUNT) { 
                 // Configure ECU here.
-                log_nominal("FL_LORA_WAIT LoRa messages received");
+                log_nominal("FL_LORA_WAIT2 Expected LoRa messages received");
                 scheduler.AddAction(ACTION_START_TELEMETRY, 0); 
                 inst_substate = FL_MEASURE;
                 log_nominal("Entering FL_MEASURE");
+            } else {
+                scheduler.AddAction(ACTION_LORA_COUNT_MSGS, 1);
             }
+        }
+        if (CheckAction(ACTION_LORA_WAIT_TIMEOUT)) {
+            log_error("FL_LORA_WAIT2 Expected LoRa messages not received");
+            ZephyrLogWarn("LoRa messages not received during second wait");
+            inst_substate = FL_ERROR;
+            log_error("Entering FL_ERROR");
         }
         break;
     case FL_MEASURE:
+        // Cancel LORA timeout action
+        CheckAction(ACTION_LORA_WAIT_TIMEOUT);
         if (CheckAction(ACTION_START_TELEMETRY)) {
             inst_substate = FL_SEND_TELEMETRY;
             log_nominal("Entering FL_SEND_TELEMETRY");

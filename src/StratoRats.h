@@ -7,6 +7,7 @@
 #include "RATSHardware.h"
 #include "RATSConfigs.h"
 #include "MCBComm.h"
+#include "ECULoRa.h"
 
 // WARNING: DO NOT CHECK CODE INTO GIT WIH THIS OPTION ENABLED. 
 //          MAKE SURE THIS OPTION IS FALSE FOR FLIGHT DEPLOYED FIRMWARE.
@@ -32,7 +33,9 @@
 #define INSTRUMENT      RATS
 
 // Number of LoRa messages to wait for before moving on
-#define LORA_MSG_COUNT  2
+#define LORA_MSG_COUNT  6
+// Seconds to wait for LoRa messages
+#define LORA_MSG_TIMEOUT 30
 
 #define ZEPHYR_SERIAL_BUFFER_SIZE 4096
 #define MCB_SERIAL_BUFFER_SIZE    4096
@@ -51,11 +54,6 @@
 
 #define ZEPHYR_RESEND_TIMEOUT   60
 
-//LoRa Settings
-#define FREQUENCY 868E6
-#define BANDWIDTH 250E3
-#define SF 9
-#define RF_POWER 19
 #define LORA_TM_TIMEOUT 600
 
 // todo: perhaps more creative/useful enum here by mode with separate arrays?
@@ -70,7 +68,8 @@ enum ScheduleAction_t : uint8_t {
 
     ACTION_START_TELEMETRY,
     ACTION_GPS_WAIT_MSG,
-    ACTION_LORA_WAIT_MSG,
+    ACTION_LORA_COUNT_MSGS,
+    ACTION_LORA_WAIT_TIMEOUT,
     ACTION_SEND_STATUS,
     ACTION_REEL_OUT,
     ACTION_REEL_IN,
@@ -125,9 +124,6 @@ private:
 
     void RATS_Shutdown();
 
-    // LoRa
-    void LoRaInit();
-    void LoRaRX();
 
     // Flight states (each in own .cpp file)
     // when starting the state, call with restart_state = true
@@ -191,7 +187,11 @@ private:
     // count is set to 0. 
     // Return the current count.
     uint32_t lora_count_check(bool reset=false);
+    void LoRaRX();
+
     uint32_t lora_count = 0;
+    uint32_t total_lora_count = 0;
+    uint8_t lora_buffer[ECU_LORA_BUFSIZE] = {0};
 
     // Start any type of MCB motion
     bool StartMCBMotion();
