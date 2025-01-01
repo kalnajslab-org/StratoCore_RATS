@@ -42,8 +42,11 @@ void StratoRATS::LoRaRX()
         if (ecu_lora_msg_count != total_lora_count) {
             log_error(String(String("LoRa message count mismatch ") + String(ecu_lora_msg_count) + " " + String(total_lora_count)).c_str());
             total_lora_count = ecu_lora_msg_count;
-        }   
-        //log_nominal(String(String("LoRa RX ") + String(ecu_lora_msg_count)).c_str());
+        }
+
+        if (ecu_lora_msg_count % 60 == 0) {
+            log_nominal(String(String("LoRa RX ") + String(ecu_lora_msg_count)).c_str());
+        }
     }
 
     /**
