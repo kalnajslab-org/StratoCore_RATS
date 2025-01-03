@@ -13,7 +13,7 @@ void StratoRATS::InstrumentSetup()
     pinMode(SAFE_PIN, OUTPUT);
     digitalWrite(SAFE_PIN, LOW);
     
-    if (!ECULoRaInit(SS_PIN, RESET_PIN, INTERUPT_PIN, &SPI1, LORA_SCK, LORA_MISO, LORA_MOSI)) {
+    if (!ECULoRaInit(SS_PIN, RESET_PIN, INTERRUPT_PIN, &SPI1, LORA_SCK, LORA_MISO, LORA_MOSI)) {
         log_error("WARN: LoRa Initialization Failed");
         ZephyrLogWarn("WARN: LoRa Initialization Failed");
     } else {
@@ -37,31 +37,21 @@ void StratoRATS::InstrumentLoop()
 
 void StratoRATS::LoRaRX()
 {
-    if (get_ecu_lora_data(lora_buffer, ECU_LORA_BUFSIZE)) {
+    if (ecu_lora_get_msg(&lora_msg)) {
         total_lora_count++;
-        if (ecu_lora_msg_count != total_lora_count) {
-            log_error(String(String("LoRa message count mismatch ") + String(ecu_lora_msg_count) + " " + String(total_lora_count)).c_str());
-            total_lora_count = ecu_lora_msg_count;
+        if (lora_msg.count != total_lora_count) {
+            log_error(String(String("LoRa message count mismatch ") + String(lora_msg.count) + " " + String(total_lora_count)).c_str());
+            total_lora_count = lora_msg.count;
         }
 
-        if (ecu_lora_msg_count % 60 == 0) {
-            log_nominal(String(String("LoRa RX ") + String(ecu_lora_msg_count)).c_str());
+        if (lora_msg.count % 30 == 0) {
+            snprintf(log_array, LOG_ARRAY_SIZE,
+                "LoRa rx n:%ld id:%ld rssi:%d snr:%.1f ferr:%ld",
+                lora_msg.count, lora_msg.id, ecu_lora_rssi(), ecu_lora_snr(), ecu_lora_frequency_error());
+
+            log_nominal(log_array);
         }
     }
-
-    /**
-    {
-        char pbuf[100];
-        snprintf(pbuf, sizeof(pbuf),
-            "rssi:%5d snr:%6.1f ferr:%6ld",
-            LoRa.packetRssi(), LoRa.packetSnr(), LoRa.packetFrequencyError());
-        // received a packet
-        SerialUSB.print(pbuf);
-        SerialUSB.print(" <");
-        SerialUSB.print((char*)lora_buffer);
-        SerialUSB.println(">");
-    }
-    **/
 }
 
 void StratoRATS::ActionHandler(uint8_t action)
@@ -131,7 +121,7 @@ void StratoRATS::sendTMstatusMsg() {
     
     // Create the binary status payload
     uint8_t status[8];
-    for (int i = 0; i < sizeof(status); i++) {
+    for (uint i = 0; i < sizeof(status); i++) {
         status[i] = i+1;
     }
     status[0] = flight_mode_substate; 
@@ -166,7 +156,7 @@ void StratoRATS::sendTMstatusMsg() {
     zephyrTX.addTm(uint16_t(sizeof(status)));
     
     // Add the samples
-    for (int i = 0; i < sizeof(status); i++)
+    for (uint i = 0; i < sizeof(status); i++)
     {
         zephyrTX.addTm(status[i]);
     }
@@ -339,5 +329,5 @@ void StratoRATS::SendRATSEEPROM()
         if (reset) {
             lora_count = total_lora_count;;
         } 
-        return ecu_lora_msg_count - lora_count;
+        return total_lora_count - lora_count;
     }

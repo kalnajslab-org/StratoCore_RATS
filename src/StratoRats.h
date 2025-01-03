@@ -191,7 +191,7 @@ private:
 
     uint32_t lora_count = 0;
     uint32_t total_lora_count = 0;
-    uint8_t lora_buffer[ECU_LORA_BUFSIZE] = {0};
+    ECULoRaMsg_t lora_msg;
 
     // Start any type of MCB motion
     bool StartMCBMotion();
