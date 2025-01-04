@@ -60,11 +60,11 @@ void StratoRATS::FlightMode()
             lora_count_check(true);
             inst_substate = FL_LORA_WAIT1;
             log_nominal("Entering FL_LORA_WAIT1");
+            log_nominal("FL_LORA_WAIT1 waiting for LoRa message");
         }
         break;
     case FL_LORA_WAIT1:
         if (CheckAction(ACTION_LORA_COUNT_MSGS)) {
-            log_nominal("FL_LORA_WAIT1 waiting for LoRa message");
             // Wait for enough LoRa message to arrive.
             if (lora_count_check() >= LORA_MSG_COUNT) { 
                 log_nominal("FL_LORA_WAIT1 Expected LoRa messages received");
@@ -93,10 +93,10 @@ void StratoRATS::FlightMode()
         // Reset lora count
         lora_count_check(true);
         log_nominal("Entering FL_LORA_WAIT2");
+        log_nominal("FL_LORA_WAIT2 waiting for LoRa message");
         break;
     case FL_LORA_WAIT2:
         if (CheckAction(ACTION_LORA_COUNT_MSGS)) {
-            log_nominal("FL_LORA_WAIT2 waiting for LoRa message");
             // Wait for enough LoRa messages to arrive.
             if (lora_count_check() >= LORA_MSG_COUNT) { 
                 // Configure ECU here.
