@@ -1,36 +1,36 @@
 #include "StratoRATS.h"
 
-enum ManualMotionStates_t {
-    ST_ENTRY,
-    ST_SEND_RA,
-    ST_WAIT_RAACK,
-    ST_START_MOTION,
-    ST_VERIFY_MOTION,
-    ST_MONITOR_MOTION,
-    ST_TM_ACK,
+enum ReelStates_t {
+    REEL_ENTRY,
+    REEL_SEND_RA,
+    REEL_WAIT_RAACK,
+    REEL_START_MOTION,
+    REEL_VERIFY_MOTION,
+    REEL_MONITOR_MOTION,
+    REEL_TM_ACK,
 };
 
-static ManualMotionStates_t manual_motion_state = ST_ENTRY;
+static ReelStates_t reel_state = REEL_ENTRY;
 static bool resend_attempted = false;
 
-bool StratoRATS::Flight_ManualMotion(bool restart_state)
+bool StratoRATS::Flight_Reel(bool restart_state)
 {
     if (restart_state) {
-        manual_motion_state = ST_ENTRY;
-        log_nominal("Entering ST_ENTRY");
+        reel_state = REEL_ENTRY;
+        log_nominal("Entering REEL_ENTRY");
     }
-    switch (manual_motion_state) {
-    case ST_ENTRY:
-    case ST_SEND_RA:
+    switch (reel_state) {
+    case REEL_ENTRY:
+    case REEL_SEND_RA:
         RA_ack_flag = NO_ACK;
         zephyrTX.RA();
-        manual_motion_state = ST_WAIT_RAACK;
+        reel_state = REEL_WAIT_RAACK;
         scheduler.AddAction(RESEND_RA, ZEPHYR_RESEND_TIMEOUT);
-        log_nominal("Entering ST_WAIT_RAACK");
+        log_nominal("Entering REEL_WAIT_RAACK");
         break;
 
-    case ST_WAIT_RAACK:
-        //TODO: This code came from StratoCore_RACHUTS::Flight_ManualMotion(), which
+    case REEL_WAIT_RAACK:
+        //TODO: This code came from StratoCore_RACHUTS::Flight_Reel(), which
         // was recently added by Lars. PIBConfigs::ra_override is not defined in that system either.
         //if(RATSConfigs.ra_override.Read()) //Over Ride RA requirement in an emergency
         //    RA_ack_flag = ACK;
@@ -40,9 +40,9 @@ bool StratoRATS::Flight_ManualMotion(bool restart_state)
             return true;
             break;
         } else if (ACK == RA_ack_flag) {
-            manual_motion_state = ST_START_MOTION;
+            reel_state = REEL_START_MOTION;
             resend_attempted = false;
-            log_nominal("Entering ST_START_MOTION");
+            log_nominal("Entering REEL_START_MOTION");
         } else if (NAK == RA_ack_flag) {
             resend_attempted = false;
             ZephyrLogWarn("Cannot perform motion, RA NAK");
@@ -50,8 +50,8 @@ bool StratoRATS::Flight_ManualMotion(bool restart_state)
         } else if (CheckAction(RESEND_RA)) {
             if (!resend_attempted) {
                 resend_attempted = true;
-                manual_motion_state = ST_SEND_RA;
-                log_nominal("Entering ST_SEND_RA");
+                reel_state = REEL_SEND_RA;
+                log_nominal("Entering REEL_SEND_RA");
             } else {
                 ZephyrLogWarn("Never received RAAck");
                 resend_attempted = false;
@@ -60,7 +60,7 @@ bool StratoRATS::Flight_ManualMotion(bool restart_state)
         }
         break;
 
-    case ST_START_MOTION:
+    case REEL_START_MOTION:
         if (mcb_motion_ongoing) {
             ZephyrLogWarn("Motion commanded while motion ongoing");
             log_error("Motion commanded while motion ongoing");
@@ -69,9 +69,9 @@ bool StratoRATS::Flight_ManualMotion(bool restart_state)
         }
 
         if (StartMCBMotion()) {
-            manual_motion_state = ST_VERIFY_MOTION;
+            reel_state = REEL_VERIFY_MOTION;
             scheduler.AddAction(RESEND_MOTION_COMMAND, MCB_RESEND_TIMEOUT);
-            log_nominal("Entering ST_VERIFY_MOTION");
+            log_nominal("Entering REEL_VERIFY_MOTION");
         } else {
             ZephyrLogWarn("Motion start error");
             log_error("Motion start error");
@@ -80,20 +80,20 @@ bool StratoRATS::Flight_ManualMotion(bool restart_state)
         }
         break;
 
-    case ST_VERIFY_MOTION:
+    case REEL_VERIFY_MOTION:
         if (mcb_motion_ongoing) { // set in the Ack handler
             log_nominal("MCB commanded motion");
             // max_profile_seconds was set in StartMCBMotion()
             scheduler.AddAction(ACTION_MOTION_TIMEOUT, max_profile_seconds);
-            manual_motion_state = ST_MONITOR_MOTION;
-            log_nominal("Entering ST_MONITOR_MOTION");
+            reel_state = REEL_MONITOR_MOTION;
+            log_nominal("Entering REEL_MONITOR_MOTION");
         }
 
         if (CheckAction(RESEND_MOTION_COMMAND)) {
             if (!resend_attempted) {
                 resend_attempted = true;
-                manual_motion_state = ST_START_MOTION;
-                log_nominal("Entering ST_START_MOTION");
+                reel_state = REEL_START_MOTION;
+                log_nominal("Entering REEL_START_MOTION");
             } else {
                 resend_attempted = false;
                 ZephyrLogWarn("MCB never confirmed motion");
@@ -104,7 +104,7 @@ bool StratoRATS::Flight_ManualMotion(bool restart_state)
         }
         break;
 
-    case ST_MONITOR_MOTION:
+    case REEL_MONITOR_MOTION:
         if (CheckAction(ACTION_MOTION_STOP)) {
             // todo: verification of motion stop
             ZephyrLogFine("Commanded motion stop");
@@ -122,14 +122,14 @@ bool StratoRATS::Flight_ManualMotion(bool restart_state)
         }
 
         if (!mcb_motion_ongoing) {
-            SendMCBTM(FINE, "Finished commanded manual motion");
-            manual_motion_state = ST_TM_ACK;
+            SendMCBTM(FINE, "Finished commanded reel motion");
+            reel_state = REEL_TM_ACK;
             scheduler.AddAction(RESEND_TM, ZEPHYR_RESEND_TIMEOUT);
-            log_nominal("Entering ST_TM_ACK");
+            log_nominal("Entering REEL_TM_ACK");
         }
         break;
 
-    case ST_TM_ACK:
+    case REEL_TM_ACK:
         if (ACK == TM_ack_flag) {
             log_nominal("Zephyr ACKed motion TM");
             return true;
@@ -146,5 +146,5 @@ bool StratoRATS::Flight_ManualMotion(bool restart_state)
         return true;
     }
 
-    return false; // assume incomplete
+    return false; // remain in this mode, unless we have changed inst_substate
 }

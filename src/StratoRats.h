@@ -126,9 +126,18 @@ private:
 
 
     // Flight states (each in own .cpp file)
-    // when starting the state, call with restart_state = true
-    // then call with restart_state = false until the function returns true meaning it's completed
-    bool Flight_ManualMotion(bool restart_state);
+    // when starting the state, initiate by calling with state = true
+    // then call with restart = false until the function returns true,
+    // a which indicates that the state has completed.
+    // HOWEVER, THE STATE FUNCTION CAN CHANGE inst_substate (E.G. TO FL_ERROR)
+    // AND RETURN FALSE, WHICH WILL FORCE THE FLIGHT MODE TO THE NEW STATE.
+    // TODO: This seems hard to follow. Perhaps the flight state should
+    // return a specific status code, and let Flight() determine what
+    // to do. As it is, the complete state machine logic is split up
+    // among multiple files (via inst_state), making it very hard to 
+    // see the logic in one place.
+    bool Flight_Reel(bool restart);
+    bool Flight_Warmup(bool restart);
 
     // Telcommand handler - returns ack/nak
     bool TCHandler(Telecommand_t telecommand);

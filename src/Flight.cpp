@@ -2,15 +2,11 @@
 
 enum FLStates_t : uint8_t {
     FL_ENTRY = MODE_ENTRY,
-    // add any desired states between entry and shutdown
     FL_GPS_WAIT,
-    FL_LORA_WAIT1,
-    FL_CONFIG_ECU,
-    FL_LORA_WAIT2,
+    FL_WARMUP,
     FL_MEASURE,
     FL_SEND_TELEMETRY,
-    FL_MANUAL_MOTION,
-
+    FL_REEL,
     FL_ERROR = MODE_ERROR,
     FL_SHUTDOWN = MODE_SHUTDOWN,
     FL_EXIT = MODE_EXIT
@@ -57,62 +53,16 @@ void StratoRATS::FlightMode()
             scheduler.AddAction(ACTION_LORA_COUNT_MSGS, 1);
             scheduler.AddAction(ACTION_LORA_WAIT_TIMEOUT, LORA_MSG_TIMEOUT);
             // Reset lora count
-            lora_count_check(true);
-            inst_substate = FL_LORA_WAIT1;
-            log_nominal("Entering FL_LORA_WAIT1");
-            log_nominal("FL_LORA_WAIT1 waiting for LoRa message");
+            inst_substate = FL_WARMUP;
+            log_nominal("Entering FL_WARMUP");
         }
         break;
-    case FL_LORA_WAIT1:
-        if (CheckAction(ACTION_LORA_COUNT_MSGS)) {
-            // Wait for enough LoRa message to arrive.
-            if (lora_count_check() >= LORA_MSG_COUNT) { 
-                log_nominal("FL_LORA_WAIT1 Expected LoRa messages received");
-                inst_substate = FL_CONFIG_ECU;
-                log_nominal("Entering FL_CONFIG_ECU");
-            } else {
-                scheduler.AddAction(ACTION_LORA_COUNT_MSGS, 1);
-            }
-        }
-        if (CheckAction(ACTION_LORA_WAIT_TIMEOUT)) {
-            log_error("FL_LORA_WAIT1 Expected LoRa messages not received");
-            ZephyrLogWarn("LoRa messages not received during first wait");
-            inst_substate = FL_ERROR;
-            log_error("Entering FL_ERROR");
-        }
-
-        break;
-    case FL_CONFIG_ECU:
-        // Cancel LORA timeout action
-        CheckAction(ACTION_LORA_WAIT_TIMEOUT);
-        // Configure the ECU here.
-        log_nominal("FL_CONFIG_ECU Configuring ECU");
-        scheduler.AddAction(ACTION_LORA_COUNT_MSGS, 1);
-        scheduler.AddAction(ACTION_LORA_WAIT_TIMEOUT, LORA_MSG_TIMEOUT);
-        inst_substate = FL_LORA_WAIT2;
-        // Reset lora count
-        lora_count_check(true);
-        log_nominal("Entering FL_LORA_WAIT2");
-        log_nominal("FL_LORA_WAIT2 waiting for LoRa message");
-        break;
-    case FL_LORA_WAIT2:
-        if (CheckAction(ACTION_LORA_COUNT_MSGS)) {
-            // Wait for enough LoRa messages to arrive.
-            if (lora_count_check() >= LORA_MSG_COUNT) { 
-                // Configure ECU here.
-                log_nominal("FL_LORA_WAIT2 Expected LoRa messages received");
-                scheduler.AddAction(ACTION_START_TELEMETRY, 0); 
-                inst_substate = FL_MEASURE;
-                log_nominal("Entering FL_MEASURE");
-            } else {
-                scheduler.AddAction(ACTION_LORA_COUNT_MSGS, 1);
-            }
-        }
-        if (CheckAction(ACTION_LORA_WAIT_TIMEOUT)) {
-            log_error("FL_LORA_WAIT2 Expected LoRa messages not received");
-            ZephyrLogWarn("LoRa messages not received during second wait");
-            inst_substate = FL_ERROR;
-            log_error("Entering FL_ERROR");
+    case FL_WARMUP:
+        // Flight_Warmup() will set inst_substate to FL_ERROR if it fails
+        if (Flight_Warmup(false)) {
+            scheduler.AddAction(ACTION_START_TELEMETRY, 60);
+            inst_substate = FL_MEASURE;
+            log_nominal("Entering FL_MEASURE");
         }
         break;
     case FL_MEASURE:
@@ -125,24 +75,25 @@ void StratoRATS::FlightMode()
         } else {
             if(CheckAction(ACTION_REEL_OUT)) {
                 mcb_motion = MOTION_REEL_OUT;
-                inst_substate = FL_MANUAL_MOTION;
-                log_nominal("Entering FL_MANUAL_MOTION (reel out)");
+                inst_substate = FL_REEL;
+                log_nominal("Entering FL_REEL (reel out)");
                 // START the Flight Manual Motion state machine
-                Flight_ManualMotion(true);
+                Flight_Reel(true);
             } else if (CheckAction(ACTION_REEL_IN)) {
                 mcb_motion = MOTION_REEL_IN;
-                inst_substate = FL_MANUAL_MOTION;
-                log_nominal("Entering FL_MANUAL_MOTION (reel in)");
+                inst_substate = FL_REEL;
+                log_nominal("Entering FL_REEL (reel in)");
                 // START the Flight Manual Motion state machine
-                Flight_ManualMotion(true);
+                Flight_Reel(true);
             }
         }
         log_debug("FL Measure");
         break;
-    case FL_MANUAL_MOTION:
-        if (Flight_ManualMotion(false)) {
-            inst_substate = FL_MEASURE;
-            log_nominal("Entering FL_MEASURE");
+    case FL_REEL:
+        if (Flight_Reel(false)) {
+            log_nominal("Entering FL_WARMUP");
+            Flight_Warmup(true);
+            inst_substate = FL_WARMUP;
         }
         break;
     case FL_SEND_TELEMETRY:
