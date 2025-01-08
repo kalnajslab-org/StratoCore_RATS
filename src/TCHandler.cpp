@@ -54,7 +54,7 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
         msg = String("TC Cancel Motion");
         break;
     case ZEROREEL:
-        if (mcb_dock_ongoing) {
+        if (mcb_motion_ongoing) {
             ZephyrLogWarn("Can't zero reel, motion ongoing");
         }
         mcbComm.TX_ASCII(MCB_ZERO_REEL);

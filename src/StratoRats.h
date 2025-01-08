@@ -171,7 +171,6 @@ private:
     // flags for MCB state tracking
     bool mcb_low_power = false;
     bool mcb_motion_ongoing = false;
-    bool mcb_dock_ongoing = false;
     uint32_t max_profile_seconds = 0;
     bool mcb_reeling_in = false;
     uint16_t mcb_tm_counter = 0;

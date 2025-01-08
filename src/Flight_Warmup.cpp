@@ -9,7 +9,6 @@ enum WarmupStates_t
 };
 
 static WarmupStates_t warmup_state = WARMUP_ENTRY;
-static bool resend_attempted = false;
 
 bool StratoRATS::Flight_Warmup(bool restart)
 {

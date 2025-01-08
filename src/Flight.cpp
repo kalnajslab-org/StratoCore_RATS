@@ -49,12 +49,13 @@ void StratoRATS::FlightMode()
         }
         // time_valid is set when StratoCore::RouteRXMessage() receives a GPS message
         if (time_valid) {
+            log_nominal("Entering FL_WARMUP");
             // Transition to waiting for LoRa
             scheduler.AddAction(ACTION_LORA_COUNT_MSGS, 1);
             scheduler.AddAction(ACTION_LORA_WAIT_TIMEOUT, LORA_MSG_TIMEOUT);
-            // Reset lora count
+            // Initialize Flight_Warmup()
+            Flight_Warmup(true);
             inst_substate = FL_WARMUP;
-            log_nominal("Entering FL_WARMUP");
         }
         break;
     case FL_WARMUP:

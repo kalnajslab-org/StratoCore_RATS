@@ -239,7 +239,7 @@ void StratoRATS::AddMCBTM()
         zephyrTX.setStateFlagValue(3, NOMESS);
         zephyrTX.TM();
         log_nominal(log_array);
-        MCB_TM_buffer_idx = 0; //reser the MCB buffer pointer
+        MCB_TM_buffer_idx = 0; //reset the MCB buffer pointer
     }
 }
 
@@ -247,9 +247,6 @@ void StratoRATS::NoteProfileStart()
 {
     mcb_motion_ongoing = true;
     profile_start = millis();
-
-    if (MOTION_IN_NO_LW == mcb_motion) mcb_dock_ongoing = true;
-
     mcb_tm_counter = 0;
 
     zephyrTX.clearTm(); // empty the TM buffer for incoming MCB motion data
