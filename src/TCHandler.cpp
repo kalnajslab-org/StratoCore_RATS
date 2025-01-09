@@ -103,20 +103,6 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
         ratsConfigs.data_proc_method.Write(ratsParam.data_proc_method);
         msg = String("TC set processing mode")+comma+String(Set_dataProcMethod);
         break;
-    case RATSDEPLOY:
-        Set_deployRevs = ratsParam.deploy_revs;
-        Set_deploySpeed = ratsParam.deploy_velocity;
-        ratsConfigs.deploy_revs.Write(ratsParam.deploy_revs);
-        ratsConfigs.deploy_velocity.Write(ratsParam.deploy_velocity);
-        msg = String("TC ECU deploy")+comma+String(Set_deployRevs)+comma+String(Set_deploySpeed);
-        break;
-    case RATSRETRACT:
-        Set_retractRevs = ratsParam.retract_revs;
-        Set_retractSpeed = ratsParam.retract_velocity;
-        ratsConfigs.retract_revs.Write(ratsParam.retract_revs);
-        ratsConfigs.retract_velocity.Write(ratsParam.retract_velocity);
-        msg = String("TC ECU retract")+comma+String(Set_retractRevs)+comma+String(Set_retractSpeed);
-        break;
     case GETRATSEEPROM:
         msg = String("TC get RATS EEPROM");
         summary_level = LOG_NOMINAL;
