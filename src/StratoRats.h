@@ -33,7 +33,7 @@
 #define INSTRUMENT      RATS
 
 // Number of LoRa messages to wait for before moving on
-#define LORA_MSG_COUNT  6
+#define LORA_MSG_COUNT  3
 // Seconds to wait for LoRa messages
 #define LORA_MSG_TIMEOUT 30
 

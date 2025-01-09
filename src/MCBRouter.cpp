@@ -151,7 +151,7 @@ void StratoRATS::HandleMCBAck()
 void StratoRATS::HandleMCBBin()
 {
     // TODO: Doesn't this shadow the class member?
-    //float reel_pos = 0;
+    float reel_pos = 0;
     uint16_t reel_pos_index = 21; // todo: don't hard-code this
 
     switch (mcbComm.binary_rx.bin_id) {

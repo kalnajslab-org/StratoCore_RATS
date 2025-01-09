@@ -28,7 +28,11 @@ void StratoRATS::FlightMode()
     // Save the flight mode substate to the global variable 
     // so that it can be accessed by the status message
     flight_mode_substate= inst_substate;
-
+    static uint old_inst_substate = 256;
+    if (inst_substate != old_inst_substate) {
+        log_nominal((String("inst_substate:" + String(inst_substate)).c_str()));
+        old_inst_substate = inst_substate;
+    }
     switch (inst_substate) {
     case FL_ENTRY:
         log_nominal("Entering FL");
@@ -92,6 +96,7 @@ void StratoRATS::FlightMode()
     case FL_REEL:
         if (Flight_Reel(false)) {
             log_nominal("Entering FL_WARMUP");
+            // Start the warmup sequence
             Flight_Warmup(true);
             inst_substate = FL_WARMUP;
         }

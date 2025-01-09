@@ -17,6 +17,12 @@ bool StratoRATS::Flight_Warmup(bool restart)
         warmup_state = WARMUP_ENTRY;
 
     }
+    static uint old_warmup_state = 256;
+    if (warmup_state != old_warmup_state) {
+        log_nominal((String("warmup_state:" + String(warmup_state)).c_str()));
+        old_warmup_state = warmup_state;
+    }
+
     switch (warmup_state)
     {
     case WARMUP_ENTRY:
@@ -70,7 +76,8 @@ bool StratoRATS::Flight_Warmup(bool restart)
             // Wait for enough LoRa messages to arrive.
             if (lora_count_check() >= LORA_MSG_COUNT)
             {
-                // Configure ECU here.
+                // Cancel LORA timeout action
+                CheckAction(ACTION_LORA_WAIT_TIMEOUT);
                 log_nominal("WARMUP_LORA_WAIT2 Required LoRa messages received");
                 return true;
             }

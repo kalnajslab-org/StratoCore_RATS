@@ -17,6 +17,11 @@ bool StratoRATS::Flight_Reel(bool restart_state)
         reel_state = REEL_ENTRY;
         log_nominal("Entering REEL_ENTRY");
     }
+    static uint old_reel_state = 256;
+    if (reel_state != old_reel_state) {
+        log_nominal((String("reel_state:" + String(reel_state)).c_str()));
+        old_reel_state = reel_state;
+    }
     switch (reel_state) {
     case REEL_ENTRY:
         reel_state = REEL_START_MOTION;
@@ -34,7 +39,7 @@ bool StratoRATS::Flight_Reel(bool restart_state)
         if (StartMCBMotion()) {
             reel_state = REEL_VERIFY_MOTION;
             scheduler.AddAction(RESEND_MOTION_COMMAND, MCB_RESEND_TIMEOUT);
-            inst_substate = REEL_VERIFY_MOTION;
+            reel_state = REEL_VERIFY_MOTION;
             log_nominal("Entering REEL_VERIFY_MOTION");
         } else {
             ZephyrLogWarn("MCB start motion error");
