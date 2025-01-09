@@ -25,15 +25,13 @@ public:
     RATSConfigs();
 
     // constants, manually change version number here to force update
-    static const uint16_t CONFIG_VERSION = 0x0006;
+    static const uint16_t CONFIG_VERSION = 0x0007;
     static const uint16_t BASE_ADDRESS = 0x0000;
 
     // ------------------ Configurations ------------------
     EEPROMData<uint16_t> sample_rate_secs;
     EEPROMData<uint16_t> data_proc_method;
-    EEPROMData<uint16_t> deploy_revs;
     EEPROMData<float> deploy_velocity;   // revs/min
-    EEPROMData<uint16_t> retract_revs;
     EEPROMData<float> retract_velocity;  // revs/min
     EEPROMData<uint16_t> motion_timeout;
     // MCB TM mode

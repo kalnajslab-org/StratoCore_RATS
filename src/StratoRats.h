@@ -56,7 +56,6 @@
 
 #define LORA_TM_TIMEOUT 600
 
-// todo: perhaps more creative/useful enum here by mode with separate arrays?
 enum ScheduleAction_t : uint8_t {
     NO_ACTION = NO_SCHEDULED_ACTION,
     SEND_IMR,
@@ -216,15 +215,6 @@ private:
 
     void statusMsgCheck(int repeat_secs);
     void sendTMstatusMsg();
-
-    // Global variables used by RATS
-    // Variables with initial values, that can be configured via telecommand
-    uint16_t Set_sampleRateSecs = 60;
-    uint8_t Set_dataProcMethod = 1;
-    uint16_t Set_deployRevs = 10;
-    uint16_t Set_deploySpeed = 1;
-    uint16_t Set_retractRevs = 10;
-    uint16_t Set_retractSpeed = 1;
 
     // Actions
     ActionFlag_t action_flags[NUM_ACTIONS] = {{0}}; // initialize all flags to false
