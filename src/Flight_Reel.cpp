@@ -2,7 +2,6 @@
 
 enum ReelStates_t {
     REEL_ENTRY,
-    REEL_SEND_RA,
     REEL_START_MOTION,
     REEL_VERIFY_MOTION,
     REEL_MONITOR_MOTION,
@@ -20,9 +19,6 @@ bool StratoRATS::Flight_Reel(bool restart_state)
     }
     switch (reel_state) {
     case REEL_ENTRY:
-    case REEL_SEND_RA:
-        RA_ack_flag = NO_ACK;
-        zephyrTX.RA();
         reel_state = REEL_START_MOTION;
         resend_attempted = false;
         log_nominal("Entering REEL_START_MOTION");
@@ -32,7 +28,7 @@ bool StratoRATS::Flight_Reel(bool restart_state)
         if (mcb_motion_ongoing) {
             ZephyrLogWarn("Motion commanded while motion ongoing");
             log_error("Motion commanded while motion ongoing");
-            inst_substate = MODE_ERROR; // will force exit of Flight_Profile
+            inst_substate = MODE_ERROR;
             log_error("Entering MODE_ERROR");
         }
         if (StartMCBMotion()) {
@@ -41,9 +37,9 @@ bool StratoRATS::Flight_Reel(bool restart_state)
             inst_substate = REEL_VERIFY_MOTION;
             log_nominal("Entering REEL_VERIFY_MOTION");
         } else {
-            ZephyrLogWarn("Motion start error");
-            log_error("Motion start error");
-            inst_substate = MODE_ERROR; // will force exit of Flight_Profile
+            ZephyrLogWarn("MCB start motion error");
+            log_error("MCB start motion error");
+            inst_substate = MODE_ERROR; 
             log_error("Entering MODE_ERROR");
         }
         break;

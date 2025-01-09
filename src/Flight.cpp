@@ -88,7 +88,6 @@ void StratoRATS::FlightMode()
                 Flight_Reel(true);
             }
         }
-        log_debug("FL Measure");
         break;
     case FL_REEL:
         if (Flight_Reel(false)) {
