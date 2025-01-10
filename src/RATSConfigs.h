@@ -34,10 +34,6 @@ public:
     EEPROMData<float> deploy_velocity;   // revs/min
     EEPROMData<float> retract_velocity;  // revs/min
     EEPROMData<uint16_t> motion_timeout;
-    // MCB TM mode
-    EEPROMData<bool> real_time_mcb;
-    // ----------------------------------------------------
-
 };
 
 #endif /* RATSCONFIG_H */

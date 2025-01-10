@@ -96,17 +96,17 @@ void StratoRATS::HandleMCBAck()
         break;
     case MCB_REEL_IN:
         if (MOTION_REEL_IN == mcb_motion) { 
-            NoteProfileStart();
+            InitMotion();
         }
         break;
     case MCB_REEL_OUT:
         if (MOTION_REEL_OUT == mcb_motion) {
-            NoteProfileStart();
+            InitMotion();
         }
         break;
     case MCB_IN_NO_LW:
         if (MOTION_IN_NO_LW == mcb_motion) {
-            NoteProfileStart();
+            InitMotion();
         }
         break;
     case MCB_FULL_RETRACT:
@@ -152,10 +152,14 @@ void StratoRATS::HandleMCBBin()
 {
     // TODO: Doesn't this shadow the class member?
     float reel_pos = 0;
+    // This index is a location in the binary data sent from the MCB. 
+    // That buffer is filled in MonitorMCB::SendMotionData(void),
+    // this is where you can determine the offset.
     uint16_t reel_pos_index = 21; // todo: don't hard-code this
 
     switch (mcbComm.binary_rx.bin_id) {
     case MCB_MOTION_TM:
+        log_nominal((String("MCB_MOTION_TM binary length:")+String(mcbComm.binary_rx.bin_length)).c_str());
         if (BufferGetFloat(&reel_pos, mcbComm.binary_rx.bin_buffer, mcbComm.binary_rx.bin_length, &reel_pos_index)) {
             snprintf(log_array, 101, "Reel position: %ld", (int32_t) reel_pos);
             log_nominal(log_array);

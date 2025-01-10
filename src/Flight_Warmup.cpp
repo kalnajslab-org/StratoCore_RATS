@@ -29,7 +29,7 @@ bool StratoRATS::Flight_Warmup(bool restart)
         // Start the LoRa message counter
         lora_count_check(true);
         scheduler.AddAction(ACTION_LORA_COUNT_MSGS, 1);
-        scheduler.AddAction(ACTION_LORA_WAIT_TIMEOUT, LORA_MSG_TIMEOUT);
+        scheduler.AddAction(ACTION_LORA_WAIT_TIMEOUT, LORA_WARMUP_MSG_TIMEOUT);
         warmup_state = WARMUP_LORA_WAIT1;
         log_nominal("Entering WARMUP_WAIT1");
         break;
@@ -63,7 +63,7 @@ bool StratoRATS::Flight_Warmup(bool restart)
         // Configure the ECU here.
         log_nominal("WARMUP_CONFIG_ECU Configuring ECU");
         scheduler.AddAction(ACTION_LORA_COUNT_MSGS, 1);
-        scheduler.AddAction(ACTION_LORA_WAIT_TIMEOUT, LORA_MSG_TIMEOUT);
+        scheduler.AddAction(ACTION_LORA_WAIT_TIMEOUT, LORA_WARMUP_MSG_TIMEOUT);
         warmup_state = WARMUP_LORA_WAIT2;
         // Start the LoRa message counter
         lora_count_check(true);

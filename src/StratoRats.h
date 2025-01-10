@@ -16,7 +16,7 @@
 // WARNING: DO NOT CHECK CODE INTO GIT WIH THIS OPTION ENABLED. 
 //          MAKE SURE THIS OPTION IS FALSE FOR FLIGHT DEPLOYED FIRMWARE.
 // Define this to disable some error checking and logging during development testing.
-#define DISABLE_DEVEL_ERROR_CHECKING true
+#define DISABLE_DEVEL_ERROR_CHECKING false
 
 // Reporting period for status message generation, including TM transmission.
 #define STATUS_MSG_PERIOD_SECS 300
@@ -34,8 +34,8 @@
 
 // Number of LoRa messages to wait for before moving on
 #define LORA_MSG_COUNT  3
-// Seconds to wait for LoRa messages
-#define LORA_MSG_TIMEOUT 30
+// Seconds to wait for all LoRa messages to be received during warmup
+#define LORA_WARMUP_MSG_TIMEOUT 60
 
 #define ZEPHYR_SERIAL_BUFFER_SIZE 4096
 #define MCB_SERIAL_BUFFER_SIZE    4096
@@ -53,8 +53,6 @@
 #define HEARTBEAT_LED_PIN	3
 
 #define ZEPHYR_RESEND_TIMEOUT   60
-
-#define LORA_TM_TIMEOUT 600
 
 enum ScheduleAction_t : uint8_t {
     NO_ACTION = NO_SCHEDULED_ACTION,
@@ -172,7 +170,6 @@ private:
     bool mcb_motion_ongoing = false;
     uint32_t max_profile_seconds = 0;
     bool mcb_reeling_in = false;
-    uint16_t mcb_tm_counter = 0;
     float reel_pos = 0.0;
 
 
@@ -203,11 +200,17 @@ private:
     // Start any type of MCB motion
     bool StartMCBMotion();
 
-    // Add an MCB motion TM packet to the binary TM buffer
+    // Sets:
+    //   mcb_motion_ongoing(true)
+    //   profiler_start(millis())
+    //   mcb_tm_counter(0)
+    // Starts TM:
+    //   Clears TM
+    //   Adds to TM: timestamp(now())
     void AddMCBTM();
 
     // Set variables and TM buffer after a profile starts
-    void NoteProfileStart();
+    void InitMotion();
 
     // Send a telemetry packet with EEPROM contents
     void SendMCBEEPROM();

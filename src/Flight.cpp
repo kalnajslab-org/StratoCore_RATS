@@ -56,7 +56,7 @@ void StratoRATS::FlightMode()
             log_nominal("Entering FL_WARMUP");
             // Transition to waiting for LoRa
             scheduler.AddAction(ACTION_LORA_COUNT_MSGS, 1);
-            scheduler.AddAction(ACTION_LORA_WAIT_TIMEOUT, LORA_MSG_TIMEOUT);
+            scheduler.AddAction(ACTION_LORA_WAIT_TIMEOUT, LORA_WARMUP_MSG_TIMEOUT);
             // Initialize Flight_Warmup()
             Flight_Warmup(true);
             inst_substate = FL_WARMUP;

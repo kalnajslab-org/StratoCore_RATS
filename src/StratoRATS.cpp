@@ -213,49 +213,31 @@ void StratoRATS::AddMCBTM()
         return;
     }
 
-    // if not in real-time mode, add the sync and time
-    if (!ratsConfigs.real_time_mcb.Read()) {
-        // sync byte        
-        MCB_TM_buffer[MCB_TM_buffer_idx++] = (uint8_t) 0xA5;
-                
-        // tenths of seconds since start
-        uint16_t elapsed_time = (uint16_t)((millis() - profile_start) / 100);
-        MCB_TM_buffer[MCB_TM_buffer_idx++] = (uint8_t) (elapsed_time >> 8);
-        MCB_TM_buffer[MCB_TM_buffer_idx++] = (uint8_t) (elapsed_time & 0xFF);
-    }
-
     // add each byte of data to the message
     for (int i = 0; i < MOTION_TM_SIZE; i++) {
         MCB_TM_buffer[MCB_TM_buffer_idx++] = mcbComm.binary_rx.bin_buffer[i];
     }
 
-    // if real-time mode, send the TM packet
-    if (ratsConfigs.real_time_mcb.Read()) {
-        snprintf(log_array, LOG_ARRAY_SIZE, "MCB TM Packet %u", ++mcb_tm_counter);
-        zephyrTX.addTm(MCB_TM_buffer,MCB_TM_buffer_idx);
-        zephyrTX.setStateDetails(1, log_array);
-        zephyrTX.setStateFlagValue(1, FINE);
-        zephyrTX.setStateFlagValue(2, NOMESS);
-        zephyrTX.setStateFlagValue(3, NOMESS);
-        zephyrTX.TM();
-        log_nominal(log_array);
-        MCB_TM_buffer_idx = 0; //reset the MCB buffer pointer
-    }
+    // Send the TM packet
+    zephyrTX.addTm(MCB_TM_buffer,MCB_TM_buffer_idx);
+    zephyrTX.setStateDetails(1, log_array);
+    zephyrTX.setStateFlagValue(1, FINE);
+    zephyrTX.setStateFlagValue(2, NOMESS);
+    zephyrTX.setStateFlagValue(3, NOMESS);
+    zephyrTX.TM();
+    MCB_TM_buffer_idx = 0; //reset the MCB buffer pointer
+
+    snprintf(log_array, LOG_ARRAY_SIZE, "Sending MCB motion TM");
+    log_nominal(log_array);
 }
 
-void StratoRATS::NoteProfileStart()
+void StratoRATS::InitMotion()
 {
     mcb_motion_ongoing = true;
     profile_start = millis();
-    mcb_tm_counter = 0;
 
     zephyrTX.clearTm(); // empty the TM buffer for incoming MCB motion data
-
-    // Add the start time to the MCB TM Header if not in real-time mode
-    // TODO What is real-time mcb mode?
-    if (!ratsConfigs.real_time_mcb.Read()) {
-        zephyrTX.addTm((uint32_t) now()); // as a header, add the current seconds since epoch
-    }
+    zephyrTX.addTm((uint32_t) now()); // as a header, add the current seconds since epoch
 }
 
 void StratoRATS::SendMCBTM(StateFlag_t state_flag, const char * message)
