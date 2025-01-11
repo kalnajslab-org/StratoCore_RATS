@@ -150,8 +150,6 @@ void StratoRATS::HandleMCBAck()
 
 void StratoRATS::HandleMCBBin()
 {
-    // TODO: Doesn't this shadow the class member?
-    float reel_pos = 0;
     // This index is a location in the binary data sent from the MCB. 
     // That buffer is filled in MonitorMCB::SendMotionData(void),
     // this is where you can determine the offset.
@@ -160,9 +158,10 @@ void StratoRATS::HandleMCBBin()
     switch (mcbComm.binary_rx.bin_id) {
     case MCB_MOTION_TM:
         log_nominal((String("MCB_MOTION_TM binary length:")+String(mcbComm.binary_rx.bin_length)).c_str());
-        if (BufferGetFloat(&reel_pos, mcbComm.binary_rx.bin_buffer, mcbComm.binary_rx.bin_length, &reel_pos_index)) {
-            snprintf(log_array, 101, "Reel position: %ld", (int32_t) reel_pos);
-            log_nominal(log_array);
+
+        float f;
+        if (BufferGetFloat(&f, mcbComm.binary_rx.bin_buffer, mcbComm.binary_rx.bin_length, &reel_pos_index)) {
+            log_nominal((String("Reel pos: ") + String(f)).c_str());
         } else {
             log_nominal("Received MCB bin: unable to read position");
         }
