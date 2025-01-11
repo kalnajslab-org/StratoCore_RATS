@@ -311,7 +311,5 @@ void StratoRATS::SendRATSEEPROM()
         if (reset) {
             lora_count = total_lora_count;;
         } 
-        uint32_t temp = total_lora_count - lora_count;
-        //log_nominal((String("lora_count_check: " + String(temp)).c_str()));
-        return temp;
+        return total_lora_count - lora_count;
     }
