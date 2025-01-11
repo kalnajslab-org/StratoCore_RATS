@@ -18,6 +18,8 @@
 // Define this to disable some error checking and logging during development testing.
 #define DISABLE_DEVEL_ERROR_CHECKING false
 
+#define EXTRA_LOGGING false
+
 // Reporting period for status message generation, including TM transmission.
 #define STATUS_MSG_PERIOD_SECS 300
 
@@ -66,7 +68,6 @@ enum ScheduleAction_t : uint8_t {
     ACTION_START_TELEMETRY,
     ACTION_GPS_WAIT_MSG,
     ACTION_LORA_COUNT_MSGS,
-    ACTION_LORA_WAIT_TIMEOUT,
     ACTION_SEND_STATUS,
     ACTION_REEL_OUT,
     ACTION_REEL_IN,
@@ -74,7 +75,6 @@ enum ScheduleAction_t : uint8_t {
 
     ACTION_MOTION_STOP,
     ACTION_MOTION_TIMEOUT,
-    ACTION_SIM_LORA_MSG,
 
     NUM_ACTIONS
 };
@@ -212,8 +212,10 @@ private:
     // Set variables and TM buffer after a profile starts
     void InitMotion();
 
-    // Send a telemetry packet with EEPROM contents
+    // Send a TM with MCB EEPROM contents
     void SendMCBEEPROM();
+
+    // Send a TM with RATS EEPROM contents
     void SendRATSEEPROM();
 
     void statusMsgCheck(int repeat_secs);
@@ -232,6 +234,7 @@ private:
     uint16_t LoRa_TM_buffer_idx = 0;
     uint16_t pu_tm_counter = 0;
     long LoRa_rx_time = 0;
+    time_t LoRa_timer_start = 0;
 
 };
 #endif /* STRATORATS_H */

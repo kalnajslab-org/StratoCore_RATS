@@ -43,7 +43,7 @@ void StratoRATS::LoRaRX()
             log_error(String(String("LoRa message count mismatch ") + String(lora_msg.count) + " " + String(total_lora_count)).c_str());
             total_lora_count = lora_msg.count;
         }
-
+#if EXTRA_LOGGING
         if (lora_msg.count % 30 == 0) {
             snprintf(log_array, LOG_ARRAY_SIZE,
                 "LoRa rx n:%ld id:%ld rssi:%d snr:%.1f ferr:%ld",
@@ -51,6 +51,7 @@ void StratoRATS::LoRaRX()
 
             log_nominal(log_array);
         }
+#endif
     }
 }
 
@@ -162,6 +163,7 @@ void StratoRATS::sendTMstatusMsg() {
     }
 
     zephyrTX.TM();
+    MCB_TM_buffer_idx = 0; //reset the MCB buffer pointer
 
 }
 
@@ -227,7 +229,7 @@ void StratoRATS::AddMCBTM()
     zephyrTX.TM();
     MCB_TM_buffer_idx = 0; //reset the MCB buffer pointer
 
-    snprintf(log_array, LOG_ARRAY_SIZE, "Sending MCB motion TM");
+    snprintf(log_array, LOG_ARRAY_SIZE, "MCB motion TM");
     log_nominal(log_array);
 }
 
@@ -251,8 +253,7 @@ void StratoRATS::SendMCBTM(StateFlag_t state_flag, const char * message)
 
     TM_ack_flag = NO_ACK;
     zephyrTX.TM();
-
-    log_nominal(log_array);
+    MCB_TM_buffer_idx = 0; //reset the MCB buffer pointer
     if (!WriteFileTM("MCB")) {
         log_error("Unable to write MCB TM to SD file");
     }
@@ -273,8 +274,9 @@ void StratoRATS::SendMCBEEPROM()
     // send as TM
     TM_ack_flag = NO_ACK;
     zephyrTX.TM();
+    MCB_TM_buffer_idx = 0; //reset the MCB buffer pointer
 
-    log_nominal("Sent MCB EEPROM as TM");
+    log_nominal("MCB EEPROM TM");
 }
 
 void StratoRATS::SendRATSEEPROM()
@@ -300,6 +302,7 @@ void StratoRATS::SendRATSEEPROM()
     // send as TM
     TM_ack_flag = NO_ACK;
     zephyrTX.TM();
+    MCB_TM_buffer_idx = 0; //reset the MCB buffer pointer
 
     log_nominal("Sent RATS EEPROM as TM");
 }
@@ -308,5 +311,7 @@ void StratoRATS::SendRATSEEPROM()
         if (reset) {
             lora_count = total_lora_count;;
         } 
-        return total_lora_count - lora_count;
+        uint32_t temp = total_lora_count - lora_count;
+        //log_nominal((String("lora_count_check: " + String(temp)).c_str()));
+        return temp;
     }

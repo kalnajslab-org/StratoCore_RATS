@@ -28,18 +28,20 @@ void StratoRATS::FlightMode()
     // Save the flight mode substate to the global variable 
     // so that it can be accessed by the status message
     flight_mode_substate= inst_substate;
+
+#if EXTRA_LOGGING
     static uint old_inst_substate = 256;
     if (inst_substate != old_inst_substate) {
         log_nominal((String("inst_substate:" + String(inst_substate)).c_str()));
         old_inst_substate = inst_substate;
     }
+#endif
+
     switch (inst_substate) {
     case FL_ENTRY:
         log_nominal("Entering FL");
         // Register ACTION_SEND_STATUS action to trigger the first status message 
         scheduler.AddAction(ACTION_SEND_STATUS, 1);
-        // Set trigger for received LOra message
-        scheduler.AddAction(ACTION_SIM_LORA_MSG, 30);
         // Transition to waiting for a GPS message.
         scheduler.AddAction(ACTION_GPS_WAIT_MSG, 5);
         inst_substate = FL_GPS_WAIT;
@@ -54,9 +56,7 @@ void StratoRATS::FlightMode()
         // time_valid is set when StratoCore::RouteRXMessage() receives a GPS message
         if (time_valid) {
             log_nominal("Entering FL_WARMUP");
-            // Transition to waiting for LoRa
-            scheduler.AddAction(ACTION_LORA_COUNT_MSGS, 1);
-            scheduler.AddAction(ACTION_LORA_WAIT_TIMEOUT, LORA_WARMUP_MSG_TIMEOUT);
+            scheduler.PrintSchedule();
             // Initialize Flight_Warmup()
             Flight_Warmup(true);
             inst_substate = FL_WARMUP;
@@ -71,8 +71,6 @@ void StratoRATS::FlightMode()
         }
         break;
     case FL_MEASURE:
-        // Cancel LORA timeout action
-        CheckAction(ACTION_LORA_WAIT_TIMEOUT);
         if (CheckAction(ACTION_START_TELEMETRY)) {
             inst_substate = FL_SEND_TELEMETRY;
             log_nominal("Entering FL_SEND_TELEMETRY");
