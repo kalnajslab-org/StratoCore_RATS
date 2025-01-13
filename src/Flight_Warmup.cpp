@@ -31,12 +31,10 @@ bool StratoRATS::Flight_Warmup(bool restart)
     case WARMUP_ENTRY:
         // Start the LoRa message counter
         lora_count_check(true);
-        scheduler.PrintSchedule();
         LoRa_timer_start = now();
         scheduler.AddAction(ACTION_LORA_COUNT_MSGS, 1);
         warmup_state = WARMUP_LORA_WAIT1;
         log_nominal("Entering WARMUP_WAIT1");
-        scheduler.PrintSchedule();
         break;
 
     case WARMUP_LORA_WAIT1:
@@ -75,7 +73,6 @@ bool StratoRATS::Flight_Warmup(bool restart)
         lora_count_check(true);
         log_nominal("Entering WARMUP_LORA_WAIT2");
         log_nominal("WARMUP_LORA_WAIT2 waiting for LoRa message");
-        scheduler.PrintSchedule();
         break;
     case WARMUP_LORA_WAIT2:
         if (LoRa_timer_start + LORA_WARMUP_MSG_TIMEOUT < now())
@@ -93,7 +90,6 @@ bool StratoRATS::Flight_Warmup(bool restart)
                 if (lora_count_check() >= LORA_MSG_COUNT)
                 {
                     log_nominal("WARMUP_LORA_WAIT2 Required LoRa messages received");
-                    scheduler.PrintSchedule(); 
                     return true;
                 }
                 else

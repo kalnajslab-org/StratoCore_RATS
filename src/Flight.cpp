@@ -56,7 +56,6 @@ void StratoRATS::FlightMode()
         // time_valid is set when StratoCore::RouteRXMessage() receives a GPS message
         if (time_valid) {
             log_nominal("Entering FL_WARMUP");
-            scheduler.PrintSchedule();
             // Initialize Flight_Warmup()
             Flight_Warmup(true);
             inst_substate = FL_WARMUP;
