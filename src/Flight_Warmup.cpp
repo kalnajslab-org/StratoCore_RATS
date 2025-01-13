@@ -31,14 +31,14 @@ bool StratoRATS::Flight_Warmup(bool restart)
     case WARMUP_ENTRY:
         // Start the LoRa message counter
         lora_count_check(true);
-        LoRa_timer_start = now();
+        LoRaMsg_timer_start = now();
         scheduler.AddAction(ACTION_LORA_COUNT_MSGS, 1);
         warmup_state = WARMUP_LORA_WAIT1;
         log_nominal("Entering WARMUP_WAIT1");
         break;
 
     case WARMUP_LORA_WAIT1:
-        if (LoRa_timer_start + LORA_WARMUP_MSG_TIMEOUT < now())
+        if (LoRaMsg_timer_start + LORA_WARMUP_MSG_TIMEOUT < now())
         {
             log_error("WARMUP_LORA_WAIT1 Expected LoRa messages not received");
             ZephyrLogWarn("LoRa messages not received during first wait");
@@ -66,7 +66,7 @@ bool StratoRATS::Flight_Warmup(bool restart)
     case WARMUP_CONFIG_ECU:
         // Configure the ECU here.
         log_nominal("WARMUP_CONFIG_ECU Configuring ECU");
-        LoRa_timer_start = now();
+        LoRaMsg_timer_start = now();
         scheduler.AddAction(ACTION_LORA_COUNT_MSGS, 1);
         warmup_state = WARMUP_LORA_WAIT2;
         // Start the LoRa message counter
@@ -75,7 +75,7 @@ bool StratoRATS::Flight_Warmup(bool restart)
         log_nominal("WARMUP_LORA_WAIT2 waiting for LoRa message");
         break;
     case WARMUP_LORA_WAIT2:
-        if (LoRa_timer_start + LORA_WARMUP_MSG_TIMEOUT < now())
+        if (LoRaMsg_timer_start + LORA_WARMUP_MSG_TIMEOUT < now())
         {
             log_error("WARMUP_LORA_WAIT2 Expected LoRa messages not received");
             ZephyrLogWarn("LoRa messages not received during second wait");

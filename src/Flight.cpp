@@ -9,8 +9,8 @@
 void StratoRATS::FlightMode()
 {
     // Send a status TM, if it is time. 
-    // statusMsgCheck() will reschedule the action.
-    statusMsgCheck(STATUS_MSG_PERIOD_SECS);
+    // ratsReportCheck() will reschedule the action.
+    ratsReportCheck(RATS_REPORT_PERIOD_SECS);
 
     // Save the flight mode substate to the global variable 
     // so that it can be accessed by the status message

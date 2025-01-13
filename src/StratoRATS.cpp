@@ -110,15 +110,15 @@ void StratoRATS::RATS_Shutdown()
 {
 }
 
-void StratoRATS::statusMsgCheck(int repeat_secs) {
+void StratoRATS::ratsReportCheck(int repeat_secs) {
     if (CheckAction(ACTION_SEND_STATUS)) {
         log_nominal("Send status");
-        sendTMstatusMsg();
+        ratsReportTM();
         scheduler.AddAction(ACTION_SEND_STATUS, repeat_secs);
     }
 }
 
-void StratoRATS::sendTMstatusMsg() {
+void StratoRATS::ratsReportTM() {
     
     // Create the binary status payload
     uint8_t status[8];
@@ -175,23 +175,23 @@ bool StratoRATS::StartMCBMotion()
     switch (mcb_motion) {
     case MOTION_REEL_IN:
         success = mcbComm.TX_Reel_In(retract_length, ratsConfigs.retract_velocity.Read());
-        max_profile_seconds = 60 * (retract_length / ratsConfigs.retract_velocity.Read()) + ratsConfigs.motion_timeout.Read();
+        max_reel_seconds = 60 * (retract_length / ratsConfigs.retract_velocity.Read()) + ratsConfigs.motion_timeout.Read();
         msg = String("Reel in ") + String(retract_length,1) 
-            + " revs, timeout " + String(max_profile_seconds) 
+            + " revs, timeout " + String(max_reel_seconds) 
             + "s, velocity " + String(ratsConfigs.retract_velocity.Read(),1);
         break;
     case MOTION_REEL_OUT:
         success = mcbComm.TX_Reel_Out(deploy_length, ratsConfigs.deploy_velocity.Read());
-        max_profile_seconds = 60 * (deploy_length / ratsConfigs.deploy_velocity.Read()) + ratsConfigs.motion_timeout.Read();
+        max_reel_seconds = 60 * (deploy_length / ratsConfigs.deploy_velocity.Read()) + ratsConfigs.motion_timeout.Read();
         msg = String("Reel out ") + String(deploy_length,1) 
-            + " revs, timeout " + String(max_profile_seconds) 
+            + " revs, timeout " + String(max_reel_seconds) 
             + "s, velocity " + String(ratsConfigs.deploy_velocity.Read(),1);
         break;
     case MOTION_IN_NO_LW:
         success = mcbComm.TX_In_No_LW(retract_length, ratsConfigs.retract_velocity.Read());
-        max_profile_seconds = 60 * (retract_length / ratsConfigs.retract_velocity.Read()) + ratsConfigs.motion_timeout.Read();
+        max_reel_seconds = 60 * (retract_length / ratsConfigs.retract_velocity.Read()) + ratsConfigs.motion_timeout.Read();
         msg = String("Reel in (no LW) ") + String(retract_length,1) 
-            + " revs, timeout " + String(max_profile_seconds) 
+            + " revs, timeout " + String(max_reel_seconds) 
             + "s, velocity " + String(ratsConfigs.retract_velocity.Read(),1);
         break;
     default:
@@ -208,7 +208,7 @@ bool StratoRATS::StartMCBMotion()
 void StratoRATS::InitMCBMotionTracking()
 {
     mcb_motion_ongoing = true;
-    profile_start = millis();
+    reel_motion_start = millis();
 
     mcb_tm_counter = 0;
     //zephyrTX.clearTm(); // empty the TM buffer for incoming MCB motion data
@@ -238,7 +238,7 @@ void StratoRATS::AddMCBTM()
         MCB_TM_buffer[MCB_TM_buffer_idx++] = (uint8_t) 0xA5;
                 
         // tenths of seconds since start
-        uint16_t elapsed_time = (uint16_t)((millis() - profile_start) / 100);
+        uint16_t elapsed_time = (uint16_t)((millis() - reel_motion_start) / 100);
         MCB_TM_buffer[MCB_TM_buffer_idx++] = (uint8_t) (elapsed_time >> 8);
         MCB_TM_buffer[MCB_TM_buffer_idx++] = (uint8_t) (elapsed_time & 0xFF);
     }

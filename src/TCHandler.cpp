@@ -11,8 +11,9 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
     // MCB Telecommands -----------------------------------
     case DEPLOYx:
         msg = "TC Deploy Length";
-        deploy_length = mcbParam.deployLen;
         if (inst_substate == FL_MEASURE) {
+            deploy_length = mcbParam.deployLen;
+            msg += ": " + String(deploy_length, 1) + " revs";
             SetAction(ACTION_REEL_OUT);
         } else {
             msg = "Cannot deploy, not in FL_MEASURE";
@@ -31,9 +32,10 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
         break;
     case RETRACTx:
         msg = "TC Retract Length";
-        retract_length = mcbParam.retractLen;
         if (inst_substate == FL_MEASURE) {
+            retract_length = mcbParam.retractLen;
             SetAction(ACTION_REEL_IN);
+            msg +=  ": " + String(retract_length, 1) + " revs";
         } else {
             msg = "Cannot retract, not in FL_MEASURE";
             summary_level = LOG_ERROR;

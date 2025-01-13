@@ -13,7 +13,7 @@ enum SAStates_t : uint8_t {
 
 void StratoRATS::SafetyMode()
 {
-    statusMsgCheck(STATUS_MSG_PERIOD_SECS);
+    ratsReportCheck(RATS_REPORT_PERIOD_SECS);
     switch (inst_substate) {
     case SA_ENTRY:
         RATS_Shutdown();

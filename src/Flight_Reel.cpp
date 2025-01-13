@@ -56,8 +56,8 @@ bool StratoRATS::Flight_Reel(bool restart_state)
     case REEL_VERIFY_MOTION:
         if (mcb_motion_ongoing) { // set in the Ack handler
             log_nominal("MCB commanded motion");
-            // max_profile_seconds was set in StartMCBMotion()
-            scheduler.AddAction(ACTION_MOTION_TIMEOUT, max_profile_seconds);
+            // max_reel_seconds was set in StartMCBMotion()
+            scheduler.AddAction(ACTION_MOTION_TIMEOUT, max_reel_seconds);
             reel_state = REEL_MONITOR_MOTION;
             log_nominal("Entering REEL_MONITOR_MOTION");
         }
