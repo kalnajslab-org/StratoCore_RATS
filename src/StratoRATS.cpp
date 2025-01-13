@@ -135,9 +135,7 @@ void StratoRATS::sendTMstatusMsg() {
     zephyrTX.setStateDetails(1, Message);
 
     // Second
-    Message = "Other";
-    zephyrTX.setStateFlagValue(2, FINE);
-    zephyrTX.setStateDetails(2, Message);
+    zephyrTX.setStateFlagValue(2, NOMESS);
 
     // Third: GPS Position
     Message = "";   
@@ -206,6 +204,24 @@ bool StratoRATS::StartMCBMotion()
 
     return success;
 }
+void StratoRATS::InitMCBMotionTracking()
+{
+    mcb_motion_ongoing = true;
+    profile_start = millis();
+
+    mcb_tm_counter = 0;
+    //zephyrTX.clearTm(); // empty the TM buffer for incoming MCB motion data
+    MCB_TM_buffer_idx = 0;
+    // Add the start time to the MCB TM Header if not in real-time mode
+    if (!ratsConfigs.real_time_mcb.Read()) {
+        //zephyrTX.addTm((uint32_t) now()); // as a header, add the current seconds since epoch
+        uint32_t ProfileStartEpoch  = now();
+        MCB_TM_buffer[MCB_TM_buffer_idx++] = (uint8_t) (ProfileStartEpoch >> 24);
+        MCB_TM_buffer[MCB_TM_buffer_idx++] = (uint8_t) (ProfileStartEpoch >> 16);
+        MCB_TM_buffer[MCB_TM_buffer_idx++] = (uint8_t) (ProfileStartEpoch >> 8);
+        MCB_TM_buffer[MCB_TM_buffer_idx++] = (uint8_t) (ProfileStartEpoch & 0xFF);
+    }
+}
 
 void StratoRATS::AddMCBTM()
 {
@@ -215,36 +231,43 @@ void StratoRATS::AddMCBTM()
         return;
     }
 
+    // if not in real-time mode, add the sync and time
+    if (!ratsConfigs.real_time_mcb.Read()) {
+        // sync byte        
+        MCB_TM_buffer[MCB_TM_buffer_idx++] = (uint8_t) 0xA5;
+                
+        // tenths of seconds since start
+        uint16_t elapsed_time = (uint16_t)((millis() - profile_start) / 100);
+        MCB_TM_buffer[MCB_TM_buffer_idx++] = (uint8_t) (elapsed_time >> 8);
+        MCB_TM_buffer[MCB_TM_buffer_idx++] = (uint8_t) (elapsed_time & 0xFF);
+    }
+
     // add each byte of data to the message
     for (int i = 0; i < MOTION_TM_SIZE; i++) {
         MCB_TM_buffer[MCB_TM_buffer_idx++] = mcbComm.binary_rx.bin_buffer[i];
     }
 
-    // Send the TM packet
-    zephyrTX.addTm(MCB_TM_buffer,MCB_TM_buffer_idx);
-    zephyrTX.setStateDetails(1, log_array);
-    zephyrTX.setStateFlagValue(1, FINE);
-    zephyrTX.setStateFlagValue(2, NOMESS);
-    zephyrTX.setStateFlagValue(3, NOMESS);
-    zephyrTX.TM();
-    MCB_TM_buffer_idx = 0; //reset the MCB buffer pointer
+    // if real-time mode, send the TM packet
+    if (ratsConfigs.real_time_mcb.Read()) {
+        snprintf(log_array, LOG_ARRAY_SIZE, "MCB TM Packet %u", ++mcb_tm_counter);
+        zephyrTX.addTm(MCB_TM_buffer, MCB_TM_buffer_idx);
+        zephyrTX.setStateDetails(1, log_array);
+        zephyrTX.setStateFlagValue(1, FINE);
+        zephyrTX.setStateFlagValue(2, NOMESS);
+        zephyrTX.setStateFlagValue(3, NOMESS);
+        zephyrTX.TM();
+        log_nominal(log_array);
+        //reset the MCB buffer pointer
+        MCB_TM_buffer_idx = 0; 
+    }
 
-    snprintf(log_array, LOG_ARRAY_SIZE, "MCB motion TM");
-    log_nominal(log_array);
-}
-
-void StratoRATS::InitMotion()
-{
-    mcb_motion_ongoing = true;
-    profile_start = millis();
-
-    zephyrTX.clearTm(); // empty the TM buffer for incoming MCB motion data
-    zephyrTX.addTm((uint32_t) now()); // as a header, add the current seconds since epoch
 }
 
 void StratoRATS::SendMCBTM(StateFlag_t state_flag, const char * message)
 {
+
     // use only the first flag to report the motion
+    zephyrTX.clearTm();
     zephyrTX.addTm(MCB_TM_buffer,MCB_TM_buffer_idx);
     zephyrTX.setStateDetails(1, message);
     zephyrTX.setStateFlagValue(1, state_flag);

@@ -121,7 +121,6 @@ private:
 
     void RATS_Shutdown();
 
-
     // Flight states (each in own .cpp file)
     // when starting the state, initiate by calling with state = true
     // then call with restart = false until the function returns true,
@@ -157,9 +156,6 @@ private:
     void HandleMCBBin();
     void HandleMCBString();
 
-    // Send a telemetry packet with MCB binary info
-    void SendMCBTM(StateFlag_t state_flag, const char * message);
-
     uint8_t binary_mcb[MCB_BINARY_BUFFER_SIZE];
 
     // Global variable to track flight_substate_map[inst_subst] during flight mode
@@ -170,12 +166,15 @@ private:
     bool mcb_motion_ongoing = false;
     uint32_t max_profile_seconds = 0;
     bool mcb_reeling_in = false;
+    uint16_t mcb_tm_counter = 0;
     float reel_pos = 0.0;
 
 
     // array of error values for MCB motion fault
     uint16_t motion_fault[8] = {0};
+    // A buffer to collect MCB binary data for the MCB TM.
     uint8_t MCB_TM_buffer[8192] = {0};
+    // Next available index in the MCB TM buffer.
     uint16_t MCB_TM_buffer_idx = 0;
 
     // tracks the current type of motion
@@ -200,17 +199,16 @@ private:
     // Start any type of MCB motion
     bool StartMCBMotion();
 
-    // Sets:
-    //   mcb_motion_ongoing(true)
-    //   profiler_start(millis())
-    //   mcb_tm_counter(0)
-    // Starts TM:
-    //   Clears TM
-    //   Adds to TM: timestamp(now())
+    // Set variables and initialize the TM for MCB binary data collection.
+    // AddMCBTM() will add append MCB binary data to the TM buffer.
+    void InitMCBMotionTracking();
+
+    // Add the current MCB motion binary data to the TM buffer.
     void AddMCBTM();
 
-    // Set variables and TM buffer after a profile starts
-    void InitMotion();
+    // Send a TM with a StateMessage1 message, and the aggregated MCB binary info.
+    // All of the aggregated MCB binary data are included in the TM packet.
+    void SendMCBTM(StateFlag_t state_flag, const char * message);
 
     // Send a TM with MCB EEPROM contents
     void SendMCBEEPROM();

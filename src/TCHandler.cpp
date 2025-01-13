@@ -5,116 +5,132 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
 {
     // Set up the TC summary message
     String msg("Unhandled TC " + String(telecommand) + " received");
-    String comma(",");
     LOG_LEVEL_t summary_level = LOG_NOMINAL;
 
     switch (telecommand) {
     // MCB Telecommands -----------------------------------
     case DEPLOYx:
+        msg = "TC Deploy Length";
         deploy_length = mcbParam.deployLen;
         SetAction(ACTION_REEL_OUT);
-        msg = String("TC Deploy Length");
         break;
     case DEPLOYv:
+        msg = "TC Deploy Velocity: " + String(mcbParam.deployVel);
         ratsConfigs.deploy_velocity.Write(mcbParam.deployVel);
-        snprintf(log_array, LOG_ARRAY_SIZE, "Set deploy_velocity: %f", ratsConfigs.deploy_velocity.Read());
-        ZephyrLogFine(log_array);
-        msg = String("TC Deploy Velocity");
         break;
     case DEPLOYa:
+        msg = "TC Deploy Acceleration: " + String(mcbParam.deployAcc);
         if (!mcbComm.TX_Out_Acc(mcbParam.deployAcc)) {
-            ZephyrLogWarn("Error sending deploy acc to MCB");
+            msg = "Error sending deploy acc to MCB";
         }
-        msg = String("TC Deploy Acceleration");
         break;
     case RETRACTx:
+        msg = "TC Retract Length";
         retract_length = mcbParam.retractLen;
         SetAction(ACTION_REEL_IN); // will be ignored if wrong mode
-        msg = String("TC Retract Length");
         break;
     case RETRACTv:
+        msg = "TC Retract Velocity: " + String(mcbParam.retractVel);
         ratsConfigs.retract_velocity.Write(mcbParam.retractVel);
-        snprintf(log_array, LOG_ARRAY_SIZE, "Set retract_velocity: %f", ratsConfigs.retract_velocity.Read());
-        ZephyrLogFine(log_array);
-        msg = String("TC Retract Velocity");
         break;
     case RETRACTa:
+        msg = "TC Retract Acceleration: " + String(mcbParam.retractAcc);
         if (!mcbComm.TX_In_Acc(mcbParam.retractAcc)) {
-            ZephyrLogWarn("Error sending retract acc to MCB");
+            msg = "Error sending retract acc to MCB";
         }
-        msg = String("TC Retract Acceleration");
         break;
     case FULLRETRACT:
         // todo: determine implementation
-        msg = String("TC Full Retract");
+        msg = "TC Full Retract";
         break;
     case CANCELMOTION:
+        msg = "TC Cancel Motion";
         mcbComm.TX_ASCII(MCB_CANCEL_MOTION); // no matter what, attempt to send (irrespective of mode)
         SetAction(ACTION_MOTION_STOP);
-        msg = String("TC Cancel Motion");
         break;
     case ZEROREEL:
+        msg = "TC Zero Reel";
         if (mcb_motion_ongoing) {
-            ZephyrLogWarn("Can't zero reel, motion ongoing");
+            msg = "Can't zero reel, motion ongoing";
+            summary_level = LOG_ERROR;
+        } else {
+            mcbComm.TX_ASCII(MCB_ZERO_REEL);
         }
-        mcbComm.TX_ASCII(MCB_ZERO_REEL);
-        msg = String("TC Zero Reel");
         break;
     case TORQUELIMITS:
+        msg = "TC Torque Limits";
         if (!mcbComm.TX_Torque_Limits(mcbParam.torqueLimits[0],mcbParam.torqueLimits[1])) {
-            ZephyrLogWarn("Error sending torque limits to MCB");
+            msg = "Error sending torque limits to MCB";
+            summary_level = LOG_ERROR;
         }
-                msg = String("TC Torque Limits");
         break;
     case CURRLIMITS:
+        msg = "TC Current Limits";
         if (!mcbComm.TX_Curr_Limits(mcbParam.currLimits[0],mcbParam.currLimits[1])) {
-            ZephyrLogWarn("Error sending curr limits to MCB");
+            msg = "Error sending curr limits to MCB";
+            summary_level = LOG_ERROR;
         }
-        msg = String("TC Current Limits");
         break;
     case IGNORELIMITS:
+        msg = "TC Ignore Limits";
         mcbComm.TX_ASCII(MCB_IGNORE_LIMITS);
-        msg = String("TC Ignore Limits");
         break;
     case USELIMITS:
+        msg = "TC Use Limits";
         mcbComm.TX_ASCII(MCB_USE_LIMITS);
-        msg = String("TC Use Limits");
         break;
     case GETMCBEEPROM:
+        msg = "TC get MCB EEPROM";
         if (mcb_motion_ongoing) {
-            ZephyrLogWarn("Motion ongoing, request MCB EEPROM later");
+            msg = "Motion ongoing, request MCB EEPROM later";
+            summary_level = LOG_ERROR;
         } else {
             // Request the MCB EEPROM. MCBRouter will handle the response
             mcbComm.TX_ASCII(MCB_GET_EEPROM);
         }
-        msg = String("TC get MCB EEPROM");
         break;
     case GETMCBVOLTS:
+        msg = "TC get MCB voltages";
         mcbComm.TX_ASCII(MCB_GET_VOLTAGES);
-        msg = String("TC get MCB voltages");
         break;
     case RATSSAMPERATESECS:
+        msg = "TC set sample rate" + String(ratsParam.sample_rate_secs);
         ratsConfigs.sample_rate_secs.Write(ratsParam.sample_rate_secs);
-        msg = String("TC set sample rate")+comma+String(ratsParam.sample_rate_secs);
         break;
     case RATSDATAPROCTYPE:
+        msg = "TC set processing mode" + String(ratsParam.data_proc_method);
         ratsConfigs.data_proc_method.Write(ratsParam.data_proc_method);
-        msg = String("TC set processing mode")+comma+String(ratsParam.data_proc_method);
         break;
-    case GETRATSEEPROM:
-        msg = String("TC get RATS EEPROM");
-        summary_level = LOG_NOMINAL;
-
+    case RATSREALTIMEMCBON:
+        msg = "Enabled real-time MCB mode";
         if (mcb_motion_ongoing) {
-            ZephyrLogWarn("Motion ongoing, request RATS EEPROM later");
+            msg = "Cannot start real-time MCB mode, motion ongoing";
+            summary_level = LOG_ERROR;
+        } else {
+            ratsConfigs.real_time_mcb.Write(true);
+        }
+        break;
+    case RATSREALTIMEMCBOFF:
+        msg = "Disabled real-time MCB mode";
+        if (mcb_motion_ongoing) {
+            msg = "Cannot start real-time MCB mode, motion ongoing";
+            summary_level = LOG_ERROR;
+        } else {
+            ratsConfigs.real_time_mcb.Write(false);
+        }
+        break;
+    case RATSGETEEPROM:
+        msg = "TC get RATS EEPROM";
+        if (mcb_motion_ongoing) {
+            msg = "Motion ongoing, request RATS EEPROM later";
+            summary_level = LOG_ERROR;
         } else {
             SendRATSEEPROM();
         }
         break;
-
     default:
         summary_level = LOG_ERROR;
-        msg = String("Unknown TC ") + String(telecommand) + String(" received");
+        msg = "Unknown TC " + String(telecommand) + " received";
         break;
     }
 
