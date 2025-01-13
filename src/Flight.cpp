@@ -1,18 +1,5 @@
 #include "StratoRATS.h"
 
-enum FLStates_t : uint8_t {
-    FL_ENTRY = MODE_ENTRY,
-    FL_GPS_WAIT,
-    FL_WARMUP,
-    FL_MEASURE,
-    FL_SEND_TELEMETRY,
-    FL_REEL,
-    FL_ERROR = MODE_ERROR,
-    FL_SHUTDOWN = MODE_SHUTDOWN,
-    FL_EXIT = MODE_EXIT
-};
-
-
 // this function is called at the defined rate
 //  * when flight mode is entered, it will start in FL_ENTRY state
 //  * it is then up to this function to change state as needed by updating the inst_substate variable

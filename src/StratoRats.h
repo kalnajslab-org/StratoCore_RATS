@@ -117,9 +117,21 @@ private:
     void SafetyMode();
     void EndOfFlightMode();
     
-    void ManualFlight();
-
     void RATS_Shutdown();
+
+    // The FLIGHT mode substates.
+    // Used by TCHandler() to prohibit TCs sent during the wrong state.
+    enum FLStates_t : uint8_t {
+        FL_ENTRY = MODE_ENTRY,
+        FL_GPS_WAIT,
+        FL_WARMUP,
+        FL_MEASURE,
+        FL_SEND_TELEMETRY,
+        FL_REEL,
+        FL_ERROR = MODE_ERROR,
+        FL_SHUTDOWN = MODE_SHUTDOWN,
+        FL_EXIT = MODE_EXIT
+    };
 
     // Flight states (each in own .cpp file)
     // when starting the state, initiate by calling with state = true
@@ -204,6 +216,7 @@ private:
     void InitMCBMotionTracking();
 
     // Add the current MCB motion binary data to the TM buffer.
+    // IF WE ARE IN REAL-TIME MODE, THE TM PACKET WILL BE SENT IMMEDIATELY.
     void AddMCBTM();
 
     // Send a TM with a StateMessage1 message, and the aggregated MCB binary info.
