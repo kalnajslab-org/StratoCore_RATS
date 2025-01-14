@@ -51,7 +51,7 @@ void StratoRATS::FlightMode()
     case FL_WARMUP:
         // Flight_Warmup() will set inst_substate to FL_ERROR if it fails
         if (Flight_Warmup(false)) {
-            scheduler.AddAction(ACTION_START_TELEMETRY, 60);
+            scheduler.AddAction(ACTION_START_TELEMETRY, RATS_REPORT_PERIOD_SECS);
             inst_substate = FL_MEASURE;
             log_nominal("Entering FL_MEASURE");
         }
