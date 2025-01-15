@@ -37,7 +37,7 @@
 // Number of LoRa messages to wait for before moving on
 #define LORA_MSG_COUNT  3
 // Seconds to wait for all LoRa messages to be received during warmup
-#define LORA_WARMUP_MSG_TIMEOUT 60
+#define LORA_WARMUP_MSG_TIMEOUT 15
 
 #define ZEPHYR_SERIAL_BUFFER_SIZE 4096
 #define MCB_SERIAL_BUFFER_SIZE    4096
@@ -85,6 +85,13 @@ enum MCBMotion_t : uint8_t {
     MOTION_REEL_IN,
     MOTION_REEL_OUT,
     MOTION_IN_NO_LW
+};
+
+enum WarmupStatus_t : uint8_t {
+    WARMUP_NOT_STARTED,
+    WARMUP_INPROCESS,
+    WARMUP_FAILED,
+    WARMUP_COMPLETE
 };
 
 class StratoRATS : public StratoCore {
@@ -188,6 +195,10 @@ private:
     // *** Warmup state machine ***
     // LoRa message timeout counter
     uint32_t LoRaMsg_timer_start = 0;
+    // The warmup status
+    WarmupStatus_t warmup_status = WARMUP_INPROCESS;
+    // Number of warmup cycles
+    uint8_t warmup_cycles = 0;
 
     // *** Reel motion variables ***
     // Set in TCHandler(), used in Flight_Reel.

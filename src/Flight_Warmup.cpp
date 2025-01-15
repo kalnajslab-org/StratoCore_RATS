@@ -15,7 +15,8 @@ bool StratoRATS::Flight_Warmup(bool restart)
     if (restart)
     {
         warmup_state = WARMUP_ENTRY;
-
+        warmup_status = WARMUP_INPROCESS;
+        warmup_cycles = 0;
     }
 
 #if EXTRA_LOGGING
@@ -29,6 +30,8 @@ bool StratoRATS::Flight_Warmup(bool restart)
     switch (warmup_state)
     {
     case WARMUP_ENTRY:
+        // Power on ECU
+        log_nominal("WARMUP_ENTRY Powering on ECU");
         // Start the LoRa message counter
         lora_count_check(true);
         LoRaMsg_timer_start = now();
@@ -40,10 +43,20 @@ bool StratoRATS::Flight_Warmup(bool restart)
     case WARMUP_LORA_WAIT1:
         if (LoRaMsg_timer_start + LORA_WARMUP_MSG_TIMEOUT < now())
         {
-            log_error("WARMUP_LORA_WAIT1 Expected LoRa messages not received");
-            ZephyrLogWarn("LoRa messages not received during first wait");
-            inst_substate = MODE_ERROR;
-            log_error("Entering FL_ERROR");
+            warmup_cycles++;
+            if (warmup_cycles >= 2)
+            {
+                log_error("WARMUP_LORA_WAIT1 Too many LoRa message timeouts");
+                ZephyrLogCrit("LoRa message timeouts during warmup wait1");
+                warmup_status = WARMUP_FAILED;
+                return(true);
+            }
+            else
+            {
+                warmup_state = WARMUP_ENTRY;
+                log_nominal("Re-entering WARMUP_ENTRY");
+                return(false);
+            }
         }
         else
         {
@@ -77,10 +90,20 @@ bool StratoRATS::Flight_Warmup(bool restart)
     case WARMUP_LORA_WAIT2:
         if (LoRaMsg_timer_start + LORA_WARMUP_MSG_TIMEOUT < now())
         {
-            log_error("WARMUP_LORA_WAIT2 Expected LoRa messages not received");
-            ZephyrLogWarn("LoRa messages not received during second wait");
-            inst_substate = MODE_ERROR;
-            log_error("Entering FL_ERROR");
+            warmup_cycles++;
+            if (warmup_cycles >= 2)
+            {
+                log_error("WARMUP_LORA_WAIT2 Too many LoRa message timeouts");
+                ZephyrLogCrit("LoRa message timeouts during warmup wait2");
+                warmup_status = WARMUP_FAILED;
+                return(true);
+            }
+            else
+            {
+                warmup_state = WARMUP_ENTRY;
+                log_nominal("Re-entering WARMUP_ENTRY");
+                return(false);
+            }
         }
         else
         {
@@ -90,6 +113,8 @@ bool StratoRATS::Flight_Warmup(bool restart)
                 if (lora_count_check() >= LORA_MSG_COUNT)
                 {
                     log_nominal("WARMUP_LORA_WAIT2 Required LoRa messages received");
+                    ZephyrLogFine("Warmup complete");
+                    warmup_status = WARMUP_COMPLETE;
                     return true;
                 }
                 else
