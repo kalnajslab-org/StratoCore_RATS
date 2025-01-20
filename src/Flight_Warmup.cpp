@@ -79,6 +79,8 @@ bool StratoRATS::Flight_Warmup(bool restart)
     case WARMUP_CONFIG_ECU:
         // Configure the ECU here.
         log_nominal("WARMUP_CONFIG_ECU Configuring ECU");
+        ecu_lora_tx((uint8_t*)"HELLO FROM RATS", strlen("HELLO FROM RATS"));
+
         LoRaMsg_timer_start = now();
         scheduler.AddAction(ACTION_LORA_COUNT_MSGS, 1);
         warmup_state = WARMUP_LORA_WAIT2;
