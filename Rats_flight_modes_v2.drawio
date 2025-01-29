@@ -1,0 +1,205 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/24.7.17 Chrome/128.0.6613.36 Electron/32.0.1 Safari/537.36" version="24.7.17">
+  <diagram name="Page-1" id="Jc-HyKmQnsVCAmhuoRDc">
+    <mxGraphModel dx="2177" dy="748" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="ohflk6Q3a_4PzPDoOuGf-3" value="&lt;font style=&quot;font-size: 20px;&quot;&gt;1) Flight&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;gradientColor=#ea6b66;" parent="1" vertex="1">
+          <mxGeometry x="-590" y="50" width="860" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ohflk6Q3a_4PzPDoOuGf-4" value="&lt;font style=&quot;font-size: 20px;&quot;&gt;2) Stand-by&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;gradientColor=#ea6b66;" parent="1" vertex="1">
+          <mxGeometry x="290" y="50" width="250" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ohflk6Q3a_4PzPDoOuGf-7" value="&lt;font style=&quot;font-size: 20px;&quot;&gt;3) Low-Power&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;gradientColor=#ea6b66;" parent="1" vertex="1">
+          <mxGeometry x="560" y="50" width="250" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ohflk6Q3a_4PzPDoOuGf-8" value="&lt;font style=&quot;font-size: 20px;&quot;&gt;4) Safety&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;gradientColor=#ea6b66;" parent="1" vertex="1">
+          <mxGeometry x="830" y="50" width="250" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ohflk6Q3a_4PzPDoOuGf-9" value="&lt;font style=&quot;font-size: 20px;&quot;&gt;5) End-of-Flight&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;gradientColor=#ea6b66;" parent="1" vertex="1">
+          <mxGeometry x="1100" y="50" width="250" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ohflk6Q3a_4PzPDoOuGf-10" value="" style="endArrow=none;dashed=1;html=1;rounded=0;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-600" y="40" as="sourcePoint" />
+            <mxPoint x="1360" y="40" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ohflk6Q3a_4PzPDoOuGf-11" value="" style="endArrow=none;dashed=1;html=1;rounded=0;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-600" y="120" as="sourcePoint" />
+            <mxPoint x="1360" y="120" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ohflk6Q3a_4PzPDoOuGf-12" value="" style="endArrow=none;dashed=1;html=1;rounded=0;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1360" y="120" as="sourcePoint" />
+            <mxPoint x="1360" y="40" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ohflk6Q3a_4PzPDoOuGf-14" value="" style="endArrow=none;dashed=1;html=1;rounded=0;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-600" y="200" as="sourcePoint" />
+            <mxPoint x="-600" y="40" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ohflk6Q3a_4PzPDoOuGf-15" value="" style="endArrow=none;dashed=1;html=1;rounded=0;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-600" y="200" as="sourcePoint" />
+            <mxPoint x="1360" y="200" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ohflk6Q3a_4PzPDoOuGf-16" value="" style="endArrow=none;dashed=1;html=1;rounded=0;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1360" y="200" as="sourcePoint" />
+            <mxPoint x="1360" y="120" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ohflk6Q3a_4PzPDoOuGf-18" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;3) Low-Power&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;gradientColor=#A5D08B;" parent="1" vertex="1">
+          <mxGeometry x="585" y="130" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ohflk6Q3a_4PzPDoOuGf-19" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;u&gt;Sequence:&lt;/u&gt;&lt;/font&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;Activate on command or when gondola voltage drops below a threshold voltage.&lt;/li&gt;&lt;li&gt;Remain in state until Zephyr changes flight mode.&amp;nbsp;&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;align=left;horizontal=1;verticalAlign=top;fillColor=#d5e8d4;strokeColor=#82b366;gradientColor=#A5D08B;" parent="1" vertex="1">
+          <mxGeometry x="585" y="210" width="200" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="ohflk6Q3a_4PzPDoOuGf-20" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;u&gt;Powered components:&lt;/u&gt;&lt;/font&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;MainBoard.&lt;span style=&quot;color: rgba(0, 0, 0, 0); font-family: monospace; font-size: 0px; text-wrap: nowrap;&quot;&gt;%3CmxGraphModel%3E%3Croot%3E%3CmxCell%20id%3D%220%22%2F%3E%3CmxCell%20id%3D%221%22%20parent%3D%220%22%2F%3E%3CmxCell%20id%3D%222%22%20value%3D%22%26lt%3Bfont%20style%3D%26quot%3Bfont-size%3A%2016px%3B%26quot%3B%26gt%3B%26lt%3Bu%26gt%3BSequence%3A%26lt%3B%2Fu%26gt%3B%26lt%3B%2Ffont%26gt%3B%26lt%3Bdiv%26gt%3B%26lt%3Bul%26gt%3B%26lt%3Bli%26gt%3BActivate%20on%20command%20or%20when%20gondola%20voltage%20drops%20below%20a%20threshold%20voltage.%26amp%3Bnbsp%3B%26lt%3B%2Fli%26gt%3B%26lt%3B%2Ful%26gt%3B%26lt%3B%2Fdiv%26gt%3B%22%20style%3D%22rounded%3D1%3BwhiteSpace%3Dwrap%3Bhtml%3D1%3Balign%3Dleft%3Bhorizontal%3D1%3BverticalAlign%3Dtop%3BfillColor%3D%23d5e8d4%3BstrokeColor%3D%2382b366%3B%22%20vertex%3D%221%22%20parent%3D%221%22%3E%3CmxGeometry%20x%3D%22585%22%20y%3D%22210%22%20width%3D%22200%22%20height%3D%22130%22%20as%3D%22geometry%22%2F%3E%3C%2FmxCell%3E%3C%2Froot%3E%3C%2FmxGraphModel%3E&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;align=left;horizontal=1;verticalAlign=top;fillColor=#d5e8d4;strokeColor=#82b366;gradientColor=#A5D08B;" parent="1" vertex="1">
+          <mxGeometry x="585" y="350" width="200" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="ohflk6Q3a_4PzPDoOuGf-21" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;u&gt;Operations:&lt;/u&gt;&lt;/font&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;Turn off all components except MainBoard.&amp;nbsp;&lt;/li&gt;&lt;li&gt;Send housekeeping data to OBC.&amp;nbsp;&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;align=left;horizontal=1;verticalAlign=top;fillColor=#d5e8d4;strokeColor=#82b366;gradientColor=#A5D08B;" parent="1" vertex="1">
+          <mxGeometry x="585" y="490" width="200" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="ohflk6Q3a_4PzPDoOuGf-22" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;u&gt;TMs from Ground:&lt;/u&gt;&lt;/font&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;None&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;align=left;horizontal=1;verticalAlign=top;fillColor=#d5e8d4;strokeColor=#82b366;gradientColor=#A5D08B;" parent="1" vertex="1">
+          <mxGeometry x="585" y="630" width="200" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="ohflk6Q3a_4PzPDoOuGf-23" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;u&gt;Data to OBC:&lt;/u&gt;&lt;/font&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;MainBoard housekeeping.&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;align=left;horizontal=1;verticalAlign=top;fillColor=#d5e8d4;strokeColor=#82b366;gradientColor=#A5D08B;" parent="1" vertex="1">
+          <mxGeometry x="585" y="770" width="200" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="ohflk6Q3a_4PzPDoOuGf-24" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;4) Deployed Safety&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e6d0de;strokeColor=#996185;gradientColor=#FC88BA;" parent="1" vertex="1">
+          <mxGeometry x="855" y="130" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ohflk6Q3a_4PzPDoOuGf-25" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;u&gt;Sequence:&lt;/u&gt;&lt;/font&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;Activate on command or if communication with Zephyr is lost for more than ___hours.&lt;/li&gt;&lt;li&gt;Remain in state until Zephyr changes flight mode.&amp;nbsp;&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;align=left;horizontal=1;verticalAlign=top;fillColor=#e6d0de;strokeColor=#996185;gradientColor=#FC88BA;" parent="1" vertex="1">
+          <mxGeometry x="855" y="210" width="200" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="ohflk6Q3a_4PzPDoOuGf-26" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;u&gt;Powered components:&lt;/u&gt;&lt;/font&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;Main Board.&lt;/li&gt;&lt;li&gt;Motor controllers.&lt;/li&gt;&lt;li&gt;Motors.&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;align=left;horizontal=1;verticalAlign=top;fillColor=#e6d0de;strokeColor=#996185;gradientColor=#FC88BA;" parent="1" vertex="1">
+          <mxGeometry x="855" y="350" width="200" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="ohflk6Q3a_4PzPDoOuGf-27" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;u&gt;Operations:&lt;/u&gt;&lt;/font&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;Power down Cable/ECU.&amp;nbsp;&lt;/li&gt;&lt;li&gt;Check/report motor controller status, motor temps, and MCB data to OBC.&amp;nbsp;&lt;/li&gt;&lt;li&gt;Execute Reel in of cable using last known MCB reel position.&lt;/li&gt;&lt;li&gt;Report status of reel execution.&amp;nbsp;&lt;/li&gt;&lt;li&gt;Power down motors and controllers.&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;Send SAfety message to OBC.&lt;/span&gt;&lt;br&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;align=left;horizontal=1;verticalAlign=top;fillColor=#e6d0de;strokeColor=#996185;gradientColor=#FC88BA;" parent="1" vertex="1">
+          <mxGeometry x="855" y="490" width="200" height="230" as="geometry" />
+        </mxCell>
+        <mxCell id="ohflk6Q3a_4PzPDoOuGf-28" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;u&gt;TMs from Ground:&lt;/u&gt;&lt;/font&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;None&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;align=left;horizontal=1;verticalAlign=top;fillColor=#e6d0de;strokeColor=#996185;gradientColor=#FC88BA;" parent="1" vertex="1">
+          <mxGeometry x="855" y="731" width="200" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="ohflk6Q3a_4PzPDoOuGf-29" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;u&gt;Data to OBC:&lt;/u&gt;&lt;/font&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;MainBoard houskeeping.&lt;/li&gt;&lt;li&gt;Motor controller T, I, V.&lt;/li&gt;&lt;li&gt;Motor T.&lt;/li&gt;&lt;li&gt;MCB data.&amp;nbsp;&lt;/li&gt;&lt;li&gt;SAfety status message.&lt;/li&gt;&lt;/ul&gt;&lt;div&gt;Send data to OBC in real time.&amp;nbsp;&lt;br&gt;&lt;/div&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;align=left;horizontal=1;verticalAlign=top;fillColor=#e6d0de;strokeColor=#996185;gradientColor=#FC88BA;" parent="1" vertex="1">
+          <mxGeometry x="855" y="871" width="200" height="149" as="geometry" />
+        </mxCell>
+        <mxCell id="aL-TSBPzH01u_N2NzEZD-1" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;4) End-of-Flight&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;gradientColor=#b3b3b3;" parent="1" vertex="1">
+          <mxGeometry x="1125" y="130" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="aL-TSBPzH01u_N2NzEZD-2" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;u&gt;Sequence:&lt;/u&gt;&lt;/font&gt;&lt;div&gt;&lt;ol&gt;&lt;li&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;Power down any active components of RATS.&amp;nbsp;&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;Send final housekeeping data to OCB.&amp;nbsp;&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;Send&amp;nbsp;&lt;/span&gt;SAfety status message to OCB.&amp;nbsp;&lt;/li&gt;&lt;/ol&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;align=left;horizontal=1;verticalAlign=top;fillColor=#f5f5f5;strokeColor=#666666;gradientColor=#b3b3b3;" parent="1" vertex="1">
+          <mxGeometry x="1125" y="210" width="200" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="aL-TSBPzH01u_N2NzEZD-3" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;u&gt;Powered components:&lt;/u&gt;&lt;/font&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;MainBoard&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;align=left;horizontal=1;verticalAlign=top;fillColor=#f5f5f5;strokeColor=#666666;gradientColor=#b3b3b3;" parent="1" vertex="1">
+          <mxGeometry x="1125" y="350" width="200" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="aL-TSBPzH01u_N2NzEZD-4" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;2) Stand-by&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;gradientColor=#ffd966;" parent="1" vertex="1">
+          <mxGeometry x="315" y="130" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="aL-TSBPzH01u_N2NzEZD-5" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;u&gt;Sequence:&lt;/u&gt;&lt;/font&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;Initiated upon start up, reboot of RATS, or if Zephyr&amp;nbsp;&lt;/li&gt;&lt;li&gt;Remain in Stand-by until Zephyr mode changes.&amp;nbsp;&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;align=left;horizontal=1;verticalAlign=top;fillColor=#fff2cc;strokeColor=#d6b656;gradientColor=#ffd966;" parent="1" vertex="1">
+          <mxGeometry x="315" y="210" width="200" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="aL-TSBPzH01u_N2NzEZD-6" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;u&gt;Powered components:&lt;/u&gt;&lt;/font&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;MainBoard&lt;span style=&quot;color: rgba(0, 0, 0, 0); font-family: monospace; font-size: 0px; text-wrap: nowrap;&quot;&gt;%3CmxGraphModel%3E%3Croot%3E%3CmxCell%20id%3D%220%22%2F%3E%3CmxCell%20id%3D%221%22%20parent%3D%220%22%2F%3E%3CmxCell%20id%3D%222%22%20value%3D%22%26lt%3Bfont%20style%3D%26quot%3Bfont-size%3A%2016px%3B%26quot%3B%26gt%3B%26lt%3Bu%26gt%3BSequence%3A%26lt%3B%2Fu%26gt%3B%26lt%3B%2Ffont%26gt%3B%26lt%3Bdiv%26gt%3B%26lt%3Bul%26gt%3B%26lt%3Bli%26gt%3BActivate%20on%20command%20or%20when%20gondola%20voltage%20drops%20below%20a%20threshold%20voltage.%26amp%3Bnbsp%3B%26lt%3B%2Fli%26gt%3B%26lt%3B%2Ful%26gt%3B%26lt%3B%2Fdiv%26gt%3B%22%20style%3D%22rounded%3D1%3BwhiteSpace%3Dwrap%3Bhtml%3D1%3Balign%3Dleft%3Bhorizontal%3D1%3BverticalAlign%3Dtop%3BfillColor%3D%23d5e8d4%3BstrokeColor%3D%2382b366%3B%22%20vertex%3D%221%22%20parent%3D%221%22%3E%3CmxGeometry%20x%3D%22585%22%20y%3D%22210%22%20width%3D%22200%22%20height%3D%22130%22%20as%3D%22geometry%22%2F%3E%3C%2FmxCell%3E%3C%2Froot%3E%3C%2FmxGraphModel%3E&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;align=left;horizontal=1;verticalAlign=top;fillColor=#fff2cc;strokeColor=#d6b656;gradientColor=#ffd966;" parent="1" vertex="1">
+          <mxGeometry x="315" y="350" width="200" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="9D_fg0gg256FXtotaLhc-2" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;u&gt;Operations:&lt;/u&gt;&lt;/font&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;Power RATS MainBoard.&lt;/li&gt;&lt;li&gt;Gather and send housekeeping data to OBC.&lt;/li&gt;&lt;li&gt;Send Instrument Mode request (IMR) every 60 s.&amp;nbsp;&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;align=left;horizontal=1;verticalAlign=top;fillColor=#fff2cc;strokeColor=#d6b656;gradientColor=#ffd966;" parent="1" vertex="1">
+          <mxGeometry x="315" y="490" width="200" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="9D_fg0gg256FXtotaLhc-3" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;u&gt;TMs from Ground:&lt;/u&gt;&lt;/font&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;None&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;align=left;horizontal=1;verticalAlign=top;fillColor=#fff2cc;strokeColor=#d6b656;gradientColor=#ffd966;" parent="1" vertex="1">
+          <mxGeometry x="315" y="630" width="200" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="9D_fg0gg256FXtotaLhc-4" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;u&gt;Data to OBC:&lt;/u&gt;&lt;/font&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;Instrument Mode Request (IMR) every 60 seconds.&lt;/li&gt;&lt;li&gt;MainBoard housekeeping.&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;align=left;horizontal=1;verticalAlign=top;fillColor=#fff2cc;strokeColor=#d6b656;gradientColor=#ffd966;" parent="1" vertex="1">
+          <mxGeometry x="315" y="770" width="200" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="9D_fg0gg256FXtotaLhc-6" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;1c) FL-Reel&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#99FF99;strokeColor=#0e8088;gradientColor=#7ACC7A;" parent="1" vertex="1">
+          <mxGeometry x="-160" y="130" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="9D_fg0gg256FXtotaLhc-7" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;u&gt;Sequence:&lt;/u&gt;&lt;/font&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;Activate when commanded by TM when instrument is in FL-Measure mode.&amp;nbsp;&lt;/span&gt;&lt;br&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;Can enter FL-Reel from FL-WarmUp or FL-Measure.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;Execute TMs stating reel function to complete.&amp;nbsp;&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;Activate FL-WarmUp when complete.&amp;nbsp;&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;align=left;horizontal=1;verticalAlign=top;fillColor=#99FF99;strokeColor=#0e8088;gradientColor=#7ACC7A;" parent="1" vertex="1">
+          <mxGeometry x="-160" y="210" width="200" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="9D_fg0gg256FXtotaLhc-8" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;u&gt;Powered components:&lt;/u&gt;&lt;/font&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;RATS Main Board.&lt;/li&gt;&lt;li&gt;Motor controllers.&lt;/li&gt;&lt;li&gt;Motors.&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;align=left;horizontal=1;verticalAlign=top;fillColor=#99FF99;strokeColor=#0e8088;gradientColor=#7ACC7A;" parent="1" vertex="1">
+          <mxGeometry x="-160" y="390" width="200" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="9D_fg0gg256FXtotaLhc-9" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;u&gt;Operations:&lt;/u&gt;&lt;/font&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;Power down cable/ECU.&amp;nbsp;&lt;/li&gt;&lt;li&gt;Power motor controllers.&lt;/li&gt;&lt;li&gt;Check/report motor controller status, motor temps, and MCB data to OBC.&amp;nbsp;&lt;/li&gt;&lt;li&gt;Execute any incoming MCB commands sent via TM.&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;Switch to FL-WarmUp when complete.&amp;nbsp;&lt;/span&gt;&amp;nbsp;&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;align=left;horizontal=1;verticalAlign=top;fillColor=#99FF99;strokeColor=#0e8088;gradientColor=#7ACC7A;" parent="1" vertex="1">
+          <mxGeometry x="-160" y="530" width="200" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="9D_fg0gg256FXtotaLhc-10" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;u&gt;TMs from Ground:&lt;/u&gt;&lt;/font&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;MCB commands for Reel control -- command type, speed, number of revolutions, etc.&amp;nbsp;&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;align=left;horizontal=1;verticalAlign=top;fillColor=#99FF99;strokeColor=#0e8088;gradientColor=#7ACC7A;" parent="1" vertex="1">
+          <mxGeometry x="-160" y="720" width="200" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="9D_fg0gg256FXtotaLhc-11" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;u&gt;Data to OBC:&lt;/u&gt;&lt;/font&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;MainBoard housekeeping.&lt;/li&gt;&lt;li&gt;Motor controller T, I, V.&lt;/li&gt;&lt;li&gt;Motor T.&lt;/li&gt;&lt;li&gt;MCB data.&lt;/li&gt;&lt;/ul&gt;&lt;div&gt;Send data to OBC in real time.&amp;nbsp;&lt;/div&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;align=left;horizontal=1;verticalAlign=top;fillColor=#99FF99;strokeColor=#0e8088;gradientColor=#7ACC7A;" parent="1" vertex="1">
+          <mxGeometry x="-160" y="860" width="200" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="9D_fg0gg256FXtotaLhc-13" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;1a) FL-WarmUp&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FCB3BA;strokeColor=#6c8ebf;gradientColor=#FF696E;" parent="1" vertex="1">
+          <mxGeometry x="-580" y="130" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="9D_fg0gg256FXtotaLhc-14" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;u&gt;Sequence:&lt;/u&gt;&lt;/font&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;Activate when Zephyr puts RATS into Flight mode.&lt;/li&gt;&lt;li&gt;FL-WarmUp is completed when LoRa communication between MainBoard and ECU is established.&amp;nbsp;&lt;/li&gt;&lt;li&gt;Activate FL-Measure when complete.&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;align=left;horizontal=1;verticalAlign=top;fillColor=#FCB3BA;strokeColor=#6c8ebf;gradientColor=#FF696E;" parent="1" vertex="1">
+          <mxGeometry x="-580" y="210" width="200" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="9D_fg0gg256FXtotaLhc-15" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;u&gt;Powered components:&lt;/u&gt;&lt;/font&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;RATS Main Board.&lt;/li&gt;&lt;li&gt;LoRa.&lt;/li&gt;&lt;li&gt;Cable/ECU.&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;align=left;horizontal=1;verticalAlign=top;fillColor=#FCB3BA;strokeColor=#6c8ebf;gradientColor=#FF696E;" parent="1" vertex="1">
+          <mxGeometry x="-580" y="390" width="200" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="9D_fg0gg256FXtotaLhc-16" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;u&gt;Operations:&lt;/u&gt;&lt;/font&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;Power and configure LoRa radio on Main Board.&amp;nbsp;&lt;/li&gt;&lt;li&gt;Power cable/ECU.&lt;/li&gt;&lt;li&gt;Send MainBoard housekeeping.&lt;/li&gt;&lt;li&gt;Monitor for ECU contact.&lt;/li&gt;&lt;li&gt;Receive 6 data packets at 10 s intervals.&lt;/li&gt;&lt;li&gt;If 6 data packets reveived, configure ECU was saved configuration state.&amp;nbsp;&lt;/li&gt;&lt;li&gt;Receive 6 more ECU data packets and then send to FL-Measure mode.&lt;/li&gt;&lt;li&gt;If data packets are not received after reconfiguration of ECU, wait ___min, and then reset cable/ECU power. Repeat FL-WarmUp, but do not attempt to reconfigure ECU.&amp;nbsp;&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;align=left;horizontal=1;verticalAlign=top;fillColor=#FCB3BA;strokeColor=#6c8ebf;gradientColor=#FF696E;" parent="1" vertex="1">
+          <mxGeometry x="-580" y="530" width="200" height="350" as="geometry" />
+        </mxCell>
+        <mxCell id="9D_fg0gg256FXtotaLhc-17" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;u&gt;TMs from Ground:&lt;/u&gt;&lt;/font&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;TM to configure into FL-LowPower mode.&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;align=left;horizontal=1;verticalAlign=top;fillColor=#FCB3BA;strokeColor=#6c8ebf;gradientColor=#FF696E;" parent="1" vertex="1">
+          <mxGeometry x="-580" y="891" width="200" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="9D_fg0gg256FXtotaLhc-18" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;u&gt;Data to OBC:&lt;/u&gt;&lt;/font&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;MainBoard housekeeping.&lt;/li&gt;&lt;li&gt;ECU Data: standard data string.&amp;nbsp;&lt;/li&gt;&lt;/ul&gt;&lt;div&gt;Send data to OBC in real time.&amp;nbsp;&lt;/div&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;align=left;horizontal=1;verticalAlign=top;fillColor=#FCB3BA;strokeColor=#6c8ebf;gradientColor=#FF696E;" parent="1" vertex="1">
+          <mxGeometry x="-580" y="1031" width="200" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="9D_fg0gg256FXtotaLhc-19" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;1b) FL-Measure&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b0e3e6;strokeColor=#0e8088;gradientColor=#33DDFF;" parent="1" vertex="1">
+          <mxGeometry x="-370" y="130" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="9D_fg0gg256FXtotaLhc-20" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;u&gt;Sequence:&lt;/u&gt;&lt;/font&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;Activated after completion of FL-WarmUp.&amp;nbsp;&lt;/li&gt;&lt;li&gt;Configure ECU to state saved in ECU memory.&amp;nbsp;&lt;/li&gt;&lt;li&gt;Update ECU configuration upon receiving TMs.&amp;nbsp;&lt;/li&gt;&lt;li&gt;Remain in FL-Measure until commanded out, or Zephyr mode change.&amp;nbsp;&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;align=left;horizontal=1;verticalAlign=top;fillColor=#b0e3e6;strokeColor=#0e8088;gradientColor=#33DDFF;" parent="1" vertex="1">
+          <mxGeometry x="-370" y="210" width="200" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="9D_fg0gg256FXtotaLhc-21" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;u&gt;Powered components:&lt;/u&gt;&lt;/font&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;RATS Main Board.&lt;/li&gt;&lt;li&gt;LoRa.&lt;/li&gt;&lt;li&gt;Cable/ECU.&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;align=left;horizontal=1;verticalAlign=top;fillColor=#b0e3e6;strokeColor=#0e8088;gradientColor=#33DDFF;" parent="1" vertex="1">
+          <mxGeometry x="-370" y="390" width="200" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="9D_fg0gg256FXtotaLhc-22" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;u&gt;Operations:&lt;/u&gt;&lt;/font&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;Receive/process ECU data on Main Board.&amp;nbsp;&amp;nbsp;&lt;/li&gt;&lt;li&gt;Execute TMs changing ECU instrument state.&amp;nbsp;&lt;/li&gt;&lt;li&gt;Send housekeeping data to OBC.&lt;/li&gt;&lt;li&gt;Send ECU measurment data to OBC.&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;align=left;horizontal=1;verticalAlign=top;fillColor=#b0e3e6;strokeColor=#0e8088;gradientColor=#33DDFF;" parent="1" vertex="1">
+          <mxGeometry x="-370" y="528" width="200" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="9D_fg0gg256FXtotaLhc-23" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;u&gt;TMs from Ground:&lt;/u&gt;&lt;/font&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;TMs configuring ECU measurement state.&amp;nbsp;&lt;/li&gt;&lt;li&gt;TMs configuring sampling rate.&lt;/li&gt;&lt;li&gt;TMs configuring data processing on done on MainBoad and data string format.&lt;br&gt;&lt;/li&gt;&lt;li&gt;RS41 RH regeneration.&amp;nbsp;&lt;/li&gt;&lt;li&gt;TM saving configuration state.&amp;nbsp;&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;align=left;horizontal=1;verticalAlign=top;fillColor=#b0e3e6;strokeColor=#0e8088;gradientColor=#33DDFF;" parent="1" vertex="1">
+          <mxGeometry x="-370" y="698" width="200" height="212" as="geometry" />
+        </mxCell>
+        <mxCell id="9D_fg0gg256FXtotaLhc-24" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;u&gt;Data to OBC:&lt;/u&gt;&lt;/font&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;MainBoard housekeeping.&lt;/li&gt;&lt;li&gt;ECU data string.&lt;/li&gt;&lt;/ul&gt;&lt;div&gt;Send data to OBC every xx min.&amp;nbsp;&lt;/div&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;align=left;horizontal=1;verticalAlign=top;fillColor=#b0e3e6;strokeColor=#0e8088;gradientColor=#33DDFF;" parent="1" vertex="1">
+          <mxGeometry x="-370" y="920" width="200" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="9D_fg0gg256FXtotaLhc-26" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;1d) FL-LowPower&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFD080;strokeColor=#6c8ebf;gradientColor=#FFB366;" parent="1" vertex="1">
+          <mxGeometry x="55" y="130" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="9D_fg0gg256FXtotaLhc-27" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;u&gt;Sequence:&lt;/u&gt;&lt;/font&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;Activate when commanded by TM when instrument is in Flight mode.&amp;nbsp;&lt;/span&gt;&lt;br&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;Can enter form any other FL-WarmUp or FL-Measure mode.&amp;nbsp;&amp;nbsp;&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;Stay in mode until receipt of TM to go into FL-Measure.&amp;nbsp;&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;align=left;horizontal=1;verticalAlign=top;fillColor=#FFD080;strokeColor=#6c8ebf;gradientColor=#FFB366;" parent="1" vertex="1">
+          <mxGeometry x="55" y="210" width="200" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="9D_fg0gg256FXtotaLhc-28" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;u&gt;Powered components:&lt;/u&gt;&lt;/font&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;RATS Main Board.&lt;/li&gt;&lt;li&gt;Cable/ECU&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;align=left;horizontal=1;verticalAlign=top;fillColor=#FFD080;strokeColor=#6c8ebf;gradientColor=#FFB366;" parent="1" vertex="1">
+          <mxGeometry x="55" y="390" width="200" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="9D_fg0gg256FXtotaLhc-29" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;u&gt;Operations:&lt;/u&gt;&lt;/font&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;Receive/process ECU data on Main Board.&amp;nbsp;&amp;nbsp;&lt;/li&gt;&lt;li&gt;Send housekeeping data to OBC.&lt;/li&gt;&lt;li&gt;Send ECU measurment data to OBC.&lt;/li&gt;&lt;li&gt;Operates in a predefined ECU configuration that minimizes power consumption.&amp;nbsp;&lt;/li&gt;&lt;li&gt;ECU sends date once every 60 seconds.&amp;nbsp;&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;align=left;horizontal=1;verticalAlign=top;fillColor=#FFD080;strokeColor=#6c8ebf;gradientColor=#FFB366;" parent="1" vertex="1">
+          <mxGeometry x="55" y="530" width="200" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="9D_fg0gg256FXtotaLhc-30" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;u&gt;TMs from Ground:&lt;/u&gt;&lt;/font&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;None&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;align=left;horizontal=1;verticalAlign=top;fillColor=#FFD080;strokeColor=#6c8ebf;gradientColor=#FFB366;" parent="1" vertex="1">
+          <mxGeometry x="55" y="760" width="200" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="9D_fg0gg256FXtotaLhc-31" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;u&gt;Data to OBC:&lt;/u&gt;&lt;/font&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;MainBoard housekeeping.&lt;/li&gt;&lt;li&gt;ECU data string&lt;/li&gt;&lt;/ul&gt;&lt;div&gt;Send data to OBC every xx min&lt;br&gt;&lt;/div&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;align=left;horizontal=1;verticalAlign=top;fillColor=#FFD080;strokeColor=#6c8ebf;gradientColor=#FFB366;" parent="1" vertex="1">
+          <mxGeometry x="55" y="900" width="200" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="9D_fg0gg256FXtotaLhc-33" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;u&gt;TMs from Ground:&lt;/u&gt;&lt;/font&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;None&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;align=left;horizontal=1;verticalAlign=top;fillColor=#f5f5f5;strokeColor=#666666;gradientColor=#b3b3b3;" parent="1" vertex="1">
+          <mxGeometry x="1125" y="495" width="200" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="HQGOs_jnH5_2HtK5bBpy-1" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;u&gt;Overview of data to include:&lt;/u&gt;&lt;/font&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;Housekeeping for FL-WarmUP, FL-Measure, Stand-by, Low-Power, Safety, End-of-flight modes:&amp;nbsp;&lt;/div&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;MainBoard T, Cable V @ MainBoard, other MainBoard voltages and currents.&amp;nbsp;&amp;nbsp;&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;div&gt;&lt;div&gt;Housekeeping for FL-Reel, FL-ReelSafe modes:&amp;nbsp;&lt;/div&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;MainBoard T, Motor T, Cable V @ MainBoard, Motor controller I V, Reel position, current limit setpoint.&amp;nbsp;&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;ECU data:&amp;nbsp;&lt;/div&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;Science:&lt;/li&gt;&lt;ul&gt;&lt;li&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;TSEN T, TSEN P, RS41 T, RS41 P, RS41 RH, GPS lat., GPS lon., GPS alt., GPS time.&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;li&gt;Status:&lt;/li&gt;&lt;ul&gt;&lt;li&gt;TSEN on/off, RS41 on/off, heater set point.&amp;nbsp;&lt;/li&gt;&lt;/ul&gt;&lt;li&gt;Monitoring:&lt;/li&gt;&lt;ul&gt;&lt;li&gt;V Cable @ ECU,&amp;nbsp;ECU V 12, ECU V 5, LoRa SNR.&lt;/li&gt;&lt;/ul&gt;&lt;/ul&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;u&gt;TM functionality overview&lt;/u&gt;&lt;/font&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;FL-measure:&lt;/div&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;Set sample rate -- 1s or 10s.&amp;nbsp;&lt;/li&gt;&lt;li&gt;Configure data processing on main board -- none, averaging, report standard deviation, etc., Talk to Joan about specifics.&amp;nbsp;&lt;/li&gt;&lt;li&gt;TSEN on/off&lt;/li&gt;&lt;li&gt;RS41 on/off.&amp;nbsp;&lt;/li&gt;&lt;li&gt;RS41 RH regeneration command.&amp;nbsp;&lt;/li&gt;&lt;li&gt;Low-data mode -- configure ECU and main board such that only RS41 and GPS data are reported every 60 s. Configure LoRa in mode that provides the most reliable data link. (Note: We may not need this mode).&lt;/li&gt;&lt;li&gt;Save ECU configuration to memory. ECU will configure itself to the saved state upon powering on.&amp;nbsp;&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;&lt;div&gt;FL-Reel:&amp;nbsp;&lt;/div&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;Reel deploy -- # revs, speed&lt;/li&gt;&lt;li&gt;Reel retract -- # revs, speed&lt;/li&gt;&lt;li&gt;Home LevelWind&lt;/li&gt;&lt;li&gt;Set ignore current, torque limits.&amp;nbsp;&lt;/li&gt;&lt;li&gt;Reset motor controllers.&amp;nbsp;&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;/div&gt;" style="whiteSpace=wrap;html=1;fillColor=#f9f7ed;strokeColor=#36393d;verticalAlign=top;align=left;strokeWidth=2;" parent="1" vertex="1">
+          <mxGeometry x="-620" y="1210" width="700" height="660" as="geometry" />
+        </mxCell>
+        <mxCell id="HQGOs_jnH5_2HtK5bBpy-2" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;u&gt;Data to OBC:&lt;/u&gt;&lt;/font&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;MainBoard housekeeping.&amp;nbsp;&lt;/li&gt;&lt;li&gt;SAfety status message.&amp;nbsp;&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;align=left;horizontal=1;verticalAlign=top;fillColor=#f5f5f5;strokeColor=#666666;gradientColor=#b3b3b3;" parent="1" vertex="1">
+          <mxGeometry x="1125" y="640" width="200" height="130" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
