@@ -11,10 +11,6 @@
 
 // WARNING: DO NOT CHECK CODE INTO GIT WIH THIS OPTION ENABLED. 
 //          MAKE SURE THIS OPTION IS FALSE FOR FLIGHT DEPLOYED FIRMWARE.
-#define ZEPHYR_COMMS_ON_DEBUG_PORT true
-
-// WARNING: DO NOT CHECK CODE INTO GIT WIH THIS OPTION ENABLED. 
-//          MAKE SURE THIS OPTION IS FALSE FOR FLIGHT DEPLOYED FIRMWARE.
 // Define this to disable some error checking and logging during development testing.
 #define DISABLE_DEVEL_ERROR_CHECKING false
 
@@ -23,7 +19,7 @@
 // Reporting period for status message generation, including TM transmission.
 #define RATS_REPORT_PERIOD_SECS 300
 
-#if not ZEPHYR_COMMS_ON_DEBUG_PORT
+#ifndef LOG_ZEPHYR_COMMS_SHARED
 #define ZEPHYR_SERIAL   Serial8
 #else
 // This allows for use of the OBD_Simulator with just the Teensy programming port, 

@@ -59,7 +59,7 @@ void setup()
 
   Serial.println(String("StratoCore_RATS build ") + __DATE__ + " " + __TIME__);
 
-#if not ZEPHYR_COMMS_ON_DEBUG_PORT
+#ifndef LOG_ZEPHYR_COMMS_SHARED
     // Zephyr serial is on digital I/O pins
     ZEPHYR_SERIAL.addMemoryForRead(&Zephyr_serial_RX_buffer, sizeof(Zephyr_serial_RX_buffer));
     ZEPHYR_SERIAL.addMemoryForWrite(&Zephyr_serial_TX_buffer, sizeof(Zephyr_serial_TX_buffer));
