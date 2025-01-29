@@ -9,9 +9,7 @@
 #include "MCBComm.h"
 #include "ECULoRa.h"
 
-// WARNING: DO NOT CHECK CODE INTO GIT WIH THIS OPTION ENABLED. 
-//          MAKE SURE THIS OPTION IS FALSE FOR FLIGHT DEPLOYED FIRMWARE.
-// Define this to disable some error checking and logging during development testing.
+// Set this true to disable some error checking and logging during development testing.
 #define DISABLE_DEVEL_ERROR_CHECKING false
 
 #define EXTRA_LOGGING false
