@@ -1,4 +1,5 @@
 import os
+import datetime
 import shutil
 from SCons.Script import DefaultEnvironment
 import subprocess
@@ -18,7 +19,8 @@ def copy_hex_file(source, target, env):
     build_env = env.subst("$PIOENV")
     hex_file = os.path.join(build_dir, "firmware.hex")
     dest_dir = env.subst("$PROJECT_DIR")
-    dest_file = os.path.join(dest_dir, f"{build_env}_{git_commit}.hex")
+    build_date = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%d-%H%M%S")
+    dest_file = os.path.join(dest_dir, f"{build_env}-{build_date}-{git_commit}.hex")
 
     if os.path.exists(hex_file):
         shutil.copy(hex_file, dest_file)
