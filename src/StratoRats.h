@@ -18,7 +18,7 @@
 #define RATS_REPORT_PERIOD_SECS 300
 
 #ifndef LOG_ZEPHYR_COMMS_SHARED
-#define ZEPHYR_SERIAL   Serial8
+#define ZEPHYR_SERIAL   Serial1
 #else
 // This allows for use of the OBD_Simulator with just the Teensy programming port, 
 // by sharing it for both Zephyr and StratoCore log messages.
