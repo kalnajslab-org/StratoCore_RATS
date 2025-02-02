@@ -17,8 +17,8 @@ void StratoRATS::SafetyMode()
     switch (inst_substate) {
     case SA_ENTRY:
         RATS_Shutdown();
-        // Register ACTION_SEND_STATUS to trigger the first status message 
-        scheduler.AddAction(ACTION_SEND_STATUS, 1);
+        // Register ACTION_RATS_REPORT to trigger the first status message 
+        scheduler.AddAction(ACTION_RATS_REPORT, 1);
         log_nominal(" Shut down, Entering SA");
         inst_substate = SA_SEND_S;
         log_nominal("Entering SA_SEND_S");

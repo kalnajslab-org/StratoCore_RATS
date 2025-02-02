@@ -27,8 +27,8 @@ void StratoRATS::FlightMode()
     switch (inst_substate) {
     case FL_ENTRY:
         log_nominal("Entering FL");
-        // Register ACTION_SEND_STATUS action to trigger the first status message 
-        scheduler.AddAction(ACTION_SEND_STATUS, 1);
+        // Register ACTION_RATS_REPORT action to trigger the first status message 
+        scheduler.AddAction(ACTION_RATS_REPORT, 1);
         // Transition to waiting for a GPS message.
         scheduler.AddAction(ACTION_GPS_WAIT_MSG, 5);
         inst_substate = FL_GPS_WAIT;
