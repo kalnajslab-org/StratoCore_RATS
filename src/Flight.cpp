@@ -9,13 +9,6 @@
 void StratoRATS::FlightMode()
 {
 
-    // Keep the serial port alive
-    if (CheckAction(ACTION_SERIAL_KEEPALIVE)) {
-        ZEPHYR_SERIAL.write('\n');
-        scheduler.AddAction(ACTION_SERIAL_KEEPALIVE, 29);
-
-    }
-
     // Send a status TM, if it is time. 
     // ratsReportCheck() will reschedule the action.
     ratsReportCheck(RATS_REPORT_PERIOD_SECS);
@@ -37,8 +30,6 @@ void StratoRATS::FlightMode()
         log_nominal("Entering FL");
         // Register ACTION_RATS_REPORT action to trigger the first status message 
         scheduler.AddAction(ACTION_RATS_REPORT, 1);
-        // Start the serial keep alive timer
-        scheduler.AddAction(ACTION_SERIAL_KEEPALIVE, 30);
         // Transition to waiting for a GPS message.
         scheduler.AddAction(ACTION_GPS_WAIT_MSG, 5);
         inst_substate = FL_GPS_WAIT;

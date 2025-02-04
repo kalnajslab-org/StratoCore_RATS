@@ -70,8 +70,6 @@ enum ScheduleAction_t : uint8_t {
     ACTION_MOTION_STOP,
     ACTION_MOTION_TIMEOUT,
 
-    ACTION_SERIAL_KEEPALIVE,
-
     NUM_ACTIONS
 };
 

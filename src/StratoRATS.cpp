@@ -25,15 +25,24 @@ void StratoRATS::InstrumentSetup()
     }
 
     mcbComm.AssignBinaryRXBuffer(binary_mcb, MCB_BINARY_BUFFER_SIZE);
-
+    
 }
 
 void StratoRATS::InstrumentLoop()
 {
+    static uint32_t serial_keepalive_millis = 0;
+    
     WatchFlags();
     LoRaRX();
-}
 
+    // Keep the serial port alive. The MAX3381 has a 30 second timeout,
+    // so we send a character every 29 seconds to keep it alive.
+    int32_t millis_delta = (int32_t) (millis() - serial_keepalive_millis);
+    if (millis_delta > 29000 || millis_delta < 0) {
+        ZEPHYR_SERIAL.write('\n');
+        serial_keepalive_millis = millis();
+    }
+}
 
 void StratoRATS::LoRaRX()
 {
