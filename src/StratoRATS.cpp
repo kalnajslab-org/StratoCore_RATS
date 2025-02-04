@@ -112,7 +112,6 @@ void StratoRATS::RATS_Shutdown()
 
 void StratoRATS::ratsReportCheck(int repeat_secs) {
     if (CheckAction(ACTION_RATS_REPORT)) {
-        log_nominal("Send status");
         ratsReportTM();
         scheduler.AddAction(ACTION_RATS_REPORT, repeat_secs);
     }

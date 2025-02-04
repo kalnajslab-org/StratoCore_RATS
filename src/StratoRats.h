@@ -15,7 +15,7 @@
 #define EXTRA_LOGGING false
 
 // Reporting period for status message generation, including TM transmission.
-#define RATS_REPORT_PERIOD_SECS 300
+#define RATS_REPORT_PERIOD_SECS 60
 
 #ifndef LOG_ZEPHYR_COMMS_SHARED
 #define ZEPHYR_SERIAL   Serial1
@@ -33,7 +33,6 @@
 // Seconds to wait for all LoRa messages to be received during warmup
 #define LORA_WARMUP_MSG_TIMEOUT 15
 
-#define ZEPHYR_SERIAL_BUFFER_SIZE 4096
 #define MCB_SERIAL_BUFFER_SIZE    4096
 
 // Buffers for msg reception and transmission to/from Zephyr. Should be large enough
@@ -70,6 +69,8 @@ enum ScheduleAction_t : uint8_t {
 
     ACTION_MOTION_STOP,
     ACTION_MOTION_TIMEOUT,
+
+    ACTION_SERIAL_KEEPALIVE,
 
     NUM_ACTIONS
 };
