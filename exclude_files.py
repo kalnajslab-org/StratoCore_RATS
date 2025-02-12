@@ -1,3 +1,6 @@
+# See https://docs.platformio.org/en/latest/scripting/middlewares.html for 
+# more information on how to use build middlewares in PlatformIO
+
 Import("env")
 
 def exclude_file(env, node):
