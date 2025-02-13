@@ -13,7 +13,21 @@ void StratoRATS::InstrumentSetup()
     pinMode(SAFE_PIN, OUTPUT);
     digitalWrite(SAFE_PIN, LOW);
     
-    if (!ECULoRaInit(LORA_FOLLOWER, 1000, SS_PIN, RESET_PIN, INTERRUPT_PIN, &SPI1, LORA_SCK, LORA_MISO, LORA_MOSI)) {
+    if (!ECULoRaInit(
+        LORA_FOLLOWER, 
+        1000, 
+        RATS_LORA_CS, 
+        RATS_LORA_RST, 
+        RATS_LORA_INT, 
+        &SPI1, 
+        RATS_LORA_SCK, 
+        RATS_LORA_MISO, 
+        RATS_LORA_MOSI,
+        FREQUENCY,
+        BANDWIDTH,
+        SF,
+        RF_POWER
+    )) {
         log_error("WARN: LoRa Initialization Failed");
         ZephyrLogWarn("WARN: LoRa Initialization Failed");
     } else {
@@ -52,7 +66,7 @@ void StratoRATS::LoRaRX()
             log_error(String(String("LoRa message count mismatch ") + String(lora_msg.count) + " " + String(total_lora_count)).c_str());
             total_lora_count = lora_msg.count;
         }
-#if EXTRA_LOGGING
+//#if EXTRA_LOGGING
         if (lora_msg.count % 30 == 0) {
             snprintf(log_array, LOG_ARRAY_SIZE,
                 "LoRa rx n:%ld id:%ld rssi:%d snr:%.1f ferr:%ld",
@@ -60,7 +74,7 @@ void StratoRATS::LoRaRX()
 
             log_nominal(log_array);
         }
-#endif
+//#endif
     }
 }
 
