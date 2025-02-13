@@ -46,6 +46,9 @@ void StratoRATS::FlightMode()
             log_nominal("Entering FL_WARMUP");
             // Initialize Flight_Warmup()
             Flight_Warmup(true);
+            // Turn on the ECU
+            ECUControl(true);
+            // Transition to the warmup state
             inst_substate = FL_WARMUP;
         }
         break;
@@ -64,12 +67,16 @@ void StratoRATS::FlightMode()
             break;
         } else {
             if(CheckAction(ACTION_REEL_OUT)) {
+                // Turn off the ECU
+                ECUControl(false);
                 mcb_motion = MOTION_REEL_OUT;
                 inst_substate = FL_REEL;
                 log_nominal("Entering FL_REEL (reel out)");
                 // START the Flight Manual Motion state machine
                 Flight_Reel(true);
             } else if (CheckAction(ACTION_REEL_IN)) {
+                // Turn off the ECU
+                ECUControl(false);
                 mcb_motion = MOTION_REEL_IN;
                 inst_substate = FL_REEL;
                 log_nominal("Entering FL_REEL (reel in)");
@@ -80,8 +87,10 @@ void StratoRATS::FlightMode()
         break;
     case FL_REEL:
         if (Flight_Reel(false)) {
-            log_nominal("Entering FL_WARMUP");
+            // Turn on the ECU
+            ECUControl(true);
             // Start the warmup sequence
+            log_nominal("Entering FL_WARMUP");
             Flight_Warmup(true);
             inst_substate = FL_WARMUP;
         }

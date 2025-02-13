@@ -12,7 +12,12 @@ void StratoRATS::InstrumentSetup()
     // safe pin required by Zephyr
     pinMode(SAFE_PIN, OUTPUT);
     digitalWrite(SAFE_PIN, LOW);
-    
+
+    // ECU power enable
+    pinMode(ECU_PWR_EN, OUTPUT);
+    digitalWrite(ECU_PWR_EN, LOW);
+
+    // LoRa initialization
     if (!ECULoRaInit(
         LORA_FOLLOWER, 
         1000, 
@@ -131,6 +136,8 @@ void StratoRATS::WatchFlags()
 
 void StratoRATS::RATS_Shutdown()
 {
+    // Turn off the ECU
+    ECUControl(false);
 }
 
 void StratoRATS::ratsReportCheck(int repeat_secs) {
@@ -140,6 +147,16 @@ void StratoRATS::ratsReportCheck(int repeat_secs) {
     }
 }
 
+void StratoRATS::ECUControl(bool enable)
+{
+    if (enable) {
+        digitalWrite(ECU_PWR_EN, HIGH);
+        log_nominal("ECU Power Enabled");
+    } else {
+        digitalWrite(ECU_PWR_EN, LOW);
+        log_nominal("ECU Power Disabled");
+    }
+}
 void StratoRATS::ratsReportTM() {
     
     // Create the binary status payload

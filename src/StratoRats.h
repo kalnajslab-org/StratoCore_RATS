@@ -185,6 +185,9 @@ private:
     // Uses the global variable lora_count.
     uint32_t lora_count_check(bool reset=false);
 
+    // ECU control
+    void ECUControl(bool enable);
+
     // *** Warmup state machine ***
     // LoRa message timeout counter
     uint32_t LoRaMsg_timer_start = 0;

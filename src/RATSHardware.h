@@ -7,6 +7,9 @@
 // Zephyr Safe Pin
 #define SAFE_PIN        31
 
+// ECU Power Enable
+#define ECU_PWR_EN      5
+
 // LoRa Module
 #define RATS_LORA_CS    38
 #define RATS_LORA_RST   29
