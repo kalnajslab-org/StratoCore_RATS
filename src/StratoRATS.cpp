@@ -76,7 +76,12 @@ void StratoRATS::LoRaRX()
             snprintf(log_array, LOG_ARRAY_SIZE,
                 "LoRa rx n:%ld id:%ld rssi:%d snr:%.1f ferr:%ld",
                 lora_msg.count, lora_msg.id, ecu_lora_rssi(), ecu_lora_snr(), ecu_lora_frequency_error());
-
+            etl::array<uint8_t, ECU_REPORT_SIZE_BYTES> payload;
+            for (uint8_t i = 0; i < lora_msg.data_len; i++) {
+                payload[i] = lora_msg.data[i];
+            }
+            ECUReport_t ecu_report = ecu_report_deserialize(payload);
+            ecu_report_print(&ecu_report);
             log_nominal(log_array);
         }
 //#endif

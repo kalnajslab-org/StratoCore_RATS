@@ -8,6 +8,7 @@
 #include "RATSConfigs.h"
 #include "MCBComm.h"
 #include "ECULoRa.h"
+#include "ECUReport.h"
 
 // Set this true to disable some error checking and logging during development testing.
 #define DISABLE_DEVEL_ERROR_CHECKING false
