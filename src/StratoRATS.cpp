@@ -81,7 +81,7 @@ void StratoRATS::LoRaRX()
                 payload[i] = lora_msg.data[i];
             }
             ECUReport_t ecu_report = ecu_report_deserialize(payload);
-            ecu_report_print(&ecu_report);
+            ecu_report_print(ecu_report);
             log_nominal(log_array);
         }
 //#endif
