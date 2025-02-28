@@ -31,7 +31,7 @@ void StratoRATS::InstrumentSetup()
         FREQUENCY,
         BANDWIDTH,
         SF,
-        RF_POWER
+        TX_POWER
     )) {
         log_error("WARN: LoRa Initialization Failed");
         ZephyrLogWarn("WARN: LoRa Initialization Failed");
