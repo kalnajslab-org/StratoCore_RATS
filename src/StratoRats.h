@@ -18,7 +18,15 @@
 // Reporting period for status message generation, including TM transmission.
 #define RATS_REPORT_PERIOD_SECS 60
 #define RATS_TM_ECU_REPORTS 240
+// Add bytes for the non-data members of the RATSReportTM_t struct
 #define RATS_REPORT_MAX_BYTES (4+(RATS_TM_ECU_REPORTS+1)*ECU_REPORT_SIZE_BYTES)
+
+#if RATS_REPORT_MAX_BYTES > 8192
+// TODO: Verify that this is the true limit for the TM binary payload. It's
+// likely that the limit is actually includes all of the XML header and other
+// TM overhead, so this may be unsafe.
+#error RATS_REPORT_MAX_BYTES exceeds TM message buffer size
+#endif
 
 #ifndef LOG_ZEPHYR_COMMS_SHARED
 #define ZEPHYR_SERIAL   Serial1
