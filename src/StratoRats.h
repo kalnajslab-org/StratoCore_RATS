@@ -17,6 +17,8 @@
 
 // Reporting period for status message generation, including TM transmission.
 #define RATS_REPORT_PERIOD_SECS 60
+#define RATS_TM_ECU_REPORTS 240
+#define RATS_REPORT_MAX_BYTES (4+(RATS_TM_ECU_REPORTS+1)*ECU_REPORT_SIZE_BYTES)
 
 #ifndef LOG_ZEPHYR_COMMS_SHARED
 #define ZEPHYR_SERIAL   Serial1
@@ -38,7 +40,8 @@
 
 // Buffers for msg reception and transmission to/from Zephyr. Should be large enough
 // to hold a complete TM, some of which which will contain the measurement data.
-#define ZEPHYR_SERIAL_BUFFER_SIZE 4096
+#define ZEPHYR_SERIAL_BUFFER_SIZE (2*8192)
+
 // Number of loops before a flag becomes stale and is reset
 #define FLAG_STALE      3
 //
@@ -89,6 +92,12 @@ enum WarmupStatus_t : uint8_t {
 };
 
 class StratoRATS : public StratoCore {
+    struct RATSReportTM_t {
+        uint16_t num_records;
+        uint16_t record_size = ECU_REPORT_SIZE_BYTES;
+        // Extra space just in case?
+        ECUReportBytes_t records[1+RATS_TM_ECU_REPORTS];
+    };
 public:
     StratoRATS();
     ~StratoRATS() { };
@@ -254,11 +263,15 @@ private:
     // Send a TM with RATS EEPROM contents
     void SendRATSEEPROM();
 
-    // *** ratsReport functions ***
+    // *** RatsReports ***
     // Check if it's time for a ratsReport and send a TM if true
     void ratsReportCheck(int repeat_secs);
     // Send a TM with the ratsReport message
     void ratsReportTM();
+    // Buffer for buliding the RATS report TM
+    RATSReportTM_t rats_report_tm;
+    // Accumulate RATS reports for transmission
+    void ratsReportAccumulate(ECUReportBytes_t& ecu_report_bytes);
 
 };
 #endif /* STRATORATS_H */

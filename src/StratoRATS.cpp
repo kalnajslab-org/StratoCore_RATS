@@ -72,14 +72,18 @@ void StratoRATS::LoRaRX()
             total_lora_count = lora_msg.count;
         }
 //#if EXTRA_LOGGING
-        if (lora_msg.count % 30 == 0) {
+    ECUReportBytes_t payload;
+    for (uint8_t i = 0; i < lora_msg.data_len; i++) {
+        payload[i] = lora_msg.data[i];
+    }
+
+    // Add the LoRa message to the RATS report.
+    ratsReportAccumulate(payload);
+
+    if (lora_msg.count % 30 == 0) {
             snprintf(log_array, LOG_ARRAY_SIZE,
                 "LoRa rx n:%ld id:%ld rssi:%d snr:%.1f ferr:%ld",
                 lora_msg.count, lora_msg.id, ecu_lora_rssi(), ecu_lora_snr(), ecu_lora_frequency_error());
-            etl::array<uint8_t, ECU_REPORT_SIZE_BYTES> payload;
-            for (uint8_t i = 0; i < lora_msg.data_len; i++) {
-                payload[i] = lora_msg.data[i];
-            }
             ECUReport_t ecu_report = ecu_report_deserialize(payload);
             ecu_report_print(ecu_report);
             log_nominal(log_array);
@@ -147,8 +151,11 @@ void StratoRATS::RATS_Shutdown()
 
 void StratoRATS::ratsReportCheck(int repeat_secs) {
     if (CheckAction(ACTION_RATS_REPORT)) {
-        ratsReportTM();
+        //ratsReportTM();
         scheduler.AddAction(ACTION_RATS_REPORT, repeat_secs);
+    }
+    if (rats_report_tm.num_records >= RATS_TM_ECU_REPORTS) {
+        ratsReportTM();
     }
 }
 
@@ -162,14 +169,24 @@ void StratoRATS::ECUControl(bool enable)
         log_nominal("ECU Power Disabled");
     }
 }
+
+void::StratoRATS::ratsReportAccumulate(ECUReportBytes_t& ecu_report_bytes) {
+    if (rats_report_tm.num_records < RATS_TM_ECU_REPORTS) {
+        memcpy(&rats_report_tm.records[rats_report_tm.num_records], &ecu_report_bytes, ECU_REPORT_SIZE_BYTES);
+        rats_report_tm.num_records++;
+    } else {
+        log_error("RATS report buffer full");
+    }
+}
+
 void StratoRATS::ratsReportTM() {
     
     // Create the binary status payload
-    uint8_t status[8];
-    for (uint i = 0; i < sizeof(status); i++) {
-        status[i] = i+1;
-    }
-    status[0] = flight_mode_substate; 
+    //uint8_t status[8];
+    //for (uint i = 0; i < sizeof(status); i++) {
+    //    status[i] = i+1;
+    //}
+    //status[0] = flight_mode_substate; 
 
     String Message = "";
 
@@ -179,8 +196,8 @@ void StratoRATS::ratsReportTM() {
     zephyrTX.setStateDetails(1, Message);
 
     // Second
-    zephyrTX.setStateFlagValue(2, NOMESS);
-    zephyrTX.setStateDetails(2, "");
+    zephyrTX.setStateFlagValue(2, FINE);
+    zephyrTX.setStateDetails(2, String(rats_report_tm.num_records) + " records");
 
     // Third: GPS Position
     Message = "";   
@@ -192,20 +209,22 @@ void StratoRATS::ratsReportTM() {
     Message.concat(zephyrRX.zephyr_gps.altitude);
     zephyrTX.setStateDetails(3, Message);
     Message = "";
-    
-    // Add the initial timestamp
-    zephyrTX.addTm((uint32_t)now());
 
-    // And the status size (bytes)
-    zephyrTX.addTm(uint16_t(sizeof(status)));
+    zephyrTX.addTm(rats_report_tm.num_records);
+    zephyrTX.addTm(rats_report_tm.record_size);
     
-    // Add the samples
-    for (uint i = 0; i < sizeof(status); i++)
-    {
-        zephyrTX.addTm(status[i]);
+    // Add the ECURecords
+    SerialUSB.println("RATS report TM " + String(rats_report_tm.num_records));
+    for (uint i = 0; i < rats_report_tm.num_records; i++) {
+        for (uint j = 0; j < rats_report_tm.record_size; j++) {
+            zephyrTX.addTm(rats_report_tm.records[i].at(j));
+        }
     }
 
+    // Send the TM
     zephyrTX.TM();
+
+    rats_report_tm.num_records = 0;
     MCB_TM_buffer_idx = 0; //reset the MCB buffer pointer
 
 }
