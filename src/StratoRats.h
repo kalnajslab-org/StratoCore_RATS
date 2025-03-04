@@ -2,25 +2,31 @@
 #define STRATORATS_H
 
 #include <time.h>
-//#include <map>
 #include "StratoCore.h"
 #include "RATSHardware.h"
 #include "RATSConfigs.h"
 #include "MCBComm.h"
 #include "ECULoRa.h"
 #include "ECUReport.h"
+#include "etl/bit_stream.h"
+#include "etl/array.h"
 
 // Set this true to disable some error checking and logging during development testing.
 #define DISABLE_DEVEL_ERROR_CHECKING false
 
 #define EXTRA_LOGGING false
 
-// Reporting period for status message generation, including TM transmission.
-#define RATS_REPORT_PERIOD_SECS 60
-#define RATS_TM_ECU_REPORTS 180
-// Add bytes for the non-data members of the RATSReportTM_t struct
-#define RATS_REPORT_MAX_BYTES (4+(RATS_TM_ECU_REPORTS+1)*ECU_REPORT_SIZE_BYTES)
+// RATSReport reporting period, when scheduled by ACTION_RATS_REPORT.
+#define RATS_REPORT_PERIOD_SECS 360
 
+// Send a RATSReport when NUM_ECU_REPORTS have been received.
+// But if RATS_REPORT_PERIOD_SECS has elapsed, the report will be sent regardless.
+#define NUM_ECU_REPORTS 180
+
+// RATS_REPORT_MAX_BYTES is the maximum size of a RATS report in bytes. 
+#define RATS_REPORT_MAX_BYTES (RATS_HEADER_SIZE_BYTES+(NUM_ECU_REPORTS+1)*ECU_REPORT_SIZE_BYTES)
+
+// Verify that a RATS report will fit in the TM message buffer.
 #if RATS_REPORT_MAX_BYTES > 8192
 // TODO: Verify that this is the true limit for the TM binary payload. It's
 // likely that the limit is actually includes all of the XML header and other
@@ -100,11 +106,31 @@ enum WarmupStatus_t : uint8_t {
 };
 
 class StratoRATS : public StratoCore {
+#define RATS_HEADER_SIZE_BITS (8+16+16+1+13)
+#define RATS_HEADER_SIZE_BYTES 7
+    struct RATSReportHeader_t {
+        uint8_t header_size_bytes;
+        // The number of ECU records in the report. There may be zero records 
+        // if the ECU was not powered on.
+        uint16_t num_ecu_records : 16;
+        uint16_t ecu_record_size_bytes : 16;
+        // If the ECU is powered on.
+        uint8_t ecu_pwr_on : 1;
+        // The 56V voltage in 0.01V units (0-8191 : 0.00V to 81.91V)
+        uint16_t v56 : 13;
+    };
+    
+    // A byte array to hold the serialized RATS report header.
+    typedef etl::array<uint8_t, RATS_HEADER_SIZE_BYTES> RATSReportHeaderBytes_t;
+
+    // The RATS report serialized bytes are collected here. But note that each item
+    // will need to be added to the TM buffer individually.
     struct RATSReportTM_t {
-        uint16_t num_records;
-        uint16_t record_size = ECU_REPORT_SIZE_BYTES;
+        // The RATS report header
+        RATSReportHeaderBytes_t header_bytes;
+        // The ECU report data. There may be zero records if the ECU was not powered on.
         // Extra space just in case?
-        ECUReportBytes_t records[1+RATS_TM_ECU_REPORTS];
+        ECUReportBytes_t records[1+NUM_ECU_REPORTS];
     };
 public:
     StratoRATS();
@@ -145,7 +171,6 @@ private:
         FL_GPS_WAIT,
         FL_WARMUP,
         FL_MEASURE,
-        FL_SEND_TELEMETRY,
         FL_REEL,
         FL_ERROR = MODE_ERROR,
         FL_SHUTDOWN = MODE_SHUTDOWN,
@@ -272,12 +297,18 @@ private:
     void SendRATSEEPROM();
 
     // *** RatsReports ***
-    // Check if it's time for a ratsReport and send a TM if true
-    void ratsReportCheck(int repeat_secs);
+    // Check if it's time for a ratsReport and send a TM if true.
+    // If time_based is true, the report will be sent if the time period has elapsed.
+    // If time_based is false, the report will be sent based on ACTION_RATS_REPORT.
+    void ratsReportCheck(bool time_based=false);
     // Send a TM with the ratsReport message
     void ratsReportTM();
+    // The RATS report header. It will be serialized and added to the TM buffer.
+    RATSReportHeader_t rats_report_header;
     // Buffer for buliding the RATS report TM
     RATSReportTM_t rats_report_tm;
+    // Time of last RATS report
+    time_t last_rats_report = 0;
     // Accumulate RATS reports for transmission
     void ratsReportAccumulate(ECUReportBytes_t& ecu_report_bytes);
 

@@ -10,12 +10,10 @@ void StratoRATS::FlightMode()
 {
 
     // Send a status TM, if it is time. 
-    // ratsReportCheck() will reschedule the action.
-    ratsReportCheck(RATS_REPORT_PERIOD_SECS);
+    ratsReportCheck(true);
 
     // Save the flight mode substate to the global variable 
-    // so that it can be accessed by the status message
-    flight_mode_substate= inst_substate;
+    flight_mode_substate = inst_substate;
 
 #if EXTRA_LOGGING
     static uint old_inst_substate = 256;
@@ -28,8 +26,6 @@ void StratoRATS::FlightMode()
     switch (inst_substate) {
     case FL_ENTRY:
         log_nominal("Entering FL");
-        // Register ACTION_RATS_REPORT action to trigger the first status message 
-        scheduler.AddAction(ACTION_RATS_REPORT, 1);
         // Transition to waiting for a GPS message.
         scheduler.AddAction(ACTION_GPS_WAIT_MSG, 5);
         inst_substate = FL_GPS_WAIT;
@@ -55,34 +51,27 @@ void StratoRATS::FlightMode()
     case FL_WARMUP:
         // Flight_Warmup() will set inst_substate to FL_ERROR if it fails
         if (Flight_Warmup(false)) {
-            scheduler.AddAction(ACTION_START_TELEMETRY, RATS_REPORT_PERIOD_SECS);
             inst_substate = FL_MEASURE;
             log_nominal("Entering FL_MEASURE");
         }
         break;
     case FL_MEASURE:
-        if (CheckAction(ACTION_START_TELEMETRY)) {
-            inst_substate = FL_SEND_TELEMETRY;
-            log_nominal("Entering FL_SEND_TELEMETRY");
-            break;
-        } else {
-            if(CheckAction(ACTION_REEL_OUT)) {
-                // Turn off the ECU
-                ECUControl(false);
-                mcb_motion = MOTION_REEL_OUT;
-                inst_substate = FL_REEL;
-                log_nominal("Entering FL_REEL (reel out)");
-                // START the Flight Manual Motion state machine
-                Flight_Reel(true);
-            } else if (CheckAction(ACTION_REEL_IN)) {
-                // Turn off the ECU
-                ECUControl(false);
-                mcb_motion = MOTION_REEL_IN;
-                inst_substate = FL_REEL;
-                log_nominal("Entering FL_REEL (reel in)");
-                // START the Flight Manual Motion state machine
-                Flight_Reel(true);
-            }
+        if(CheckAction(ACTION_REEL_OUT)) {
+            // Turn off the ECU
+            ECUControl(false);
+            mcb_motion = MOTION_REEL_OUT;
+            inst_substate = FL_REEL;
+            log_nominal("Entering FL_REEL (reel out)");
+            // START the Flight Manual Motion state machine
+            Flight_Reel(true);
+        } else if (CheckAction(ACTION_REEL_IN)) {
+            // Turn off the ECU
+            ECUControl(false);
+            mcb_motion = MOTION_REEL_IN;
+            inst_substate = FL_REEL;
+            log_nominal("Entering FL_REEL (reel in)");
+            // START the Flight Manual Motion state machine
+            Flight_Reel(true);
         }
         break;
     case FL_REEL:
@@ -94,11 +83,6 @@ void StratoRATS::FlightMode()
             Flight_Warmup(true);
             inst_substate = FL_WARMUP;
         }
-        break;
-    case FL_SEND_TELEMETRY:
-        inst_substate = FL_MEASURE;
-        scheduler.AddAction(ACTION_START_TELEMETRY, 60); 
-        log_nominal("Entering FL_MEASURE");
         break;
     case FL_ERROR:
         // generic error state for flight mode to go to if any error is detected

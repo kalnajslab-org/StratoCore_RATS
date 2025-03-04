@@ -44,7 +44,15 @@ void StratoRATS::InstrumentSetup()
     }
 
     mcbComm.AssignBinaryRXBuffer(binary_mcb, MCB_BINARY_BUFFER_SIZE);
-    
+
+    // Initialize the RATSReport.
+    last_rats_report = now();
+
+    rats_report_header.header_size_bytes = RATS_HEADER_SIZE_BYTES;
+    rats_report_header.num_ecu_records = 0;
+    rats_report_header.ecu_pwr_on = 0;
+    rats_report_header.v56 = 0;
+    rats_report_header.ecu_record_size_bytes = ECU_REPORT_SIZE_BYTES;
 }
 
 void StratoRATS::InstrumentLoop()
@@ -149,13 +157,23 @@ void StratoRATS::RATS_Shutdown()
     ECUControl(false);
 }
 
-void StratoRATS::ratsReportCheck(int repeat_secs) {
-    if (CheckAction(ACTION_RATS_REPORT)) {
-        //ratsReportTM();
-        scheduler.AddAction(ACTION_RATS_REPORT, repeat_secs);
+void StratoRATS::ratsReportCheck(bool timed_check)
+{
+    if (!timed_check)
+    {
+        if (CheckAction(ACTION_RATS_REPORT))
+        {
+            ratsReportTM();
+            scheduler.AddAction(ACTION_RATS_REPORT, RATS_REPORT_PERIOD_SECS);
+        }
     }
-    if (rats_report_tm.num_records >= RATS_TM_ECU_REPORTS) {
-        ratsReportTM();
+    else
+    {
+        if (rats_report_header.num_ecu_records >= NUM_ECU_REPORTS || ((now() - last_rats_report) > RATS_REPORT_PERIOD_SECS))
+        {
+            ratsReportTM();
+            last_rats_report = now();
+        }
     }
 }
 
@@ -171,33 +189,33 @@ void StratoRATS::ECUControl(bool enable)
 }
 
 void::StratoRATS::ratsReportAccumulate(ECUReportBytes_t& ecu_report_bytes) {
-    if (rats_report_tm.num_records < RATS_TM_ECU_REPORTS) {
-        memcpy(&rats_report_tm.records[rats_report_tm.num_records], &ecu_report_bytes, ECU_REPORT_SIZE_BYTES);
-        rats_report_tm.num_records++;
+    if (rats_report_header.num_ecu_records < NUM_ECU_REPORTS) {
+        memcpy(&rats_report_tm.records[rats_report_header.num_ecu_records], &ecu_report_bytes, ECU_REPORT_SIZE_BYTES);
+        rats_report_header.num_ecu_records++;
     } else {
         log_error("RATS report buffer full");
     }
 }
 
 void StratoRATS::ratsReportTM() {
-    
-    // Create the binary status payload
-    //uint8_t status[8];
-    //for (uint i = 0; i < sizeof(status); i++) {
-    //    status[i] = i+1;
-    //}
-    //status[0] = flight_mode_substate; 
+
+    zephyrTX.clearTm();
+
+    // Fill in the RATS report header
+    rats_report_header.ecu_pwr_on = digitalRead(ECU_PWR_EN);
+    rats_report_header.v56 = 1000*analogRead(V56_MON) * (3.3 / 1024.0) * (R8 + R9) / R8;
+    rats_report_header.ecu_record_size_bytes = ECU_REPORT_SIZE_BYTES;
 
     String Message = "";
 
     // First
-    Message = "RATS status";
+    Message = "RATSReport";
     zephyrTX.setStateFlagValue(1, FINE);
     zephyrTX.setStateDetails(1, Message);
 
     // Second
     zephyrTX.setStateFlagValue(2, FINE);
-    zephyrTX.setStateDetails(2, String(rats_report_tm.num_records) + " records");
+    zephyrTX.setStateDetails(2, String(rats_report_header.num_ecu_records) + " records");
 
     // Third: GPS Position
     Message = "";   
@@ -210,21 +228,34 @@ void StratoRATS::ratsReportTM() {
     zephyrTX.setStateDetails(3, Message);
     Message = "";
 
-    zephyrTX.addTm(rats_report_tm.num_records);
-    zephyrTX.addTm(rats_report_tm.record_size);
-    
-    // Add the ECURecords
-    SerialUSB.println("RATS report TM " + String(rats_report_tm.num_records));
-    for (uint i = 0; i < rats_report_tm.num_records; i++) {
-        for (uint j = 0; j < rats_report_tm.record_size; j++) {
+    // Add binary sections to the TM
+
+    // Serialize rats_report_header into rats_report_tm.header_bytes
+    etl::span<uint8_t> header_span(rats_report_tm.header_bytes.data(), rats_report_tm.header_bytes.size());
+    etl::bit_stream_writer writer(header_span, etl::endian::big);
+    writer.write_unchecked(rats_report_header.header_size_bytes, 8);       // Set in InstrumentSetup()
+    writer.write_unchecked(rats_report_header.num_ecu_records, 16);        // Set in ratsReportAccumulate()
+    writer.write_unchecked(rats_report_header.ecu_record_size_bytes, 16);
+    writer.write_unchecked(rats_report_header.ecu_pwr_on, 1);
+    writer.write_unchecked(rats_report_header.v56, 13);
+
+    // Add the RATSReportHeader to the TM
+    for (uint i = 0; i < rats_report_tm.header_bytes.size(); i++) {
+        zephyrTX.addTm(rats_report_tm.header_bytes.at(i));
+    }
+
+    // Add the ECURecords to the TM
+    for (uint i = 0; i < rats_report_header.num_ecu_records; i++) {
+        for (uint j = 0; j < rats_report_header.ecu_record_size_bytes; j++) {
             zephyrTX.addTm(rats_report_tm.records[i].at(j));
         }
     }
 
-    // Send the TM
+    // Send the TM!
     zephyrTX.TM();
 
-    rats_report_tm.num_records = 0;
+    rats_report_header.num_ecu_records = 0;
+
     MCB_TM_buffer_idx = 0; //reset the MCB buffer pointer
 
 }

@@ -10,7 +10,7 @@ enum SBStates_t : uint8_t {
 
 void StratoRATS::StandbyMode()
 {
-    ratsReportCheck(RATS_REPORT_PERIOD_SECS);
+    ratsReportCheck();
     switch (inst_substate) {
     case SB_ENTRY:
         log_nominal("Entering SB");
