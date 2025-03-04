@@ -164,6 +164,7 @@ void StratoRATS::ratsReportCheck(bool timed_check)
         if (CheckAction(ACTION_RATS_REPORT))
         {
             ratsReportTM();
+            last_rats_report = now();
             scheduler.AddAction(ACTION_RATS_REPORT, RATS_REPORT_PERIOD_SECS);
         }
     }
