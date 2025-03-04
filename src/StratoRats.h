@@ -109,7 +109,7 @@ class StratoRATS : public StratoCore {
 #define RATS_HEADER_SIZE_BITS (8+16+16+1+13)
 #define RATS_HEADER_SIZE_BYTES 7
     struct RATSReportHeader_t {
-        uint8_t header_size_bytes;
+        uint8_t header_size_bytes : 8;
         // The number of ECU records in the report. There may be zero records 
         // if the ECU was not powered on.
         uint16_t num_ecu_records : 16;
