@@ -105,10 +105,6 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
         msg = "TC get MCB voltages";
         mcbComm.TX_ASCII(MCB_GET_VOLTAGES);
         break;
-    case RATSSAMPERATESECS:
-        msg = "TC set sample rate" + String(ratsParam.sample_rate_secs);
-        ratsConfigs.sample_rate_secs.Write(ratsParam.sample_rate_secs);
-        break;
     case RATSDATAPROCTYPE:
         msg = "TC set processing mode" + String(ratsParam.data_proc_method);
         ratsConfigs.data_proc_method.Write(ratsParam.data_proc_method);

@@ -9,7 +9,6 @@ RATSConfigs::RATSConfigs()
     : TeensyEEPROM(CONFIG_VERSION, BASE_ADDRESS),
     // ------------ Hard-Coded Config Defaults ------------
     // TODO Assign correct default values here
-    sample_rate_secs(60),
     data_proc_method(1),
     deploy_velocity(10.0f),
     retract_velocity(10.0f),
@@ -27,7 +26,6 @@ void RATSConfigs::RegisterAll()
 
     bool success = true;
 
-    success &= Register(&sample_rate_secs);
     success &= Register(&data_proc_method);
     success &= Register(&deploy_velocity);
     success &= Register(&retract_velocity);
