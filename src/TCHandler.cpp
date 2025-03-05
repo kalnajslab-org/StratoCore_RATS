@@ -105,6 +105,16 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
         msg = "TC get MCB voltages";
         mcbComm.TX_ASCII(MCB_GET_VOLTAGES);
         break;
+    case CONTROLLERSON:
+        msg = "TC MCB controllers on";
+        mcbComm.TX_ASCII(MCB_CONTROLLERS_ON);
+        break;
+    case CONTROLLERSOFF:
+        msg = "TC MCB controllers off";
+        mcbComm.TX_ASCII(MCB_CONTROLLERS_OFF);
+        break;
+
+    // RATS Telecommands -----------------------------------
     case RATSDATAPROCTYPE:
         msg = "TC set processing mode" + String(ratsParam.data_proc_method);
         ratsConfigs.data_proc_method.Write(ratsParam.data_proc_method);
@@ -126,6 +136,12 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
         } else {
             ratsConfigs.real_time_mcb.Write(false);
         }
+        break;
+    case RATSLORATXTESTON:
+        msg = "TC LoRa TX test on";
+        break;
+    case RATSLORATXTESTOFF:
+        msg = "TC LoRa TX test off";
         break;
     case RATSGETEEPROM:
         msg = "TC get RATS EEPROM";
