@@ -17,7 +17,7 @@
 #define EXTRA_LOGGING false
 
 // RATSReport reporting period, when scheduled by ACTION_RATS_REPORT.
-#define RATS_REPORT_PERIOD_SECS 360
+#define RATS_REPORT_PERIOD_SECS 300
 
 // Send a RATSReport when NUM_ECU_REPORTS have been received.
 // But if RATS_REPORT_PERIOD_SECS has elapsed, the report will be sent regardless.
@@ -163,6 +163,12 @@ private:
     void EndOfFlightMode();
     
     void RATS_Shutdown();
+
+    // Save a copy of inst_mode here, since it is private in StratoCore.
+    // It gets set whenever one of the mode handlers is entered. 
+    // It's silly inst_mode is private, since shared functions sometime want 
+    // to know the current mode.
+    InstMode_t my_inst_mode = MODE_STANDBY;
 
     // The FLIGHT mode substates.
     // Moved from Flight.cpp to here so that TCHandler() can use them to vet TCs.

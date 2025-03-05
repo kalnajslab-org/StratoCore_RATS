@@ -216,7 +216,28 @@ void StratoRATS::ratsReportTM() {
 
     // Second
     zephyrTX.setStateFlagValue(2, FINE);
-    zephyrTX.setStateDetails(2, String(rats_report_header.num_ecu_records) + " records");
+    switch (my_inst_mode) {
+    case MODE_STANDBY:
+        Message = "STANDBY mode";
+        break;
+    case MODE_FLIGHT:
+        Message = "FLIGHT mode";
+        break;
+    case MODE_LOWPOWER:
+        Message = "LOWPOWER mode";
+        break;
+    case MODE_SAFETY:
+        Message = "SAFETY mode";
+        break;
+    case MODE_EOF:
+        Message = "EOF mode";
+        break;
+    default:
+        Message = "Unknown mode";
+        break;
+    }
+    Message += " " + String(rats_report_header.num_ecu_records) + " records";
+    zephyrTX.setStateDetails(2, Message);
 
     // Third: GPS Position
     Message = "";   

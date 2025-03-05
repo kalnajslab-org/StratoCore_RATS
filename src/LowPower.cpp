@@ -12,6 +12,7 @@ enum LPStates_t : uint8_t {
 
 void StratoRATS::LowPowerMode()
 {
+    my_inst_mode = MODE_LOWPOWER;
     switch (inst_substate) {
     case LP_ENTRY:
         // perform setup

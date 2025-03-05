@@ -8,7 +8,7 @@
 //  * it is up to the FL_EXIT logic perform any actions for leaving flight mode
 void StratoRATS::FlightMode()
 {
-
+    my_inst_mode = MODE_FLIGHT;
     // Send a status TM, if it is time. 
     ratsReportCheck(true);
 

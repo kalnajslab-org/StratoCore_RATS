@@ -157,7 +157,6 @@ void StratoRATS::HandleMCBBin()
 
     switch (mcbComm.binary_rx.bin_id) {
     case MCB_MOTION_TM:
-        float f;
         if (BufferGetFloat(&reel_pos, mcbComm.binary_rx.bin_buffer, mcbComm.binary_rx.bin_length, &reel_pos_index)) {
             log_nominal((String("Reel pos: ") + String(reel_pos)).c_str());
         } else {

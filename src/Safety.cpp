@@ -13,6 +13,7 @@ enum SAStates_t : uint8_t {
 
 void StratoRATS::SafetyMode()
 {
+    my_inst_mode = MODE_SAFETY;
     ratsReportCheck();
     switch (inst_substate) {
     case SA_ENTRY:

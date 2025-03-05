@@ -12,6 +12,7 @@ enum EFStates_t : uint8_t {
 
 void StratoRATS::EndOfFlightMode()
 {
+    my_inst_mode = MODE_EOF;
     ratsReportCheck();
     switch (inst_substate) {
     case EF_ENTRY:
