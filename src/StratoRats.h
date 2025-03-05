@@ -84,6 +84,7 @@ enum ScheduleAction_t : uint8_t {
     ACTION_REEL_OUT,
     ACTION_REEL_IN,
     ACTION_IN_NO_LW,
+    ACTION_LORA_TX_TEST,
 
     ACTION_MOTION_STOP,
     ACTION_MOTION_TIMEOUT,
@@ -233,6 +234,8 @@ private:
     // Return the current count.
     // Uses the global variable lora_count.
     uint32_t lora_count_check(bool reset=false);
+    // Set to true to enable LoRa TX test mode
+    bool lora_tx_test = false;
 
     // ECU control
     void ECUControl(bool enable);

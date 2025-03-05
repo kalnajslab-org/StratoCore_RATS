@@ -60,6 +60,13 @@ void StratoRATS::InstrumentLoop()
     static uint32_t serial_keepalive_millis = 0;
     
     WatchFlags();
+
+    // Insure that the LoRa test tx is only operating in standby mode
+    if (my_inst_mode != MODE_STANDBY) {
+        lora_tx_test = false;
+    }
+
+    // Check for incoming LoRa messages
     LoRaRX();
 
     // Keep the serial port alive. The MAX3381 has a 30 second timeout,

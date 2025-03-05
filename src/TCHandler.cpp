@@ -138,9 +138,17 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
         }
         break;
     case RATSLORATXTESTON:
+        if (my_inst_mode != MODE_STANDBY) {
+            msg = "TC Cannot start LoRa TX test, not in standby mode";
+            summary_level = LOG_ERROR;
+            break;
+        }
+        lora_tx_test = true;
+        scheduler.AddAction(ACTION_LORA_TX_TEST, 1);
         msg = "TC LoRa TX test on";
         break;
     case RATSLORATXTESTOFF:
+        lora_tx_test = false;
         msg = "TC LoRa TX test off";
         break;
     case RATSGETEEPROM:

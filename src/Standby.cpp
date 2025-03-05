@@ -32,15 +32,23 @@ void StratoRATS::StandbyMode()
             zephyrTX.IMR();
             scheduler.AddAction(SEND_IMR, 5);
         }
+        if (CheckAction(ACTION_LORA_TX_TEST) && lora_tx_test) {
+            log_nominal("Sending LoRa TX test message");
+            char* msg = "LoRa TX test message from StratoCore_RATS";
+            ecu_lora_tx(msg, strlen(msg));
+            scheduler.AddAction(ACTION_LORA_TX_TEST, 1);
+        }
         break;
     case SB_SHUTDOWN:
         // prep for shutdown
         log_nominal("Shutdown warning received in SB");
         RATS_Shutdown();
+        lora_tx_test = false;
         break;
     case SB_EXIT:
         // perform cleanup
         log_nominal("Exiting SB");
+        lora_tx_test = false;
         break;
     default:
         // todo: throw error
