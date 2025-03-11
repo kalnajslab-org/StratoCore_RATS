@@ -25,11 +25,12 @@ public:
     RATSConfigs();
 
     // constants, manually change version number here to force update
-    static const uint16_t CONFIG_VERSION = 0x000A;
+    static const uint16_t CONFIG_VERSION = 0x000B;
     static const uint16_t BASE_ADDRESS = 0x0000;
 
     // ------------------ Configurations ------------------
     EEPROMData<uint16_t> data_proc_method;
+    EEPROMData<float> ecu_tempC;
     EEPROMData<float> deploy_velocity;   // revs/min
     EEPROMData<float> retract_velocity;  // revs/min
     EEPROMData<uint16_t> motion_timeout;

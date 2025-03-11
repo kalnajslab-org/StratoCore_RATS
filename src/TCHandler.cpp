@@ -160,6 +160,10 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
             SendRATSEEPROM();
         }
         break;
+    case RATSECUTEMP:
+        msg = "TC set ECU temp: " + String(ratsParam.ecu_tempC);
+        ratsConfigs.ecu_tempC.Write(ratsParam.ecu_tempC);
+        break;
     default:
         summary_level = LOG_ERROR;
         msg = "Unknown TC " + String(telecommand) + " received";
@@ -170,6 +174,7 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
     switch (summary_level) {
         case LOG_DEBUG:
             log_debug(msg.c_str());
+            ZephyrLogFine(msg.c_str());
             break;
         case LOG_NOMINAL:
             log_nominal(msg.c_str());

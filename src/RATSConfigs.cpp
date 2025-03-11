@@ -10,6 +10,7 @@ RATSConfigs::RATSConfigs()
     // ------------ Hard-Coded Config Defaults ------------
     // TODO Assign correct default values here
     data_proc_method(1),
+    ecu_tempC(0.0f),
     deploy_velocity(10.0f),
     retract_velocity(10.0f),
     motion_timeout(10),
@@ -22,7 +23,9 @@ void RATSConfigs::RegisterAll()
 {
     // Called from the base class Initialize method,
     // this method registers all EEPROMData objects
-    // and thus determines the length of the bufferized data
+    // and thus determines the length of the bufferized data.
+    // The order of registration must match the order of
+    // the objects in the constructor and the EEPROM buffer.
 
     bool success = true;
 

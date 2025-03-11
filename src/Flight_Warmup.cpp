@@ -1,4 +1,5 @@
 #include "StratoRATS.h"
+#include <ArduinoJson.h>
 
 enum WarmupStates_t
 {
@@ -9,6 +10,9 @@ enum WarmupStates_t
 };
 
 static WarmupStates_t warmup_state = WARMUP_ENTRY;
+
+static JsonDocument ecu_json;
+static char ecu_json_str[ECU_LORA_DATA_BUFSIZE];
 
 bool StratoRATS::Flight_Warmup(bool restart)
 {
@@ -79,7 +83,11 @@ bool StratoRATS::Flight_Warmup(bool restart)
     case WARMUP_CONFIG_ECU:
         // Configure the ECU here.
         log_nominal("WARMUP_CONFIG_ECU Configuring ECU");
-        ecu_lora_tx((uint8_t*)"HELLO FROM RATS", strlen("HELLO FROM RATS"));
+        ecu_json["tempC"] = ratsConfigs.ecu_tempC.Read();
+        serializeJson(ecu_json, ecu_json_str);
+        log_nominal(ecu_json_str);
+        // Send the configuration message to the ECU
+        ecu_lora_tx((uint8_t*)ecu_json_str, strlen(ecu_json_str));
 
         LoRaMsg_timer_start = now();
         scheduler.AddAction(ACTION_LORA_COUNT_MSGS, 1);
