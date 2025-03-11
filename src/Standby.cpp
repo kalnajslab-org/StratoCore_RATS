@@ -33,8 +33,8 @@ void StratoRATS::StandbyMode()
             scheduler.AddAction(SEND_IMR, 5);
         }
         if (CheckAction(ACTION_LORA_TX_TEST) && lora_tx_test) {
-            char* msg = "LoRa TX test message from StratoCore_RATS";
-            ecu_lora_tx(msg, strlen(msg));
+            const char* msg = "LoRa TX test message from StratoCore_RATS";
+            ecu_lora_tx((uint8_t*)msg, strlen(msg), true);
             scheduler.AddAction(ACTION_LORA_TX_TEST, 1);
         }
         break;
