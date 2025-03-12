@@ -83,10 +83,17 @@ bool StratoRATS::Flight_Warmup(bool restart)
     case WARMUP_CONFIG_ECU:
         // Configure the ECU here.
         log_nominal("WARMUP_CONFIG_ECU Configuring ECU");
+        // TODO: Send all of the ECU config parameters in one JSON message, 
+        // since we are only allowed to send one message at a time.
+        // TODO: Abstract the ECU configuration into a separate function,
+        // with flexibility to set any collection of parameters. This can be
+        // shared with the TC handler.
         ecu_json["tempC"] = ratsConfigs.ecu_tempC.Read();
         serializeJson(ecu_json, ecu_json_str);
         log_nominal(ecu_json_str);
         // Send the configuration message to the ECU
+        // Don't forget that the message will not be sent until we receive a message from the ECU.
+        // So it will not work to try to send two messages back-to-back.
         ecu_lora_tx((uint8_t*)ecu_json_str, strlen(ecu_json_str));
 
         LoRaMsg_timer_start = now();

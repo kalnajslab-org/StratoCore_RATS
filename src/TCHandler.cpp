@@ -1,4 +1,8 @@
+#include <ArduinoJson.h>
 #include "StratoRATS.h"
+
+static JsonDocument ecu_json;
+static char ecu_json_str[ECU_LORA_DATA_BUFSIZE];
 
 // The telecommand handler must return ACK/NAK
 bool StratoRATS::TCHandler(Telecommand_t telecommand)
@@ -162,7 +166,16 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
         break;
     case RATSECUTEMP:
         msg = "TC set ECU temp: " + String(ratsParam.ecu_tempC);
+        // Save the ECU temp to EEPROM
         ratsConfigs.ecu_tempC.Write(ratsParam.ecu_tempC);
+        if (my_inst_mode == MODE_FLIGHT) {
+            ecu_json["tempC"] = ratsConfigs.ecu_tempC.Read();
+            serializeJson(ecu_json, ecu_json_str);
+            // Don't forget that the message will not be sent until we receive a message from the ECU.
+            // So it will not work to try to send two messages back-to-back.
+            // Also keep in mind that the ECU might not even be powered up right now.
+            ecu_lora_tx((uint8_t*)ecu_json_str, strlen(ecu_json_str));
+        }
         break;
     default:
         summary_level = LOG_ERROR;
