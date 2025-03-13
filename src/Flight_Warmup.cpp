@@ -90,7 +90,7 @@ bool StratoRATS::Flight_Warmup(bool restart)
         // shared with the TC handler.
         ecu_json["tempC"] = ratsConfigs.ecu_tempC.Read();
         serializeJson(ecu_json, ecu_json_str);
-        log_nominal(ecu_json_str);
+        log_nominal((String("ECU command: ") + ecu_json_str).c_str());
         // Send the configuration message to the ECU
         // Don't forget that the message will not be sent until we receive a message from the ECU.
         // So it will not work to try to send two messages back-to-back.
