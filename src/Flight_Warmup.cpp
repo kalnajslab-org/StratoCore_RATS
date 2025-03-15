@@ -97,6 +97,7 @@ bool StratoRATS::Flight_Warmup(bool restart)
         ecu_lora_tx((uint8_t*)ecu_json_str, strlen(ecu_json_str));
 
         LoRaMsg_timer_start = now();
+        warmup_cycles = 0;
         scheduler.AddAction(ACTION_LORA_COUNT_MSGS, 1);
         warmup_state = WARMUP_LORA_WAIT2;
         // Start the LoRa message counter

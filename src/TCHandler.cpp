@@ -177,6 +177,20 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
             ecu_lora_tx((uint8_t*)ecu_json_str, strlen(ecu_json_str));
         }
         break;
+    case RATSECUPWRON:
+        msg = "TC ECU power on";
+        if (my_inst_mode == MODE_FLIGHT || my_inst_mode == MODE_STANDBY) {
+            ECUControl(true);
+        } else {
+            msg = "Cannot power on ECU, not in FLIGHT or STANDBY mode";
+            summary_level = LOG_ERROR;
+        }
+        break;
+    case RATSECUPWROFF:
+        msg = "TC ECU power off";
+        // Turn off the ECU
+        ECUControl(false);
+        break;
     default:
         summary_level = LOG_ERROR;
         msg = "Unknown TC " + String(telecommand) + " received";
