@@ -168,7 +168,7 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
         msg = "TC set ECU temp: " + String(ratsParam.ecu_tempC);
         // Save the ECU temp to EEPROM
         ratsConfigs.ecu_tempC.Write(ratsParam.ecu_tempC);
-        if (my_inst_mode == MODE_FLIGHT) {
+        if (my_inst_mode == MODE_FLIGHT || my_inst_mode == MODE_STANDBY) {
             ecu_json["tempC"] = ratsConfigs.ecu_tempC.Read();
             serializeJson(ecu_json, ecu_json_str);
             // Don't forget that the message will not be sent until we receive a message from the ECU.
