@@ -9,12 +9,12 @@
 
 // Build the binary payload for a RATSReport Telemetry message.
 //
-// The ECUReports are collected. When getTMpayload() is called, the RATSReportHeader is serialized
-// and the ECUReports are added to the payload. The payload is then ready to be sent
-// as a telemetry message.
+// The ECUReports are collected. When getReportBytes() is called, the RATSReportHeader 
+// is serialized and the ECUReports are added to the payload. The payload is then ready
+// to be sent in a TM.
 //
 // Usage:
-// 1. Create an instance of RATSReportTM with the max number of ECU reports.
+// 1. Create an instance of RATSReport with the max number of ECU reports.
 // Iterate as needed:
 // 1. Call addECUReport() to add ECU reports.
 // 2. Call setHeader() to set the header values.
@@ -24,7 +24,7 @@
 //
 // The maximum number of ECU reports is specified as the template parameter N_ECU_REPORTS.
 template <size_t N_ECU_REPORTS>
-class RATSReportTM
+class RATSReport
 {
 
 protected:
@@ -68,7 +68,7 @@ protected:
 
 public:
     // Constructor to initialize the RATS report header with the number of ECU reports.
-    explicit RATSReportTM()
+    explicit RATSReport()
     {
         initReport();
     };

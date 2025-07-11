@@ -322,7 +322,7 @@ private:
     // Accumulate RATS reports for transmission
     void ratsReportAccumulate(ECUReportBytes_t& ecu_report_bytes);
     // Build and manage the RATS report here:
-    RATSReportTM<NUM_ECU_REPORTS> rats_report;
+    RATSReport<NUM_ECU_REPORTS> rats_report;
 
 };
 #endif /* STRATORATS_H */
