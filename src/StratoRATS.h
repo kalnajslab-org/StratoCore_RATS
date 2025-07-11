@@ -8,6 +8,7 @@
 #include "MCBComm.h"
 #include "ECULoRa.h"
 #include "ECUReport.h"
+#include "RATSReport.h"
 #include "etl/bit_stream.h"
 #include "etl/array.h"
 
@@ -320,6 +321,8 @@ private:
     time_t last_rats_report = 0;
     // Accumulate RATS reports for transmission
     void ratsReportAccumulate(ECUReportBytes_t& ecu_report_bytes);
+    // Build and manage the RATS report here:
+    RATSReportTM<NUM_ECU_REPORTS> rats_report;
 
 };
 #endif /* STRATORATS_H */
