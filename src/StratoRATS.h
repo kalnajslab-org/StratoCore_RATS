@@ -108,32 +108,7 @@ enum WarmupStatus_t : uint8_t {
 };
 
 class StratoRATS : public StratoCore {
-#define RATS_HEADER_SIZE_BITS (8+16+16+1+13)
-#define RATS_HEADER_SIZE_BYTES 7
-    struct RATSReportHeader_t {
-        uint8_t header_size_bytes : 8;
-        // The number of ECU records in the report. There may be zero records 
-        // if the ECU was not powered on.
-        uint16_t num_ecu_records : 16;
-        uint16_t ecu_record_size_bytes : 16;
-        // If the ECU is powered on.
-        uint8_t ecu_pwr_on : 1;
-        // The 56V voltage in 0.01V units (0-8191 : 0.00V to 81.91V)
-        uint16_t v56 : 13;
-    };
     
-    // A byte array to hold the serialized RATS report header.
-    typedef etl::array<uint8_t, RATS_HEADER_SIZE_BYTES> RATSReportHeaderBytes_t;
-
-    // The RATS report serialized bytes are collected here. But note that each item
-    // will need to be added to the TM buffer individually.
-    struct RATSReportTM_t {
-        // The RATS report header
-        RATSReportHeaderBytes_t header_bytes;
-        // The ECU report data. There may be zero records if the ECU was not powered on.
-        // Extra space just in case?
-        ECUReportBytes_t records[1+NUM_ECU_REPORTS];
-    };
 public:
     StratoRATS();
     ~StratoRATS() { };
@@ -307,20 +282,16 @@ private:
     void SendRATSEEPROM();
 
     // *** RatsReports ***
+    // Accumulate RATS reports for transmission
+    void ratsReportAccumulate(ECUReportBytes_t& ecu_report_bytes);
     // Check if it's time for a ratsReport and send a TM if true.
     // If time_based is true, the report will be sent if the time period has elapsed.
     // If time_based is false, the report will be sent based on ACTION_RATS_REPORT.
     void ratsReportCheck(bool time_based=false);
     // Send a TM with the ratsReport message
     void ratsReportTM();
-    // The RATS report header. It will be serialized and added to the TM buffer.
-    RATSReportHeader_t rats_report_header;
-    // Buffer for buliding the RATS report TM
-    RATSReportTM_t rats_report_tm;
     // Time of last RATS report
     time_t last_rats_report = 0;
-    // Accumulate RATS reports for transmission
-    void ratsReportAccumulate(ECUReportBytes_t& ecu_report_bytes);
     // Build and manage the RATS report here:
     RATSReport<NUM_ECU_REPORTS> rats_report;
 

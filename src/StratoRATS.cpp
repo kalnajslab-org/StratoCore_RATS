@@ -45,14 +45,6 @@ void StratoRATS::InstrumentSetup()
 
     mcbComm.AssignBinaryRXBuffer(binary_mcb, MCB_BINARY_BUFFER_SIZE);
 
-    // Initialize the RATSReport.
-    last_rats_report = now();
-
-    rats_report_header.header_size_bytes = RATS_HEADER_SIZE_BYTES;
-    rats_report_header.num_ecu_records = 0;
-    rats_report_header.ecu_pwr_on = 0;
-    rats_report_header.v56 = 0;
-    rats_report_header.ecu_record_size_bytes = ECU_REPORT_SIZE_BYTES;
 }
 
 void StratoRATS::InstrumentLoop()
@@ -177,7 +169,7 @@ void StratoRATS::ratsReportCheck(bool timed_check)
     }
     else
     {
-        if (rats_report_header.num_ecu_records >= NUM_ECU_REPORTS || ((now() - last_rats_report) > RATS_REPORT_PERIOD_SECS))
+        if (rats_report.numECUrecords() >= NUM_ECU_REPORTS || ((now() - last_rats_report) > RATS_REPORT_PERIOD_SECS))
         {
             ratsReportTM();
             last_rats_report = now();
@@ -196,23 +188,14 @@ void StratoRATS::ECUControl(bool enable)
     }
 }
 
-void::StratoRATS::ratsReportAccumulate(ECUReportBytes_t& ecu_report_bytes) {
-    if (rats_report_header.num_ecu_records < NUM_ECU_REPORTS) {
-        memcpy(&rats_report_tm.records[rats_report_header.num_ecu_records], &ecu_report_bytes, ECU_REPORT_SIZE_BYTES);
-        rats_report_header.num_ecu_records++;
-    } else {
-        log_error("RATS report buffer full");
-    }
+void StratoRATS::ratsReportAccumulate(ECUReportBytes_t& ecu_report_bytes) {
+    // Add the ECU report bytes to the RATS report
+    rats_report.addECUReport(ecu_report_bytes);
 }
 
 void StratoRATS::ratsReportTM() {
 
     zephyrTX.clearTm();
-
-    // Fill in the RATS report header
-    rats_report_header.ecu_pwr_on = digitalRead(ECU_PWR_EN);
-    rats_report_header.v56 = 1000*analogRead(V56_MON) * (3.3 / 1024.0) * (R8 + R9) / R8;
-    rats_report_header.ecu_record_size_bytes = ECU_REPORT_SIZE_BYTES;
 
     String Message = "";
 
@@ -243,7 +226,7 @@ void StratoRATS::ratsReportTM() {
         Message = "Unknown mode";
         break;
     }
-    Message += " " + String(rats_report_header.num_ecu_records) + " records";
+    Message += " " + String(rats_report.numECUrecords()) + " records";
     zephyrTX.setStateDetails(2, Message);
 
     // Third: GPS Position
@@ -257,35 +240,25 @@ void StratoRATS::ratsReportTM() {
     zephyrTX.setStateDetails(3, Message);
     Message = "";
 
-    // Add binary sections to the TM
+    // Add RATSReport to the TM
 
-    // Serialize rats_report_header into rats_report_tm.header_bytes
-    etl::span<uint8_t> header_span(rats_report_tm.header_bytes.data(), rats_report_tm.header_bytes.size());
-    etl::bit_stream_writer writer(header_span, etl::endian::big);
-    writer.write_unchecked(rats_report_header.header_size_bytes, 8);       // Set in InstrumentSetup()
-    writer.write_unchecked(rats_report_header.num_ecu_records, 16);        // Set in ratsReportAccumulate()
-    writer.write_unchecked(rats_report_header.ecu_record_size_bytes, 16);
-    writer.write_unchecked(rats_report_header.ecu_pwr_on, 1);
-    writer.write_unchecked(rats_report_header.v56, 13);
+    rats_report.fillReportHeader(ecu_lora_rssi(), ecu_lora_snr());
+    auto report_bytes = rats_report.getReportBytes();
 
     // Add the RATSReportHeader to the TM
-    for (uint i = 0; i < rats_report_tm.header_bytes.size(); i++) {
-        zephyrTX.addTm(rats_report_tm.header_bytes.at(i));
-    }
-
-    // Add the ECURecords to the TM
-    for (uint i = 0; i < rats_report_header.num_ecu_records; i++) {
-        for (uint j = 0; j < rats_report_header.ecu_record_size_bytes; j++) {
-            zephyrTX.addTm(rats_report_tm.records[i].at(j));
-        }
+    for (uint i = 0; i < report_bytes.size(); i++) {
+        zephyrTX.addTm(report_bytes.at(i));
     }
 
     // Send the TM!
     zephyrTX.TM();
 
-    rats_report_header.num_ecu_records = 0;
-
     MCB_TM_buffer_idx = 0; //reset the MCB buffer pointer
+
+    SerialUSB.print("RATS report bytes: ");
+    SerialUSB.println(report_bytes.size()); 
+    rats_report.print(false);
+    rats_report.initReport(); // Reset the RATS report for the next collection
 
 }
 

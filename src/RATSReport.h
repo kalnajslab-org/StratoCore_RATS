@@ -1,6 +1,8 @@
 #ifndef RATS_REPORT_H
 #define RATS_REPORT_H
+
 #include <stddef.h>
+#include "StratoGroundPort.h"
 #include "ECUReport.h"
 #include "RATSHardware.h"
 #define ETL_NO_STL
@@ -8,12 +10,14 @@
 #include "etl/array.h"
 #include "etl/bit_stream.h"
 
+#ifndef DIV_ROUND_UP
 // Rounding up #define for CPP math
 #define DIV_ROUND_UP(Numerator, Denominator) (((Numerator) + (Denominator) - 1) / (Denominator))
+#endif
 
 // Build the binary payload for a RATSReport Telemetry message.
 //
-// The ECUReports are collected. When getReportBytes() is called, the RATSReportHeader 
+// The ECUReports are collected. When getReportBytes() is called, the RATSReportHeader
 // is serialized and the ECUReports are added to the payload. The payload is then ready
 // to be sent in a TM.
 //
@@ -21,10 +25,9 @@
 // 1. Create an instance of RATSReport with the max number of ECU reports.
 // 2. Iterate as needed:
 //    Call addECUReport() to add ECU reports.
-// 3. Call setHeader() to set the header values.
+// 3. Call fillReportHeader() to set the header values.
 // 4. Call getReportBytes() to fetch the TM binary payload.
-// 5. Call getReportLength() to get the TM binary payload length in bytes.
-// 6. Call initReport() to reset the report for the next collection.
+// 5. Call initReport() to reset the report for the next collection.
 //
 // The maximum number of ECU reports is specified as the template parameter N_ECU_REPORTS.
 template <size_t N_ECU_REPORTS>
@@ -32,66 +35,143 @@ class RATSReport
 {
 
 protected:
-// When modifying the RATSReportHeader_t structure, there are five things you must do:
-// 1. Increment the RATS_REPORT_REV.
-// 2. Modify or add fields to the RATSReportHeader_t structure as needed. The type of 
-//    each field will be the next larger unsigned type that can hold the required number of bits.
-//    For example, if you need 13 bits, use uint16_t. If you need 10 bits, use uint16_t as well.
-//    If you need 1 bit, use uint8_t, etc.
-// 3. Update the RATS_REPORT_HEADER_SIZE_BITS to the sum of the bitfield sizes in the structure.
-//    You can use the copilot to create this sum by prompting: "sum of bitfield sizes in RATSReportHeader_t".
-// 4. Update serializeHeader() to serialize the new fields in the correct order.
-// 5. Update fillReportHeader() to set new fields with the scaled values.
+    // When modifying the RATSReportHeader_t structure, there are five things you must do:
+    // 1. Increment the RATS_REPORT_REV.
+    // 2. Modify or add fields to the RATSReportHeader_t structure as needed. 
+    // 3. Update the RATS_REPORT_HEADER_SIZE_BITS to the sum of the bitfield sizes in the structure.
+    // 4. Update serializeHeader() to serialize the new fields in the correct order.
+    // 5. Update fillReportHeader() to set new fields with the scaled values.
+    // 6. Update RATSReportPrint() to print the new fields (scaled).
 
+    // The RATS report header revision. Increment this whenever the header structure is modified.
 #define RATS_REPORT_REV 1
+
+    // The RATS report header structure.
+    // The type of each field will be the next larger unsigned type that can hold the required number of bits.
+    // For example, if you need 13 bits, use uint16_t. If you need 10 bits, use uint16_t as well.
+    // If you need 1 bit, use uint8_t, etc.
     struct RATSReportHeader_t
     {
-        uint8_t version :                 4; // The version of the RATS report header.
-        uint8_t header_size_bytes :       8; // The size of the RATS report header in bytes.
-        uint16_t num_ecu_records :       16; // The number of ECU records in the report.
-        uint16_t ecu_record_size_bytes : 16;
-        uint8_t ecu_pwr_on :              1; // If the ECU is powered on.
-        uint16_t v56 :                   13; // The 56V voltage in 0.01V units
-        uint16_t cpu_temp :              11; // (CPU temperature+100)*10
-        uint16_t lora_rssi :             11; // (Lora RSSI in dBm-2047)*10
-        uint16_t lora_snr :              10; // (Lora SNR in dB-512)*10
+        uint8_t version :           4;       // The version of the RATS report header.
+        uint8_t header_size_bytes : 8;       // The size of the RATS report header in bytes.
+        uint16_t num_ecu_records : 10;       // The number of ECU records in the report.
+        uint16_t ecu_size_bytes :   9;       // The size of each ECU record in bytes.
+        uint8_t ecu_pwr_on :        1;       // If the ECU is powered on.
+        uint16_t v56 :             13;       // (56V voltage)*100 (0-8191 : 0 to -81.9V)
+        uint16_t cpu_temp :        11;       // (CPU temperature + 100)*10 (0-2047 : -100.0C to +104.7C)
+        uint16_t lora_rssi :       10;       // (Lora RSSI + 100)*10 (0-1023 : -100.0dBm to +10.2dBm)
+        uint16_t lora_snr :        10;       // (Lora SNR + 70)*10 (0-1023 : -70.0dB to +32.3dB)
     };
 
-#define RATS_REPORT_HEADER_SIZE_BITS (4 + 8 + 16 + 16 + 1 + 13 + 11 + 11 + 10)
+//    You can use the copilot to create this sum by prompting: "sum of bitfield sizes in RATSReportHeader_t".
+#define RATS_REPORT_HEADER_SIZE_BITS (4 + 8 + 10 + 9 + 1 + 13 + 11 + 10 + 10)
 #define RATS_REPORT_HEADER_SIZE_BYTES DIV_ROUND_UP(RATS_REPORT_HEADER_SIZE_BITS, 8)
 
     // Serialize the RATS report into the header bytes.
     // This should be called before sending the report.
-    void serializHeader()
+    void serializeHeader()
     {
+        // *** Modify this function whenever the RATSReportHeader_t struct is modified ***
+
         // The report header is serialized into the beginning of report bytes.
         etl::span<uint8_t> data_span(_report_bytes.data(), _report_bytes.size());
         etl::bit_stream_writer writer(data_span, etl::endian::big);
 
         // Serialize the header
-        writer.write_unchecked(_report_header.version,                4);
-        writer.write_unchecked(_report_header.header_size_bytes,      8);
-        writer.write_unchecked(_report_header.num_ecu_records,       16);
-        writer.write_unchecked(_report_header.ecu_record_size_bytes, 16);
-        writer.write_unchecked(_report_header.ecu_pwr_on,             1);
-        writer.write_unchecked(_report_header.v56,                   13);
-        writer.write_unchecked(_report_header.cpu_temp,              11);
-        writer.write_unchecked(_report_header.lora_rssi,             11);
-        writer.write_unchecked(_report_header.lora_snr,              10);
+        writer.write_unchecked(_header.version, 4);
+        writer.write_unchecked(_header.header_size_bytes, 8);
+        writer.write_unchecked(_header.num_ecu_records, 10);
+        writer.write_unchecked(_header.ecu_size_bytes, 9);
+        writer.write_unchecked(_header.ecu_pwr_on, 1);
+        writer.write_unchecked(_header.v56, 13);
+        writer.write_unchecked(_header.cpu_temp, 11);
+        writer.write_unchecked(_header.lora_rssi, 10);
+        writer.write_unchecked(_header.lora_snr, 10);
     };
 
 public:
-    void fillReportHeader(uint8_t lora_rssi, uint8_t lora_snr)
+    void fillReportHeader(double lora_rssi, double lora_snr)
     {
-        _report_header.version = RATS_REPORT_REV;
-        _report_header.header_size_bytes = RATS_REPORT_HEADER_SIZE_BYTES;
-        // _report_header.num_ecu_records is set by addECUReport();
-        _report_header.ecu_record_size_bytes = ECU_REPORT_SIZE_BYTES;
-        _report_header.ecu_pwr_on = digitalRead(ECU_PWR_EN);
-        _report_header.v56 = 1000*analogRead(V56_MON) * (3.3 / 1024.0) * (R8 + R9) / R8;
-        _report_header.cpu_temp = (tempmonGetTemp() + 100) * 10;
-        _report_header.lora_rssi = (lora_rssi - 2047) * 10;
-        _report_header.lora_snr = (lora_snr - 512) * 10;
+        // *** Modify this function whenever the RATSReportHeader_t struct is modified
+
+        _header.ecu_pwr_on = digitalRead(ECU_PWR_EN);
+        _header.v56 = 1000 * analogRead(V56_MON) * (3.3 / 1024.0) * (R8 + R9) / R8;
+        _header.cpu_temp = (tempmonGetTemp() + 100.0) * 10;
+        _header.lora_rssi = (lora_rssi + 100.0) * 10;
+        _header.lora_snr = (lora_snr + 70) * 10;
+    };
+
+    void print(bool print_bin)
+    {
+        // *** Modify this function whenever the RATSReportHeader_t struct is modified ***
+
+        // For debugging use, print the RATS report header to SerialUSB.
+        // If print_bin is true, print the binary representation of the header fields.
+
+        SerialUSB.println("RATS Report:");
+
+        // Header version
+        SerialUSB.print("version: ");
+        if (print_bin)
+            binPrint(_header.version, 4);
+        SerialUSB.print(String(_header.version));
+        SerialUSB.println();
+
+        // Header size in bytes
+        SerialUSB.print("header_size_bytes: ");
+        if (print_bin)
+            binPrint(_header.header_size_bytes, 8);
+        SerialUSB.print(String(_header.header_size_bytes));
+        SerialUSB.println();
+
+        // Number of ECU records
+        SerialUSB.print("num_ecu_records: ");
+        if (print_bin)
+            binPrint(_header.num_ecu_records, 10);
+        SerialUSB.print(String(_header.num_ecu_records));
+        SerialUSB.println();
+
+        // ECU record size in bytes
+        SerialUSB.print("ecu_size_bytes: ");
+        if (print_bin)
+            binPrint(_header.ecu_size_bytes, 9);
+        SerialUSB.print(String(_header.ecu_size_bytes));
+        SerialUSB.println();
+
+        // ECU power on
+        SerialUSB.print("ecu_pwr_on: ");
+        if (print_bin)
+            binPrint(_header.ecu_pwr_on, 1);
+        SerialUSB.print(String(_header.ecu_pwr_on));
+        SerialUSB.println();
+
+        // 56V voltage
+        SerialUSB.print("v56: ");
+        if (print_bin)
+            binPrint(_header.v56, 13);
+        SerialUSB.print((String(_header.v56 * 0.01) + "V"));
+        SerialUSB.println();
+
+        // CPU temperature
+        SerialUSB.print("cpu_temp: ");
+        if (print_bin)
+            binPrint(_header.cpu_temp, 11);
+        SerialUSB.print(String(_header.cpu_temp / 10.0 - 100.0) + "C");
+        SerialUSB.println();
+
+        // LoRa RSSI
+        SerialUSB.print("lora_rssi: ");
+        if (print_bin)
+            binPrint(_header.lora_rssi, 10);
+        SerialUSB.print(String(_header.lora_rssi / 10.0 - 100.0) + "dBm");
+        SerialUSB.println();
+
+        // LoRa SNR
+        SerialUSB.print("lora_snr: ");
+        if (print_bin)
+            binPrint(_header.lora_snr, 10);
+        SerialUSB.print(String(_header.lora_snr / 10.0 - 70.0) + "dB");
+        SerialUSB.println();
     };
 
     // Constructor to initialize the RATS report header with the number of ECU reports.
@@ -102,23 +182,24 @@ public:
 
     void addECUReport(const ECUReportBytes_t &ecu_report_bytes)
     {
-        if (_report_header.num_ecu_records < N_ECU_REPORTS)
+        if (_header.num_ecu_records < N_ECU_REPORTS)
         {
-            _ecu_reports[_report_header.num_ecu_records] = ecu_report_bytes;
-            _report_header.num_ecu_records++;
-        } else {
-            // Log an error or handle the case where the maximum number of ECU reports is exceeded.
-            // For now, we will just ignore the additional report.
+            _ecu_reports[_header.num_ecu_records] = ecu_report_bytes;
+            _header.num_ecu_records++;
+        }
+        else
+        {
+            log_error("RATS report buffer full");
         }
     };
 
-    etl::array<uint8_t, RATS_REPORT_HEADER_SIZE_BYTES> &getReportBytes()
+    auto& getReportBytes()
     {
         // The report bytes include the serialized header and the ECU reports.
         this->serializeHeader();
 
         // Append the ECU reports to the binary payload after the RATSReport header.
-        for (size_t i = 0; i < _report_header.num_ecu_records; i++)
+        for (size_t i = 0; i < _header.num_ecu_records; i++)
         {
             for (size_t j = 0; j < ECU_REPORT_SIZE_BYTES; j++)
             {
@@ -128,23 +209,35 @@ public:
         return _report_bytes;
     };
 
-    // Get the length of the report TM binary payload in bytes.
-    size_t getReportLength() const
+    // Get the number of ECU records in the report.
+    int numECUrecords() const
     {
-        return RATS_REPORT_HEADER_SIZE_BYTES + (_report_header.num_ecu_records * ECU_REPORT_SIZE_BYTES);
+        return _header.num_ecu_records;
     }
 
     // Reset the report for the next collection.
     void initReport()
     {
-        _report_header.num_ecu_records = 0;
+        _header.version = RATS_REPORT_REV;
+        _header.header_size_bytes = RATS_REPORT_HEADER_SIZE_BYTES;
+        _header.num_ecu_records = 0;
+        _header.ecu_size_bytes = ECU_REPORT_SIZE_BYTES;
         _report_bytes.fill(0);
     }
 
 protected:
+    void binPrint(uint32_t binValue, uint8_t nbits)
+    {
+        for (int i = nbits - 1; i >= 0; i--)
+        {
+            SerialUSB.print((binValue & (1 << i)) ? "1" : "0");
+        }
+        SerialUSB.print(" ");
+    };
+
     // The RATSReport header. It is the non-serialized header; will be serialized
     // when getReportBytes() is called.
-    RATSReportHeader_t _report_header;
+    RATSReportHeader_t _header;
 
     // The ECU report data is collected here. There may be zero records if the ECU was not powered on.
     ECUReportBytes_t _ecu_reports[N_ECU_REPORTS];
