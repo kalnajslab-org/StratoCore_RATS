@@ -68,6 +68,11 @@
 
 #define ZEPHYR_RESEND_TIMEOUT   60
 
+// The number of instrument current measurements to average.
+// Empirically determined to calculate an average about every
+// 15 seconds while in flight mode.
+#define INST_IMON_AVERAGE_COUNT 50
+
     // Actions
 enum ScheduleAction_t : uint8_t {
     NO_ACTION = NO_SCHEDULED_ACTION,
@@ -280,6 +285,11 @@ private:
     void SendMCBEEPROM();
     // Send a TM with RATS EEPROM contents
     void SendRATSEEPROM();
+
+    // A running sum of the voltage for inst_imon.
+    float a3_v_sum = 0.0;
+    // The last average of the inst_imon calculated from a3_v_sum.
+    float inst_imon_mA = 0.0;
 
     // *** RatsReports ***
     // Accumulate RATS reports for transmission

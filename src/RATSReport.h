@@ -44,7 +44,7 @@ protected:
     // 6. Update RATSReportPrint() to print the new fields (scaled).
 
     // The RATS report header revision. Increment this whenever the header structure is modified.
-#define RATS_REPORT_REV 1
+#define RATS_REPORT_REV 2
 
     // The RATS report header structure.
     // The type of each field will be the next larger unsigned type that can hold the required number of bits.
@@ -61,10 +61,11 @@ protected:
         uint16_t cpu_temp :        11;       // (CPU temperature + 100)*10 (0-2047 : -100.0C to +104.7C)
         uint16_t lora_rssi :       10;       // (Lora RSSI + 100)*10 (0-1023 : -100.0dBm to +10.2dBm)
         uint16_t lora_snr :        10;       // (Lora SNR + 70)*10 (0-1023 : -70.0dB to +32.3dB)
+        uint16_t inst_imon :       11;       // (Inst IMon)*10 (0-2047 : 0.0mA to 204.7mA)
     };
 
 //    You can use the copilot to create this sum by prompting: "sum of bitfield sizes in RATSReportHeader_t".
-#define RATS_REPORT_HEADER_SIZE_BITS (4 + 8 + 10 + 9 + 1 + 13 + 11 + 10 + 10)
+#define RATS_REPORT_HEADER_SIZE_BITS (4 + 8 + 10 + 9 + 1 + 13 + 11 + 10 + 10 + 11)
 #define RATS_REPORT_HEADER_SIZE_BYTES DIV_ROUND_UP(RATS_REPORT_HEADER_SIZE_BITS, 8)
 
     // Serialize the RATS report into the header bytes.
@@ -87,10 +88,11 @@ protected:
         writer.write_unchecked(_header.cpu_temp, 11);
         writer.write_unchecked(_header.lora_rssi, 10);
         writer.write_unchecked(_header.lora_snr, 10);
+        writer.write_unchecked(_header.inst_imon, 11);
     };
 
 public:
-    void fillReportHeader(double lora_rssi, double lora_snr)
+    void fillReportHeader(double lora_rssi, double lora_snr, double inst_imon_mA)
     {
         // *** Modify this function whenever the RATSReportHeader_t struct is modified
 
@@ -99,6 +101,8 @@ public:
         _header.cpu_temp = (tempmonGetTemp() + 100.0) * 10;
         _header.lora_rssi = (lora_rssi + 100.0) * 10;
         _header.lora_snr = (lora_snr + 70) * 10;
+        _header.inst_imon = (inst_imon_mA) * 10;
+
     };
 
     void print(bool print_bin)
@@ -171,6 +175,13 @@ public:
         if (print_bin)
             binPrint(_header.lora_snr, 10);
         SerialUSB.print(String(_header.lora_snr / 10.0 - 70.0) + "dB");
+        SerialUSB.println();
+
+        // Inst IMon
+        SerialUSB.print("inst_imon: ");
+        if (print_bin)
+            binPrint(_header.inst_imon, 11);
+        SerialUSB.print(String(_header.inst_imon / 10.0) + "mA");
         SerialUSB.println();
     };
 

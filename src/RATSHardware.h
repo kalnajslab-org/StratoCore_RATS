@@ -24,6 +24,17 @@
 #define SF              9
 #define TX_POWER        19
 
+// A3_INST_IMON
+#define A3_INST_IMON    A3
+
+// ACS71240 current sensor
+// Part number on chip: ACS71240-2315142K. Unfortunately this 
+// does not provide the actual part number needed for specifications.
+// Sensitivity in A/V. Note that the polarity is reversed, so the current 
+// is negative when the voltage is above the zero current voltage.
+#define ACS71240_A_PER_V (-1/0.132)
+#define ACS71240_ZERO_CURRENT_V 1.65
+
 // A17/A20_V56_VMON
 #define V56_MON         A17
 

@@ -158,6 +158,16 @@ void StratoRATS::RATS_Shutdown()
 
 void StratoRATS::ratsReportCheck(bool timed_check)
 {
+    static uint32_t imon_count = 0;
+    a3_v_sum += analogRead(A3_INST_IMON)  * (3.3 / 1024.0);
+    if (imon_count++ % INST_IMON_AVERAGE_COUNT == 0) {
+        inst_imon_mA = (1000) * (a3_v_sum / INST_IMON_AVERAGE_COUNT - ACS71240_ZERO_CURRENT_V) * ACS71240_A_PER_V;
+        String s;
+        s += "Inst imon " + String(inst_imon_mA, 0) + "mA";
+        log_nominal(s.c_str());
+        a3_v_sum = 0.0;
+    }
+
     if (!timed_check)
     {
         if (CheckAction(ACTION_RATS_REPORT))
@@ -242,7 +252,7 @@ void StratoRATS::ratsReportTM() {
 
     // Add RATSReport to the TM
 
-    rats_report.fillReportHeader(ecu_lora_rssi(), ecu_lora_snr());
+    rats_report.fillReportHeader(ecu_lora_rssi(), ecu_lora_snr(), inst_imon_mA);
     auto report_bytes = rats_report.getReportBytes();
 
     // Add the RATSReportHeader to the TM
