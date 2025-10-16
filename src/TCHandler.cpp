@@ -169,6 +169,7 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
         // Save the ECU temp to EEPROM
         ratsConfigs.ecu_tempC.Write(ratsParam.ecu_tempC);
         if (my_inst_mode == MODE_FLIGHT || my_inst_mode == MODE_STANDBY) {
+            ecu_json.clear();
             ecu_json["tempC"] = ratsConfigs.ecu_tempC.Read();
             serializeJson(ecu_json, ecu_json_str);
             // Don't forget that the message will not be sent until we receive a message from the ECU.
@@ -190,6 +191,23 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
         msg = "TC ECU power off";
         // Turn off the ECU
         ECUControl(false);
+        break;
+    case RATSRS41REGENON:
+        msg = "TC RS41 regen on";
+        ecu_json.clear();
+        ecu_json["rs41Regen"] = 1;
+        serializeJson(ecu_json, ecu_json_str);
+        // Don't forget that the message will not be sent until we receive a message from the ECU.
+        // So it will not work to try to send two messages back-to-back.
+        // Also keep in mind that the ECU might not even be powered up right now.
+        ecu_lora_tx((uint8_t*)ecu_json_str, strlen(ecu_json_str));
+        break;
+    case RATSRS41REGENOFF:
+        msg = "TC RS41 regen off";
+        ecu_json.clear();
+        ecu_json["rs41Regen"] = 0;
+        serializeJson(ecu_json, ecu_json_str);
+        ecu_lora_tx((uint8_t*)ecu_json_str, strlen(ecu_json_str));
         break;
     default:
         summary_level = LOG_ERROR;
