@@ -207,16 +207,16 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
         // Also keep in mind that the ECU might not even be powered up right now.
         ecu_lora_tx((uint8_t*)ecu_json_str, strlen(ecu_json_str));
         break;
-    case RATSRS41POWON:
-        msg = "TC RS41 power on";
+    case RATSRS41ENON:
+        msg = "TC RS41 enable on";
         ecu_json.clear();
-        ecu_json["rs41Power"] = true;
+        ecu_json["rs41Enable"] = true;
         sendEcuJson();
         break;
-    case RATSRS41POWOFF:
-        msg = "TC RS41 power off";
+    case RATSRS41ENOFF:
+        msg = "TC RS41 enable off";
         ecu_json.clear();
-        ecu_json["rs41Power"] = false;
+        ecu_json["rs41Enable"] = false;
         sendEcuJson();
         break;
     case RATSTSENPOWON:
