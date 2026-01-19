@@ -36,7 +36,7 @@ void StratoRATS::InstrumentSetup()
         log_error("WARN: LoRa Initialization Failed");
         ZephyrLogWarn("WARN: LoRa Initialization Failed");
     } else {
-        log_nominal("LoRa Initialized");
+        log_nominal((String("LoRa Initialized F ") + String(FREQUENCY/1.0e6) + ", BW " + String(BANDWIDTH) + ", SF" + String(SF) + ", TX_PWR " + String(TX_POWER)).c_str());
     }; 
 
     if (!ratsConfigs.Initialize()) {

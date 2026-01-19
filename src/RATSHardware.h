@@ -19,7 +19,7 @@
 #define RATS_LORA_MOSI  26
 
 // LoRa Settings
-#define FREQUENCY       868E6
+#define FREQUENCY       868500000
 #define BANDWIDTH       250E3
 #define SF              9
 #define TX_POWER        19
