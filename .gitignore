@@ -1,4 +1,6 @@
 .DS_Store
 .pio
 .vscode
+__pycache__/
 src/StratoCore_RATS.cpp
+src/rats_version.h

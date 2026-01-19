@@ -2,6 +2,7 @@
 #include "src/StratoRATS.h"
 #include <TimerOne.h>
 #include <SPI.h>
+#include "rats_version.h"
 
 #define LOOP_TENTHS     5 // defines loop period in 0.1s
 
@@ -57,7 +58,7 @@ void setup()
   ZEPHYR_SERIAL.begin(115200);
   MCB_SERIAL.begin(115200);
 
-  Serial.println(String("StratoCore_RATS build ") + __DATE__ + " " + __TIME__);
+  Serial.println(String("StratoCore_RATS build v") + RATS_VERSION + " " + __DATE__ + " " + __TIME__);
 
 #ifndef LOG_ZEPHYR_COMMS_SHARED
     // Zephyr serial is on digital I/O pins
