@@ -58,7 +58,7 @@ void setup()
   ZEPHYR_SERIAL.begin(115200);
   MCB_SERIAL.begin(115200);
 
-  Serial.println(String("StratoCore_RATS build v") + RATS_VERSION + " " + __DATE__ + " " + __TIME__);
+  Serial.println(String("StratoCore_RATS ") + RATS_VERSION + " Build: " + __DATE__ + " " + __TIME__);
 
 #ifndef LOG_ZEPHYR_COMMS_SHARED
     // Zephyr serial is on digital I/O pins
