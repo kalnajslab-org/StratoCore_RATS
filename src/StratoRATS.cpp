@@ -84,17 +84,32 @@ void StratoRATS::LoRaRX()
         payload[i] = lora_msg.data[i];
     }
 
-    // Add the LoRa message to the RATS report.
-    ratsReportAccumulate(payload);
+    // Extract the revision and message type
+    std::pair<uint8_t, ECU_REPORT_TYPE_t> rev_msg_type = ecu_report_deserialize_rev_msg_type(payload);
+    ECU_REPORT_TYPE_t msg_type = rev_msg_type.second;
 
-    if (lora_msg.count % 30 == 0) {
-            snprintf(log_array, LOG_ARRAY_SIZE,
-                "LoRa rx n:%ld id:%ld rssi:%d snr:%.1f ferr:%ld",
-                lora_msg.count, lora_msg.id, ecu_lora_rssi(), ecu_lora_snr(), ecu_lora_frequency_error());
-            ECUReport_t ecu_report = ecu_report_deserialize(payload);
-            ecu_report_print(ecu_report);
-            log_nominal(log_array);
-        }
+    if (msg_type == ECU_REPORT_DATA) { 
+        // Add the LoRa message to the RATS report.
+        ratsReportAccumulate(payload);
+
+        if (lora_msg.count % 30 == 0) {
+            // Every 30 messages, log some info about the message
+                snprintf(log_array, LOG_ARRAY_SIZE,
+                    "LoRa rx n:%ld id:%ld rssi:%d snr:%.1f ferr:%ld",
+                    lora_msg.count, lora_msg.id, ecu_lora_rssi(), ecu_lora_snr(), ecu_lora_frequency_error());
+                ECUReport_t ecu_report = ecu_report_deserialize(payload);
+                ecu_report_print(ecu_report);
+                log_nominal(log_array);
+            }
+    }
+
+    if (msg_type == ECU_REPORT_RAW) { 
+        // Log the RAW message
+        ECUReport_t ecu_report = ecu_report_deserialize(payload);
+        ecu_report_print(ecu_report);
+        // Create and send a TM.
+    }
+
 //#endif
     }
 }
@@ -199,6 +214,7 @@ void StratoRATS::ECUControl(bool enable)
 }
 
 void StratoRATS::ratsReportAccumulate(ECUReportBytes_t& ecu_report_bytes) {
+    // Must be called with an ecu report of type ECU_REPORT_DATA
     // Add the ECU report bytes to the RATS report
     rats_report.addECUReport(ecu_report_bytes);
 }

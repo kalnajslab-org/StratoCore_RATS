@@ -212,9 +212,9 @@ public:
         // Append the ECU reports to the binary payload after the RATSReport header.
         for (size_t i = 0; i < _header.num_ecu_records; i++)
         {
-            for (size_t j = 0; j < ECU_REPORT_SIZE_BYTES; j++)
+            for (size_t j = 0; j < ECU_DATA_REPORT_SIZE_BYTES; j++)
             {
-                _report_bytes[RATS_REPORT_HEADER_SIZE_BYTES + (i * ECU_REPORT_SIZE_BYTES) + j] = _ecu_reports[i][j];
+                _report_bytes[RATS_REPORT_HEADER_SIZE_BYTES + (i * ECU_DATA_REPORT_SIZE_BYTES) + j] = _ecu_reports[i][j];
             }
         }
         return _report_bytes;
@@ -232,7 +232,7 @@ public:
         _header.version = RATS_REPORT_REV;
         _header.header_size_bytes = RATS_REPORT_HEADER_SIZE_BYTES;
         _header.num_ecu_records = 0;
-        _header.ecu_size_bytes = ECU_REPORT_SIZE_BYTES;
+        _header.ecu_size_bytes = ECU_DATA_REPORT_SIZE_BYTES;
         _report_bytes.fill(0);
     }
 
@@ -255,7 +255,7 @@ protected:
 
     // The storage for the complete RATS report TM binary payload.
     // The first bytes are the serialized RATS report header, followed by the ECU reports.
-    etl::array<uint8_t, RATS_REPORT_HEADER_SIZE_BYTES + (N_ECU_REPORTS * ECU_REPORT_SIZE_BYTES)> _report_bytes;
+    etl::array<uint8_t, RATS_REPORT_HEADER_SIZE_BYTES + (N_ECU_REPORTS * ECU_DATA_REPORT_SIZE_BYTES)> _report_bytes;
 };
 
 #endif // RATS_REPORT_H
