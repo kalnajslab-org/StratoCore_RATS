@@ -85,8 +85,8 @@ void StratoRATS::LoRaRX()
     }
 
     // Extract the revision and message type
-    std::pair<uint8_t, ECU_REPORT_TYPE_t> rev_msg_type = ecu_report_deserialize_rev_msg_type(payload);
-    ECU_REPORT_TYPE_t msg_type = rev_msg_type.second;
+    std::array<uint8_t, 3> rev_msg_type_id = ecu_report_deserialize_rev_msg_type_id(payload);
+    ECU_REPORT_TYPE_t msg_type = static_cast<ECU_REPORT_TYPE_t>(rev_msg_type_id[1]);
 
     if (msg_type == ECU_REPORT_DATA) { 
         // Add the LoRa message to the RATS report.
