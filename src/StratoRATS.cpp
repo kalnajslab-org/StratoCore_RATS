@@ -1,5 +1,6 @@
 #include "StratoRATS.h"
 #include <SPI.h>
+#include <TeensyID.h>
 
 StratoRATS::StratoRATS()
     : StratoCore(&ZEPHYR_SERIAL, INSTRUMENT)
@@ -16,6 +17,20 @@ void StratoRATS::InstrumentSetup()
     // ECU power enable
     pinMode(ECU_PWR_EN, OUTPUT);
     digitalWrite(ECU_PWR_EN, LOW);
+
+    // Get the MAC address to use as RATS ID
+    teensyMAC(mac_address);
+    char mac_str[18];
+    snprintf(mac_str, sizeof(mac_str), "%02X:%02X:%02X:%02X:%02X:%02X",
+             mac_address[0], mac_address[1], mac_address[2],
+             mac_address[3], mac_address[4], mac_address[5]);
+    log_nominal((String("RATS MAC Address: ") + String(mac_str)).c_str());
+
+    // Use the last 2 bytes of the MAC address as the RATS ID
+    rats_id = (static_cast<uint16_t>(mac_address[4]) << 8) | static_cast<uint16_t>(mac_address[5]);
+    char rats_id_str[16];
+    snprintf(rats_id_str, sizeof(rats_id_str), "RATS ID: %u", rats_id);
+    log_nominal(rats_id_str);
 
     // LoRa initialization
     if (!ECULoRaInit(
@@ -268,7 +283,7 @@ void StratoRATS::ratsReportTM() {
 
     // Add RATSReport to the TM
 
-    rats_report.fillReportHeader(ecu_lora_rssi(), ecu_lora_snr(), inst_imon_mA);
+    rats_report.fillReportHeader(ecu_lora_rssi(), ecu_lora_snr(), inst_imon_mA, rats_id);
     auto report_bytes = rats_report.getReportBytes();
 
     // Add the RATSReportHeader to the TM

@@ -44,7 +44,7 @@ protected:
     // 6. Update RATSReportPrint() to print the new fields (scaled).
 
     // The RATS report header revision. Increment this whenever the header structure is modified.
-#define RATS_REPORT_REV 2
+#define RATS_REPORT_REV 3
 
     // The RATS report header structure.
     // The type of each field will be the next larger unsigned type that can hold the required number of bits.
@@ -53,6 +53,7 @@ protected:
     struct RATSReportHeader_t
     {
         uint8_t version :           4;       // The version of the RATS report header.
+        uint16_t rats_id :         16;       // RATS unique identifier
         uint8_t header_size_bytes : 8;       // The size of the RATS report header in bytes.
         uint16_t num_ecu_records : 10;       // The number of ECU records in the report.
         uint16_t ecu_size_bytes :   9;       // The size of each ECU record in bytes.
@@ -65,7 +66,7 @@ protected:
     };
 
 //    You can use the copilot to create this sum by prompting: "sum of bitfield sizes in RATSReportHeader_t".
-#define RATS_REPORT_HEADER_SIZE_BITS (4 + 8 + 10 + 9 + 1 + 13 + 11 + 10 + 10 + 11)
+#define RATS_REPORT_HEADER_SIZE_BITS (4 + 16 + 8 + 10 + 9 + 1 + 13 + 11 + 10 + 10 + 11)
 #define RATS_REPORT_HEADER_SIZE_BYTES DIV_ROUND_UP(RATS_REPORT_HEADER_SIZE_BITS, 8)
 
     // Serialize the RATS report into the header bytes.
@@ -80,6 +81,7 @@ protected:
 
         // Serialize the header
         writer.write_unchecked(_header.version, 4);
+        writer.write_unchecked(_header.rats_id, 16);
         writer.write_unchecked(_header.header_size_bytes, 8);
         writer.write_unchecked(_header.num_ecu_records, 10);
         writer.write_unchecked(_header.ecu_size_bytes, 9);
@@ -92,17 +94,17 @@ protected:
     };
 
 public:
-    void fillReportHeader(double lora_rssi, double lora_snr, double inst_imon_mA)
+    void fillReportHeader(double lora_rssi, double lora_snr, double inst_imon_mA, uint16_t rats_id)
     {
         // *** Modify this function whenever the RATSReportHeader_t struct is modified
 
+        _header.rats_id = rats_id;
         _header.ecu_pwr_on = digitalRead(ECU_PWR_EN);
         _header.v56 = 1000 * analogRead(V56_MON) * (3.3 / 1024.0) * (R8 + R9) / R8;
         _header.cpu_temp = (tempmonGetTemp() + 100.0) * 10;
         _header.lora_rssi = (lora_rssi + 100.0) * 10;
         _header.lora_snr = (lora_snr + 70) * 10;
         _header.inst_imon = (inst_imon_mA) * 10;
-
     };
 
     void print(bool print_bin)
@@ -119,6 +121,13 @@ public:
         if (print_bin)
             binPrint(_header.version, 4);
         SerialUSB.print(String(_header.version));
+        SerialUSB.println();
+
+            // RATS ID
+        SerialUSB.print("rats_id: ");
+        if (print_bin)
+            binPrint(_header.rats_id, 16);
+        SerialUSB.print(String(_header.rats_id));
         SerialUSB.println();
 
         // Header size in bytes
@@ -183,6 +192,7 @@ public:
             binPrint(_header.inst_imon, 11);
         SerialUSB.print(String(_header.inst_imon / 10.0) + "mA");
         SerialUSB.println();
+
     };
 
     // Constructor to initialize the RATS report header with the number of ECU reports.
@@ -229,6 +239,7 @@ public:
     // Reset the report for the next collection.
     void initReport()
     {
+        _header.rats_id = 0;
         _header.version = RATS_REPORT_REV;
         _header.header_size_bytes = RATS_REPORT_HEADER_SIZE_BYTES;
         _header.num_ecu_records = 0;

@@ -305,5 +305,11 @@ private:
     // Build and manage the RATS report here:
     RATSReport<NUM_ECU_REPORTS> rats_report;
 
+    // The Teensy MAC address set during InstrumentSetup().
+    uint8_t mac_address[6];
+
+    // The RATS ID number, set during InstrumentSetup().
+    uint16_t rats_id = 0;
+
 };
 #endif /* STRATORATS_H */
