@@ -4,14 +4,29 @@
 static JsonDocument ecu_json;
 static char ecu_json_str[ECU_LORA_DATA_BUFSIZE];
 
-void sendEcuJson() {
+void sendEcuJson(uint8_t paired_ecu) {
     // Serialize and send the ECU JSON message.
     // Note: ecu_json must already be populated.
     serializeJson(ecu_json, ecu_json_str);
     // Don't forget that the message will not be sent until we receive a message from the ECU.
     // So it will not work to try to send two messages back-to-back.
     // Also keep in mind that the ECU might not even be powered up right now.
-    ecu_lora_tx((uint8_t*)ecu_json_str, strlen(ecu_json_str));
+
+    std::array<uint8_t, ECU_LORA_DATA_BUFSIZE> payload = {0};
+
+    int json_len = strlen(ecu_json_str);
+
+    // Set the first byte to zero
+    payload[0] = 0;
+
+    // Set the second byte to paired_ecu
+    payload[1] = static_cast<uint8_t>(paired_ecu);
+
+    // Copy the command string into the payload starting at byte 2
+    for (int i = 0; i < json_len && (i + 2) < ECU_LORA_DATA_BUFSIZE; i++) {
+        payload[i + 2] = static_cast<uint8_t>(ecu_json_str[i]);
+    }
+    ecu_lora_tx(payload.data(), json_len + 2);
 }
 
 // The telecommand handler must return ACK/NAK
@@ -181,7 +196,7 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
         if (my_inst_mode == MODE_FLIGHT || my_inst_mode == MODE_STANDBY) {
             ecu_json.clear();
             ecu_json["tempC"] = ratsConfigs.ecu_tempC.Read();
-            sendEcuJson();
+            sendEcuJson(paired_ecu);
         }
         break;
     case RATSECUPWRON:
@@ -202,40 +217,45 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
         msg = "TC RS41 regen";
         ecu_json.clear();
         ecu_json["rs41Regen"] = true;
-        sendEcuJson();
+        sendEcuJson(paired_ecu);
         break;
         // Also keep in mind that the ECU might not even be powered up right now.
-        ecu_lora_tx((uint8_t*)ecu_json_str, strlen(ecu_json_str));
+        LoRaTx(ecu_json_str);
         break;
     case RATSECURS41METADATA:
         msg = "TC RS41 metadata";
         ecu_json.clear();
         ecu_json["rs41Metadata"] = true;
-        sendEcuJson();
+        sendEcuJson(paired_ecu);
         break;
     case RATSRS41ENON:
         msg = "TC RS41 enable on";
         ecu_json.clear();
         ecu_json["rs41Enable"] = true;
-        sendEcuJson();
+        sendEcuJson(paired_ecu);
         break;
     case RATSRS41ENOFF:
         msg = "TC RS41 enable off";
         ecu_json.clear();
         ecu_json["rs41Enable"] = false;
-        sendEcuJson();
+        sendEcuJson(paired_ecu);
         break;
     case RATSTSENPOWON:
         msg = "TC TSEN power on";
         ecu_json.clear();
         ecu_json["tsenPower"] = true;
-        sendEcuJson();
+        sendEcuJson(paired_ecu);
         break;
     case RATSTSENPOWOFF:
         msg = "TC TSEN power off";
         ecu_json.clear();
         ecu_json["tsenPower"] = false;
-        sendEcuJson();
+        sendEcuJson(paired_ecu);
+        break;
+    case RATSPAIREDCEU:
+        ratsConfigs.paired_ecu.Write(ratsParam.paired_ecu);
+        paired_ecu = ratsParam.paired_ecu;
+        msg = "TC set paired ECU ID: " + String(ratsConfigs.paired_ecu.Read());
         break;
     default:
         summary_level = LOG_ERROR;

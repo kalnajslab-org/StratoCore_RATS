@@ -94,7 +94,7 @@ bool StratoRATS::Flight_Warmup(bool restart)
         // Send the configuration message to the ECU
         // Don't forget that the message will not be sent until we receive a message from the ECU.
         // So it will not work to try to send two messages back-to-back.
-        ecu_lora_tx((uint8_t*)ecu_json_str, strlen(ecu_json_str));
+        LoRaTx(ecu_json_str);
 
         LoRaMsg_timer_start = now();
         warmup_cycles = 0;

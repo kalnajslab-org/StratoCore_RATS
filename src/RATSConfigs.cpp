@@ -14,7 +14,8 @@ RATSConfigs::RATSConfigs()
     deploy_velocity(10.0f),
     retract_velocity(10.0f),
     motion_timeout(10),
-    real_time_mcb(false)
+    real_time_mcb(false),
+    paired_ecu(0)
 
     // ----------------------------------------------------
 { }
@@ -34,6 +35,7 @@ void RATSConfigs::RegisterAll()
     success &= Register(&retract_velocity);
     success &= Register(&motion_timeout);
     success &= Register(&real_time_mcb);
+    success &= Register(&paired_ecu);
 
     if (!success) {
         debug_serial->println("Error registering EEPROM configs");

@@ -32,6 +32,10 @@ void StratoRATS::InstrumentSetup()
     snprintf(rats_id_str, sizeof(rats_id_str), "RATS ID: %u", rats_id);
     log_nominal(rats_id_str);
 
+    // Get the paired_ecu from flash config
+    paired_ecu = ratsConfigs.paired_ecu.Read();
+    log_nominal((String("Paired ECU ID: ") + String(paired_ecu)).c_str());
+
     // LoRa initialization
     if (!ECULoRaInit(
         LORA_FOLLOWER, 
@@ -85,47 +89,76 @@ void StratoRATS::InstrumentLoop()
     }
 }
 
+void StratoRATS::LoRaTx(char* ecu_cmd, bool immediate) {
+    std::array<uint8_t, ECU_LORA_DATA_BUFSIZE> payload = {0};
+
+    int cmd_len = strlen(ecu_cmd);
+
+    // Set the first byte to zero
+    payload[0] = 0;
+
+    // Set the second byte to paired_ecu
+    payload[1] = static_cast<uint8_t>(paired_ecu);
+
+    // Copy the command string into the payload starting at byte 2
+    for (int i = 0; i < cmd_len && (i + 2) < ECU_LORA_DATA_BUFSIZE; i++) {
+        payload[i + 2] = static_cast<uint8_t>(ecu_cmd[i]);
+    }
+    ecu_lora_tx(payload.data(), cmd_len + 2, immediate);
+}
+
 void StratoRATS::LoRaRX()
 {
     if (ecu_lora_rx(&lora_msg)) {
         total_lora_count++;
         if (lora_msg.count != total_lora_count) {
-            log_error(String(String("LoRa message count mismatch ") + String(lora_msg.count) + " " + String(total_lora_count)).c_str());
+            log_error((String("LoRa message count mismatch ") + String(lora_msg.count) + " " + String(total_lora_count)).c_str());
             total_lora_count = lora_msg.count;
         }
-//#if EXTRA_LOGGING
-    ECUReportBytes_t payload;
-    for (uint8_t i = 0; i < lora_msg.data_len; i++) {
-        payload[i] = lora_msg.data[i];
-    }
 
-    // Extract the revision and message type
-    std::array<uint8_t, 3> rev_msg_type_id = ecu_report_deserialize_rev_msg_type_id(payload);
-    ECU_REPORT_TYPE_t msg_type = static_cast<ECU_REPORT_TYPE_t>(rev_msg_type_id[1]);
+        ECUReportBytes_t payload;
+        for (uint8_t i = 0; i < lora_msg.data_len; i++) {
+            payload[i] = lora_msg.data[i];
+        }
 
-    if (msg_type == ECU_REPORT_DATA) { 
-        // Add the LoRa message to the RATS report.
-        ratsReportAccumulate(payload);
+        // See if this is an ECU report message rather than a RATS message
+        if (payload[0]) {
 
-        if (lora_msg.count % 30 == 0) {
-            // Every 30 messages, log some info about the message
-                snprintf(log_array, LOG_ARRAY_SIZE,
-                    "LoRa rx n:%ld id:%ld rssi:%d snr:%.1f ferr:%ld",
-                    lora_msg.count, lora_msg.id, ecu_lora_rssi(), ecu_lora_snr(), ecu_lora_frequency_error());
-                ECUReport_t ecu_report = ecu_report_deserialize(payload);
-                ecu_report_print(ecu_report);
-                log_nominal(log_array);
+            // It's an ECU report message
+            // Extract the revision and message type
+            std::array<uint8_t, 3> rev_msg_type_id = ecu_report_deserialize_rev_msg_type_id(payload);
+
+            // See if it is one that we are interested in
+            uint8_t ecu_id = rev_msg_type_id[2];
+            if (paired_ecu == 0 || ecu_id == paired_ecu) {
+
+                // It's from our paired ECU (or we accept any ECU)
+                ECU_REPORT_TYPE_t msg_type = static_cast<ECU_REPORT_TYPE_t>(rev_msg_type_id[1]);
+
+                // Process based on message type
+                if (msg_type == ECU_REPORT_DATA) { 
+                    // Add the LoRa message to the RATS report.
+                    ratsReportAccumulate(payload);
+
+                    if (lora_msg.count % 30 == 0) {
+                        // Every 30 messages, log some info about the message
+                        snprintf(log_array, LOG_ARRAY_SIZE,
+                            "LoRa rx n:%ld id:%ld rssi:%d snr:%.1f ferr:%ld",
+                            lora_msg.count, lora_msg.id, ecu_lora_rssi(), ecu_lora_snr(), ecu_lora_frequency_error());
+                        ECUReport_t ecu_report = ecu_report_deserialize(payload);
+                        ecu_report_print(ecu_report);
+                        log_nominal(log_array);
+                    }
+                }
+
+                if (msg_type == ECU_REPORT_RAW) { 
+                    // Log the RAW message
+                    ECUReport_t ecu_report = ecu_report_deserialize(payload);
+                    ecu_report_print(ecu_report);
+                    // Create and send a TM.
+                }
             }
-    }
-
-    if (msg_type == ECU_REPORT_RAW) { 
-        // Log the RAW message
-        ECUReport_t ecu_report = ecu_report_deserialize(payload);
-        ecu_report_print(ecu_report);
-        // Create and send a TM.
-    }
-
-//#endif
+        }
     }
 }
 
@@ -283,7 +316,7 @@ void StratoRATS::ratsReportTM() {
 
     // Add RATSReport to the TM
 
-    rats_report.fillReportHeader(ecu_lora_rssi(), ecu_lora_snr(), inst_imon_mA, rats_id);
+    rats_report.fillReportHeader(ecu_lora_rssi(), ecu_lora_snr(), inst_imon_mA, rats_id, paired_ecu);
     auto report_bytes = rats_report.getReportBytes();
 
     // Add the RATSReportHeader to the TM
@@ -299,7 +332,7 @@ void StratoRATS::ratsReportTM() {
     SerialUSB.print("RATS report bytes: ");
     SerialUSB.println(report_bytes.size()); 
     rats_report.print(false);
-    rats_report.initReport(); // Reset the RATS report for the next collection
+    rats_report.initReport(rats_id, paired_ecu); // Reset the RATS report for the next collection
 
 }
 

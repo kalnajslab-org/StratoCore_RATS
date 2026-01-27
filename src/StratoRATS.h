@@ -309,7 +309,14 @@ private:
     uint8_t mac_address[6];
 
     // The RATS ID number, set during InstrumentSetup().
-    uint16_t rats_id = 0;
+    uint16_t rats_id;
 
+    // The paired ECU ID. It is stored in ratsConfigs.paired_ecu, but cached here
+    // so that we don't keep reading it from the program flash. Any time that
+    // ratsConfigs.paired_ecu_id is updated, this variable should also be updated.
+    uint8_t paired_ecu;
+
+    // Prepend the RATS message header to a string and send to ECU via LoRa.
+    void LoRaTx(char* ecu_cmd, bool immediate=false);
 };
 #endif /* STRATORATS_H */

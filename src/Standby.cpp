@@ -33,8 +33,8 @@ void StratoRATS::StandbyMode()
             scheduler.AddAction(SEND_IMR, 5);
         }
         if (CheckAction(ACTION_LORA_TX_TEST) && lora_tx_test) {
-            const char* msg = "LoRa TX test message from StratoCore_RATS abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{}|;:,.<>?";
-            ecu_lora_tx((uint8_t*)msg, strlen(msg), true);
+            char msg[] = "LoRa TX test message from StratoCore_RATS abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{}|;:,.<>?";
+            LoRaTx(msg, true);
             scheduler.AddAction(ACTION_LORA_TX_TEST, 1);
         }
         break;

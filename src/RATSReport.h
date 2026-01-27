@@ -54,6 +54,7 @@ protected:
     {
         uint8_t version :           4;       // The version of the RATS report header.
         uint16_t rats_id :         16;       // RATS unique identifier
+        uint8_t paired_ecu :        8;       // Paired ECU ID
         uint8_t header_size_bytes : 8;       // The size of the RATS report header in bytes.
         uint16_t num_ecu_records : 10;       // The number of ECU records in the report.
         uint16_t ecu_size_bytes :   9;       // The size of each ECU record in bytes.
@@ -66,7 +67,7 @@ protected:
     };
 
 //    You can use the copilot to create this sum by prompting: "sum of bitfield sizes in RATSReportHeader_t".
-#define RATS_REPORT_HEADER_SIZE_BITS (4 + 16 + 8 + 10 + 9 + 1 + 13 + 11 + 10 + 10 + 11)
+#define RATS_REPORT_HEADER_SIZE_BITS (4 + 16 + 8 + 8 + 10 + 9 + 1 + 13 + 11 + 10 + 10 + 11)
 #define RATS_REPORT_HEADER_SIZE_BYTES DIV_ROUND_UP(RATS_REPORT_HEADER_SIZE_BITS, 8)
 
     // Serialize the RATS report into the header bytes.
@@ -82,6 +83,7 @@ protected:
         // Serialize the header
         writer.write_unchecked(_header.version, 4);
         writer.write_unchecked(_header.rats_id, 16);
+        writer.write_unchecked(_header.paired_ecu, 8);
         writer.write_unchecked(_header.header_size_bytes, 8);
         writer.write_unchecked(_header.num_ecu_records, 10);
         writer.write_unchecked(_header.ecu_size_bytes, 9);
@@ -94,11 +96,12 @@ protected:
     };
 
 public:
-    void fillReportHeader(double lora_rssi, double lora_snr, double inst_imon_mA, uint16_t rats_id)
+    void fillReportHeader(double lora_rssi, double lora_snr, double inst_imon_mA, uint16_t rats_id, uint8_t paired_ecu)
     {
         // *** Modify this function whenever the RATSReportHeader_t struct is modified
 
         _header.rats_id = rats_id;
+        _header.paired_ecu = paired_ecu;
         _header.ecu_pwr_on = digitalRead(ECU_PWR_EN);
         _header.v56 = 1000 * analogRead(V56_MON) * (3.3 / 1024.0) * (R8 + R9) / R8;
         _header.cpu_temp = (tempmonGetTemp() + 100.0) * 10;
@@ -128,6 +131,13 @@ public:
         if (print_bin)
             binPrint(_header.rats_id, 16);
         SerialUSB.print(String(_header.rats_id));
+        SerialUSB.println();
+
+        // Paired ECU ID
+        SerialUSB.print("paired_ecu: ");
+        if (print_bin)
+            binPrint(_header.paired_ecu, 8);
+        SerialUSB.print(String(_header.paired_ecu));
         SerialUSB.println();
 
         // Header size in bytes
@@ -198,7 +208,7 @@ public:
     // Constructor to initialize the RATS report header with the number of ECU reports.
     explicit RATSReport()
     {
-        initReport();
+        initReport(0, 0);
     };
 
     void addECUReport(const ECUReportBytes_t &ecu_report_bytes)
@@ -237,9 +247,10 @@ public:
     }
 
     // Reset the report for the next collection.
-    void initReport()
+    void initReport(uint16_t rats_id, uint8_t paired_ecu)
     {
-        _header.rats_id = 0;
+        _header.rats_id = rats_id;
+        _header.paired_ecu = paired_ecu;
         _header.version = RATS_REPORT_REV;
         _header.header_size_bytes = RATS_REPORT_HEADER_SIZE_BYTES;
         _header.num_ecu_records = 0;
