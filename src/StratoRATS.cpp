@@ -155,7 +155,12 @@ void StratoRATS::LoRaRX()
                     // Log the RAW message
                     ECUReport_t ecu_report = ecu_report_deserialize(payload);
                     ecu_report_print(ecu_report);
-                    // Create and send a TM.
+                    // Create and send a text TM with the raw data
+                    String text_data;
+                    for (uint8_t i = 0; i < ecu_report.n_bytes; ++i) {
+                        text_data += (char)ecu_report.raw[i];
+                    }
+                    SendRATSTextTM(text_data);
                 }
             }
         }
@@ -334,6 +339,48 @@ void StratoRATS::ratsReportTM() {
     rats_report.print(false);
     rats_report.initReport(rats_id, paired_ecu); // Reset the RATS report for the next collection
 
+}
+
+void StratoRATS::SendRATSTextTM(String text_data) {
+    zephyrTX.clearTm();
+
+    String Message = "";
+
+    // First
+    Message = "RATSTextTM";
+    zephyrTX.setStateFlagValue(1, FINE);
+    zephyrTX.setStateDetails(1, Message);
+
+    // Second
+    zephyrTX.setStateFlagValue(2, FINE);
+    switch (my_inst_mode) {
+    case MODE_STANDBY:
+        Message = "STANDBY mode";
+        break;
+    case MODE_FLIGHT:
+        Message = "FLIGHT mode";
+        break;
+    case MODE_LOWPOWER:
+        Message = "LOWPOWER mode";
+        break;
+    case MODE_SAFETY:
+        Message = "SAFETY mode";
+        break;
+    case MODE_EOF:
+        Message = "EOF mode";
+        break;
+    default:
+        Message = "Unknown mode";
+        break;
+    }
+    zephyrTX.setStateDetails(2, Message);
+
+    // Third: Text Data
+    zephyrTX.setStateFlagValue(3, FINE);
+    zephyrTX.setStateDetails(3, text_data.c_str());
+
+    // Send the TM!
+    zephyrTX.TM();  
 }
 
 bool StratoRATS::StartMCBMotion()

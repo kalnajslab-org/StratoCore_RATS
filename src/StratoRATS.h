@@ -280,11 +280,13 @@ private:
     // tracks the current type of motion
     MCBMotion_t mcb_motion = NO_MOTION;
 
-    // *** Other TC handlers ***
+    // *** Other TC/TM handlers ***
     // Send a TM with MCB EEPROM contents
     void SendMCBEEPROM();
     // Send a TM with RATS EEPROM contents
     void SendRATSEEPROM();
+    // Send a TM with text data
+    void SendRATSTextTM(String text_data);
 
     // A running sum of the voltage for inst_imon.
     float a3_v_sum = 0.0;
@@ -302,7 +304,8 @@ private:
     void ratsReportTM();
     // Time of last RATS report
     time_t last_rats_report = 0;
-    // Build and manage the RATS report here:
+    // Build and manage the RATS data report here. ECUReports are accumulated
+    // into this report until it is sent.
     RATSReport<NUM_ECU_REPORTS> rats_report;
 
     // The Teensy MAC address set during InstrumentSetup().
