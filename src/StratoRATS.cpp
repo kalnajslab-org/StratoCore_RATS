@@ -279,32 +279,13 @@ void StratoRATS::ratsReportTM() {
     String Message = "";
 
     // First
-    Message = "RATSReport";
+    Message = "RATSREPORT";
     zephyrTX.setStateFlagValue(1, FINE);
     zephyrTX.setStateDetails(1, Message);
 
     // Second
     zephyrTX.setStateFlagValue(2, FINE);
-    switch (my_inst_mode) {
-    case MODE_STANDBY:
-        Message = "STANDBY mode";
-        break;
-    case MODE_FLIGHT:
-        Message = "FLIGHT mode";
-        break;
-    case MODE_LOWPOWER:
-        Message = "LOWPOWER mode";
-        break;
-    case MODE_SAFETY:
-        Message = "SAFETY mode";
-        break;
-    case MODE_EOF:
-        Message = "EOF mode";
-        break;
-    default:
-        Message = "Unknown mode";
-        break;
-    }
+    Message = getModeName(my_inst_mode);
     Message += " " + String(rats_report.numECUrecords()) + " records";
     zephyrTX.setStateDetails(2, Message);
 
@@ -347,32 +328,13 @@ void StratoRATS::SendRATSTextTM(String text_data) {
     String Message = "";
 
     // First
-    Message = "RATSTextTM";
+    Message = "RATSTEXT";
     zephyrTX.setStateFlagValue(1, FINE);
     zephyrTX.setStateDetails(1, Message);
 
     // Second
     zephyrTX.setStateFlagValue(2, FINE);
-    switch (my_inst_mode) {
-    case MODE_STANDBY:
-        Message = "STANDBY mode";
-        break;
-    case MODE_FLIGHT:
-        Message = "FLIGHT mode";
-        break;
-    case MODE_LOWPOWER:
-        Message = "LOWPOWER mode";
-        break;
-    case MODE_SAFETY:
-        Message = "SAFETY mode";
-        break;
-    case MODE_EOF:
-        Message = "EOF mode";
-        break;
-    default:
-        Message = "Unknown mode";
-        break;
-    }
+    Message = getModeName(my_inst_mode);
     zephyrTX.setStateDetails(2, Message);
 
     // Third: Text Data
@@ -544,7 +506,7 @@ void StratoRATS::SendRATSEEPROM()
     zephyrTX.addTm(mcbComm.binary_rx.bin_buffer, mcbComm.binary_rx.bin_length);
 
     // use only the first flag to preface the contents
-    zephyrTX.setStateDetails(1, String("RATS EEPROM data; length ") + String(mcbComm.binary_rx.bin_length));
+    zephyrTX.setStateDetails(1, String("RATSEEPROM").c_str());
     zephyrTX.setStateFlagValue(1, FINE);
     zephyrTX.setStateFlagValue(2, NOMESS);
     zephyrTX.setStateFlagValue(3, NOMESS);
@@ -557,9 +519,20 @@ void StratoRATS::SendRATSEEPROM()
     log_nominal("Sent RATS EEPROM as TM");
 }
 
-    uint32_t StratoRATS::lora_count_check(bool reset) {
-        if (reset) {
-            lora_count = total_lora_count;;
-        } 
-        return total_lora_count - lora_count;
+uint32_t StratoRATS::lora_count_check(bool reset) {
+    if (reset) {
+        lora_count = total_lora_count;;
+    } 
+    return total_lora_count - lora_count;
+}
+
+String StratoRATS::getModeName(const uint8_t mode) {
+    switch (mode) {
+        case MODE_STANDBY:  return "STANDBY mode";
+        case MODE_FLIGHT:   return "FLIGHT mode";
+        case MODE_LOWPOWER: return "LOWPOWER mode";
+        case MODE_SAFETY:   return "SAFETY mode";
+        case MODE_EOF:      return "EOF mode";
+        default:            return "Unknown mode";
     }
+};

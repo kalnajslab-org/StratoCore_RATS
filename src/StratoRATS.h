@@ -321,5 +321,9 @@ private:
 
     // Prepend the RATS message header to a string and send to ECU via LoRa.
     void LoRaTx(char* ecu_cmd, bool immediate=false);
+
+    // Get the name of the current mode
+    String getModeName(const uint8_t mode);
+
 };
 #endif /* STRATORATS_H */
