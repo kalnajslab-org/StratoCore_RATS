@@ -88,6 +88,8 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
     case FULLRETRACT:
         // todo: determine implementation
         msg2 = "TC Full Retract";
+        msg3 = "TC Full Retract not implemented";
+        msg1_flag = WARN;
         break;
     case CANCELMOTION:
         msg2 = "TC Cancel Motion";
@@ -97,7 +99,7 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
     case ZEROREEL:
         msg2 = "TC Zero Reel";
         if (mcb_motion_ongoing) {
-            msg3 = "Can't zero reel, motion ongoing";
+            msg3 = "Can't zero while reel is in motion";
             msg1_flag = WARN;
         } else {
             mcbComm.TX_ASCII(MCB_ZERO_REEL);
@@ -128,7 +130,7 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
     case GETMCBEEPROM:
         msg2 = "TC get MCB EEPROM";
         if (mcb_motion_ongoing) {
-            msg3 = "Motion ongoing, request MCB EEPROM later";
+            msg3 = "Can't get MCB EEPROM while reel is in motion";
             msg1_flag = WARN;
         } else {
             send_mcm_eeprom = true;
@@ -155,7 +157,7 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
     case RATSREALTIMEMCBON:
         msg2 = "Enabled real-time MCB mode";
         if (mcb_motion_ongoing) {
-            msg3 = "Cannot start real-time MCB mode, motion ongoing";
+            msg3 = "Can't start real-time MCB mode while reel is in motion";
             msg1_flag = WARN;
         } else {
             ratsConfigs.real_time_mcb.Write(true);
@@ -164,7 +166,7 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
     case RATSREALTIMEMCBOFF:
         msg2 = "Disabled real-time MCB mode";
         if (mcb_motion_ongoing) {
-            msg3 = "Cannot start real-time MCB mode, motion ongoing";
+            msg3 = "Can't start real-time MCB mode off while reel is in motion";
             msg1_flag = WARN;
         } else {
             ratsConfigs.real_time_mcb.Write(false);
@@ -173,7 +175,7 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
     case RATSLORATXTESTON:
         msg2 = "TC LoRa TX test on";
         if (my_inst_mode != MODE_STANDBY) {
-            msg3 = "TC Cannot start LoRa TX test, not in standby mode";
+            msg3 = "Cannot start LoRa TX test, not in standby mode";
             msg1_flag = WARN;
             break;
         }
@@ -186,27 +188,25 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
         break;
     case RATSGETEEPROM:
         msg2 = "TC get RATS EEPROM";
-        if (mcb_motion_ongoing) {
-            msg3 = "Motion ongoing, request RATS EEPROM later";
-            msg1_flag = WARN;
-        } else {
-            send_rats_eeprom = true;
-        }
+        send_rats_eeprom = true;
         break;
     case RATSECUTEMP:
         msg2 = "TC set ECU temp: " + String(ratsParam.ecu_tempC);
         // Save the ECU temp to EEPROM
         ratsConfigs.ecu_tempC.Write(ratsParam.ecu_tempC);
-        if (my_inst_mode == MODE_FLIGHT || my_inst_mode == MODE_STANDBY) {
+        if (IsECUPowerEnabled()) {
             ecu_json.clear();
             ecu_json["tempC"] = ratsConfigs.ecu_tempC.Read();
             sendEcuJson(paired_ecu);
+        } else {
+            msg3 = "Cannot send ECU temp, ECU power is off";
+            msg1_flag = WARN;
         }
         break;
     case RATSECUPWRON:
         msg2 = "TC ECU power on";
         if (my_inst_mode == MODE_FLIGHT || my_inst_mode == MODE_STANDBY) {
-            ECUControl(true);
+            ECUPowerControl(true);
         } else {
             msg3 = "Cannot power on ECU, not in FLIGHT or STANDBY mode";
             msg1_flag = WARN;
@@ -215,51 +215,79 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
     case RATSECUPWROFF:
         msg2 = "TC ECU power off";
         // Turn off the ECU
-        ECUControl(false);
+        ECUPowerControl(false);
         break;
     case RATSRS41REGEN:
         msg2 = "TC RS41 regen";
-        ecu_json.clear();
-        ecu_json["rs41Regen"] = true;
-        sendEcuJson(paired_ecu);
-        break;
-        // Also keep in mind that the ECU might not even be powered up right now.
-        LoRaTx(ecu_json_str);
+        if (IsECUPowerEnabled()) {
+            ecu_json.clear();
+            ecu_json["rs41Regen"] = true;
+            sendEcuJson(paired_ecu);
+            LoRaTx(ecu_json_str);
+        } else {
+            msg3 = "Cannot send RS41 regen, ECU power is off";
+            msg1_flag = WARN;
+        }
         break;
     case RATSECURS41METADATA:
         msg2 = "TC RS41 metadata";
-        ecu_json.clear();
-        ecu_json["rs41Metadata"] = true;
-        sendEcuJson(paired_ecu);
+        if (IsECUPowerEnabled()) {
+            ecu_json.clear();
+            ecu_json["rs41Metadata"] = true;
+            sendEcuJson(paired_ecu);
+        } else {
+            msg3 = "Cannot send RS41 metadata request, ECU power is off";
+            msg1_flag = WARN;
+        }
         break;
     case RATSRS41ENON:
         msg2 = "TC RS41 enable on";
-        ecu_json.clear();
-        ecu_json["rs41Enable"] = true;
-        sendEcuJson(paired_ecu);
+        if (IsECUPowerEnabled()) {
+            ecu_json.clear();
+            ecu_json["rs41Enable"] = true;
+            sendEcuJson(paired_ecu);
+        } else {
+            msg3 = "Cannot send RS41 enable, ECU power is off";
+            msg1_flag = WARN;
+        }
         break;
     case RATSRS41ENOFF:
         msg2 = "TC RS41 enable off";
-        ecu_json.clear();
-        ecu_json["rs41Enable"] = false;
-        sendEcuJson(paired_ecu);
+        if (IsECUPowerEnabled()) {
+            ecu_json.clear();
+            ecu_json["rs41Enable"] = false;
+            sendEcuJson(paired_ecu);
+        } else {
+            msg3 = "Cannot send RS41 enable off, ECU power is off";
+            msg1_flag = WARN;
+        }
         break;
     case RATSTSENPOWON:
         msg2 = "TC TSEN power on";
-        ecu_json.clear();
-        ecu_json["tsenPower"] = true;
-        sendEcuJson(paired_ecu);
+        if (IsECUPowerEnabled()) {
+            ecu_json.clear();
+            ecu_json["tsenPower"] = true;
+            sendEcuJson(paired_ecu);
+        } else {
+            msg3 = "Cannot send TSEN power on, ECU power is off";
+            msg1_flag = WARN;
+        }
         break;
     case RATSTSENPOWOFF:
         msg2 = "TC TSEN power off";
-        ecu_json.clear();
-        ecu_json["tsenPower"] = false;
-        sendEcuJson(paired_ecu);
+        if (IsECUPowerEnabled()) {
+            ecu_json.clear();
+            ecu_json["tsenPower"] = false;
+            sendEcuJson(paired_ecu);
+        } else {
+            msg3 = "Cannot send TSEN power off, ECU power is off";
+            msg1_flag = WARN;
+        }
         break;
     case RATSPAIREDCEU:
         ratsConfigs.paired_ecu.Write(ratsParam.paired_ecu);
         paired_ecu = ratsParam.paired_ecu;
-        msg2 = "TC set paired ECU ID: " + String(ratsConfigs.paired_ecu.Read());
+        msg2 = "TC set the paired ECU ID: " + String(ratsConfigs.paired_ecu.Read());
         break;
     default:
         msg1_flag = CRIT;

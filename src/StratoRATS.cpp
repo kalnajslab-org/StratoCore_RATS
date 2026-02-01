@@ -221,7 +221,7 @@ void StratoRATS::WatchFlags()
 void StratoRATS::RATS_Shutdown()
 {
     // Turn off the ECU
-    ECUControl(false);
+    ECUPowerControl(false);
 }
 
 void StratoRATS::ratsReportCheck(bool timed_check)
@@ -255,7 +255,7 @@ void StratoRATS::ratsReportCheck(bool timed_check)
     }
 }
 
-void StratoRATS::ECUControl(bool enable)
+void StratoRATS::ECUPowerControl(bool enable)
 {
     if (enable) {
         digitalWrite(ECU_PWR_EN, HIGH);
@@ -264,6 +264,11 @@ void StratoRATS::ECUControl(bool enable)
         digitalWrite(ECU_PWR_EN, LOW);
         log_nominal("ECU Power Disabled");
     }
+}
+
+bool StratoRATS::IsECUPowerEnabled()
+{
+    return (digitalRead(ECU_PWR_EN) == HIGH);
 }
 
 void StratoRATS::ratsReportAccumulate(ECUReportBytes_t& ecu_report_bytes) {

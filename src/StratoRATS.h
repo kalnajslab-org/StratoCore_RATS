@@ -219,7 +219,8 @@ private:
     bool lora_tx_test = false;
 
     // ECU control
-    void ECUControl(bool enable);
+    void ECUPowerControl(bool enable);
+    bool IsECUPowerEnabled();
 
     // *** Warmup state machine ***
     // LoRa message timeout counter
