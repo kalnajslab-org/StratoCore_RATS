@@ -1,5 +1,33 @@
+# RATS Telemetry Messages
 
-## RATS Telemetry Messages
+Telemetry Messages (TMs) are data and status messages generated on the RATS system and delivered to the gondola Onboard Computer (OBC, aka Zephyr). Zephyr queues them, and transmits the TMs via Iridium.
+
+RATS TMs contain data, metadata, and status information for the RATS main computer, the Motor Control Board (MCB) and the End of Cable Unit (ECU).
+
+The TM format is specified by the Strateole project, and is defined in the ? document. A TM begins with an text header formatted as XML, which is followed by a binary payload. The payload has a quasi-XML structure, and it may contain zero data.
+
+The TM header contains three message:flag tuples. The flags can take the values of (FINE, WARN, CRIT). The flags are monitored by the Strateole operations center, and will generate alerts based on their values. It doesn't appear that the message text values have a particular significance to the Strateole operations center.
+
+If the TM payload is not empty, it contains a RATSReport, followed by 0 or more ECUReports. These structures are bit-packed to conserve communications bandwidth. The ECUReport is the data observation as it was delivered directly from the ECU to RATS via LoRa.
+
+## RATS Usage
+
+RATS uses the three message fields as follows:
+
+| Msg| Purpose | Example | Use |
+|----|---------|---------|-----|
+| Msg1 | TM title | RATSREPORT | A capitalized single word title for the TM|
+| Msg2 | Extra info 1| FLIGHT mode | TM specific information 1|
+| Msg3 | Extra info 2 | 40.02944, -105.39767,1683.0,2331.0 | TM specific information 2|
+
+Rules:
+
+- The Flag1 flag for Msg1 is the only flag which has a value other than FINE.
+- A received telecommand (TC) always generates a corresponding **RATSTCACK** acknowledgement TM.
+- If a TC generates an error, the corresponding **RATSTCACK** TM Flag1 wil be set to WARN or CRIT.
+- When RATS is in either STANDBY or Flight modes, a **RATSREPORT** is sent periodically. The paylod will contain a RATSReport and 0 or more ECUReports.
+
+## RATS TM Types
 
 | Purpose | Msg1 | Flag1 | Msg2 | Flag2 | Msg3 | Flag3 | Payload C++ Structures | Payload Contents |
 |---------|------|-------|------|-------|------|-------|----------------|------------------|
