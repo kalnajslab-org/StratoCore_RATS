@@ -286,8 +286,8 @@ private:
     void SendMCBEEPROM();
     // Send a TM with RATS EEPROM contents
     void SendRATSEEPROM();
-    // Send a TM with text data
-    void SendRATSTextTM(String text_data);
+    // Send a RATSTEXT TM with text data
+    void SendRATSTextTM(String text_data, StateFlag_t state_flag = FINE);
 
     // A running sum of the voltage for inst_imon.
     float a3_v_sum = 0.0;

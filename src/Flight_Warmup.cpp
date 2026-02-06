@@ -112,7 +112,7 @@ bool StratoRATS::Flight_Warmup(bool restart)
             if (warmup_cycles >= 2)
             {
                 log_error("WARMUP_LORA_WAIT2 Too many LoRa message timeouts");
-                ZephyrLogCrit("LoRa message timeouts during warmup wait2");
+                SendRATSTextTM("Warmup failed: LoRa message timeouts", CRIT);
                 warmup_status = WARMUP_FAILED;
                 return(true);
             }
@@ -131,7 +131,8 @@ bool StratoRATS::Flight_Warmup(bool restart)
                 if (lora_count_check() >= LORA_MSG_COUNT)
                 {
                     log_nominal("WARMUP_LORA_WAIT2 Required LoRa messages received");
-                    ZephyrLogFine("Warmup complete");
+                    log_nominal("Warmup complete");
+                    SendRATSTextTM("Warmup complete");
                     warmup_status = WARMUP_COMPLETE;
                     return true;
                 }

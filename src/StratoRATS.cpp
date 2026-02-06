@@ -327,14 +327,14 @@ void StratoRATS::ratsReportTM() {
 
 }
 
-void StratoRATS::SendRATSTextTM(String text_data) {
+void StratoRATS::SendRATSTextTM(String text_data, StateFlag_t state_flag) {
     zephyrTX.clearTm();
 
     String Message = "";
 
     // First
     Message = "RATSTEXT";
-    zephyrTX.setStateFlagValue(1, FINE);
+    zephyrTX.setStateFlagValue(1, state_flag);
     zephyrTX.setStateDetails(1, Message);
 
     // Second
@@ -384,7 +384,7 @@ bool StratoRATS::StartMCBMotion()
         return false;
     }
 
-    ZephyrLogFine(msg.c_str());
+    SendMCBTM(FINE, msg.c_str());
     log_nominal(msg.c_str());
 
     return success;
@@ -436,9 +436,9 @@ void StratoRATS::AddMCBTM()
     if (ratsConfigs.real_time_mcb.Read()) {
         snprintf(log_array, LOG_ARRAY_SIZE, "MCB TM (Packet %u)", ++mcb_tm_counter);
         zephyrTX.addTm(MCB_TM_buffer, MCB_TM_buffer_idx);
-        zephyrTX.setStateDetails(1, log_array);
+        zephyrTX.setStateDetails(1, "MCBMOTION");
         zephyrTX.setStateFlagValue(1, FINE);
-        zephyrTX.setStateDetails(2, (String("Reel: ") + String(reel_pos, 2)).c_str());
+        zephyrTX.setStateDetails(2, (String("Packet ") + String(mcb_tm_counter) + String(", Reel: ") + String(reel_pos, 2)).c_str());
         zephyrTX.setStateFlagValue(2, FINE);
         zephyrTX.setStateDetails(3, "");
         zephyrTX.setStateFlagValue(3, NOMESS);
@@ -456,17 +456,20 @@ void StratoRATS::SendMCBTM(StateFlag_t state_flag, const char * message)
     // use only the first flag to report the motion
     zephyrTX.clearTm();
     zephyrTX.addTm(MCB_TM_buffer,MCB_TM_buffer_idx);
-    zephyrTX.setStateDetails(1, message);
+
+    zephyrTX.setStateDetails(1, "MCBTEXT");
     zephyrTX.setStateFlagValue(1, state_flag);
+
+    zephyrTX.setStateDetails(2, message);
+    zephyrTX.setStateFlagValue(2, FINE);
+
     if (state_flag == FINE) {
-        zephyrTX.setStateDetails(2, (String("Reel: ") + String(reel_pos, 2)).c_str());
-        zephyrTX.setStateFlagValue(2, FINE);
+        zephyrTX.setStateDetails(3, (String("Reel: ") + String(reel_pos, 2)).c_str());
+        zephyrTX.setStateFlagValue(3, FINE);
     } else {
-        zephyrTX.setStateDetails(2, "");
-        zephyrTX.setStateFlagValue(2, NOMESS);
+        zephyrTX.setStateDetails(3, "");
+        zephyrTX.setStateFlagValue(3, NOMESS);
     }
-    zephyrTX.setStateDetails(3, "");
-    zephyrTX.setStateFlagValue(3, NOMESS);
 
     TM_ack_flag = NO_ACK;
     zephyrTX.TM();
