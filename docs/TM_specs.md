@@ -36,8 +36,8 @@ Rules:
 | RATS eeprom | **RATSEEPROM** | FINE | | | | | `RATSEEPROM_t` |RATS EEPROM data|
 | TC Acknowlege | **RATSTCACK** | FINE | TC type | | | ||
 | TC Error | **RATSTCACK** | WARN\|CRIT | TC type | FINE | Error mesage | FINE | | |
-| MCB motion | **MCBMOTION** | FINE | Reel: \<pos\> | | | | | Motion data, optional sync/time header, reel position |
-| MCB text | **MCBTEXT** | FINE | | | | | | Text message from MCB |
+| MCB motion | **MCBREALTIME** | FINE | Packet: \<n\>, Reel: \<pos\> | | | | | Motion data |
+| MCB text | **MCBTEXT** | FINE | MCB message| FINE | Reel: \<pos\>| | | Motion data |
 | MCB eeprom | **MCBEEPROM** | FINE | | | | | `MCBEEPROM_t` | Binary MCB EEPROM dump |
 
 | \<mode\>     |

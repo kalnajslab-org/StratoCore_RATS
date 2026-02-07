@@ -436,7 +436,7 @@ void StratoRATS::AddMCBTM()
     if (ratsConfigs.real_time_mcb.Read()) {
         snprintf(log_array, LOG_ARRAY_SIZE, "MCB TM (Packet %u)", ++mcb_tm_counter);
         zephyrTX.addTm(MCB_TM_buffer, MCB_TM_buffer_idx);
-        zephyrTX.setStateDetails(1, "MCBMOTION");
+        zephyrTX.setStateDetails(1, "MCBREALTIME");
         zephyrTX.setStateFlagValue(1, FINE);
         zephyrTX.setStateDetails(2, (String("Packet ") + String(mcb_tm_counter) + String(", Reel: ") + String(reel_pos, 2)).c_str());
         zephyrTX.setStateFlagValue(2, FINE);
