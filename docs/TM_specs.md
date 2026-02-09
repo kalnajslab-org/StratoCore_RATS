@@ -29,16 +29,16 @@ Rules:
 
 ## RATS TM Types
 
-| Purpose | Msg1 | Flag1 | Msg2 | Flag2 | Msg3 | Flag3 | Payload C++ Structures | Payload Contents |
-|---------|------|-------|------|-------|------|-------|----------------|------------------|
+| Purpose | Msg1 | Flag1 | Msg2 | Flag2 | Msg3 | Flag3 | Payload Definition | Payload Contents |
+| --------- | ------ | ------- | ------ | ------- | ------ | ------- | ---------------- | ------------------ |
 | RATS data | **RATSREPORT** | FINE | \<mode\> \<n\> records| FINE | \<lat,lon,alt\> | FINE | `RATSReport_t`, `ECUReport_t` | RATS metadata followed by ECU data blocks |
-| General text | **RATSTEXT** | FINE | \<mode\> | FINE |Text message| FINE | | |
-| RATS eeprom | **RATSEEPROM** | FINE | | | | | `RATSEEPROM_t` |RATS EEPROM data|
-| TC Acknowlege | **RATSTCACK** | FINE | TC type | | | ||
+| General text | **RATSTEXT** | FINE | \<mode\> | FINE | Text message | FINE | | |
+| RATS eeprom | **RATSEEPROM** | FINE | | | | | `RATSEEPROM_t` | RATS EEPROM data |
+| TC Acknowlege | **RATSTCACK** | FINE | TC type | | | | | |
 | TC Error | **RATSTCACK** | WARN\|CRIT | TC type | FINE | Error mesage | FINE | | |
-| MCB motion | **MCBREALTIME** | FINE | Packet: \<n\>, Reel: \<pos\> | | | | | Motion data |
-| MCB text | **MCBTEXT** | FINE | MCB message| FINE | Reel: \<pos\>| | | Motion data |
-| MCB eeprom | **MCBEEPROM** | FINE | | | | | `MCBEEPROM_t` | Binary MCB EEPROM dump |
+| MCB ascii | **MCBASCII** | FINE | MCB message | FINE | | | | |
+| MCB ack | **MCBACK** | FINE | MCB message | FINE | | | | |
+| MCB binary | **MCBREPORT** | FINE\|WARN\|CRIT | MCB related message| FINE | | | `MonitorMCB::SendMotionData()` | Motion data |
 
 | \<mode\>     |
 |--------------|

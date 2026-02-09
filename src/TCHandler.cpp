@@ -311,17 +311,17 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
 
     // Log the TC summary message
     switch (msg1_flag) {
-        case LOG_DEBUG:
-            log_debug(msg2.c_str());
-            break;
-        case LOG_NOMINAL:
+        case FINE:
             log_nominal(msg2.c_str());
             break;
-        case LOG_ERROR:
+        case WARN:
+            log_error(msg2.c_str());
+            break;
+        case CRIT:
             log_error(msg2.c_str());
             break;
         default:
-            log_error(msg2.c_str());
+            log_debug(msg2.c_str());
     }
 
     if (send_rats_eeprom) {

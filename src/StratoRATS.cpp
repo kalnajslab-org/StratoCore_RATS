@@ -53,13 +53,13 @@ void StratoRATS::InstrumentSetup()
         TX_POWER
     )) {
         log_error("WARN: LoRa Initialization Failed");
-        ZephyrLogWarn("WARN: LoRa Initialization Failed");
+        SendRATSTextTM("WARN: LoRa Initialization Failed", WARN);
     } else {
         log_nominal((String("LoRa Initialized F ") + String(FREQUENCY/1.0e6) + ", BW " + String(BANDWIDTH) + ", SF" + String(SF) + ", TX_PWR " + String(TX_POWER)).c_str());
     }; 
 
     if (!ratsConfigs.Initialize()) {
-        ZephyrLogWarn("Error loading from EEPROM! Reconfigured");
+        SendRATSTextTM("Error loading from EEPROM! Reconfigured", WARN);
     }
 
     mcbComm.AssignBinaryRXBuffer(binary_mcb, MCB_BINARY_BUFFER_SIZE);
@@ -92,7 +92,7 @@ void StratoRATS::InstrumentLoop()
 void StratoRATS::LoRaTx(char* ecu_cmd, bool immediate) {
     std::array<uint8_t, ECU_LORA_DATA_BUFSIZE> payload = {0};
 
-    int cmd_len = strlen(ecu_cmd);
+    size_t cmd_len = strlen(ecu_cmd);
 
     // Set the first byte to zero
     payload[0] = 0;
@@ -101,7 +101,7 @@ void StratoRATS::LoRaTx(char* ecu_cmd, bool immediate) {
     payload[1] = static_cast<uint8_t>(paired_ecu);
 
     // Copy the command string into the payload starting at byte 2
-    for (int i = 0; i < cmd_len && (i + 2) < ECU_LORA_DATA_BUFSIZE; i++) {
+    for (size_t i = 0; i < cmd_len && (i + 2) < ECU_LORA_DATA_BUFSIZE; i++) {
         payload[i + 2] = static_cast<uint8_t>(ecu_cmd[i]);
     }
     ecu_lora_tx(payload.data(), cmd_len + 2, immediate);
@@ -240,7 +240,7 @@ void StratoRATS::ratsReportCheck(bool timed_check)
     {
         if (CheckAction(ACTION_RATS_REPORT))
         {
-            ratsReportTM();
+            SendRATSReportTM();
             last_rats_report = now();
             scheduler.AddAction(ACTION_RATS_REPORT, RATS_REPORT_PERIOD_SECS);
         }
@@ -249,7 +249,7 @@ void StratoRATS::ratsReportCheck(bool timed_check)
     {
         if (rats_report.numECUrecords() >= NUM_ECU_REPORTS || ((now() - last_rats_report) > RATS_REPORT_PERIOD_SECS))
         {
-            ratsReportTM();
+            SendRATSReportTM();
             last_rats_report = now();
         }
     }
@@ -277,7 +277,7 @@ void StratoRATS::ratsReportAccumulate(ECUReportBytes_t& ecu_report_bytes) {
     rats_report.addECUReport(ecu_report_bytes);
 }
 
-void StratoRATS::ratsReportTM() {
+void StratoRATS::SendRATSReportTM() {
 
     zephyrTX.clearTm();
 
@@ -308,46 +308,55 @@ void StratoRATS::ratsReportTM() {
     // Add RATSReport to the TM
 
     rats_report.fillReportHeader(ecu_lora_rssi(), ecu_lora_snr(), inst_imon_mA, rats_id, paired_ecu);
-    auto report_bytes = rats_report.getReportBytes();
+    uint report_size;
+    auto report_bytes = rats_report.getReportBytes(report_size);
 
-    // Add the RATSReportHeader to the TM
-    for (uint i = 0; i < report_bytes.size(); i++) {
+    // Add the RATSReport to the TM
+    for (uint i = 0; i < report_size; i++) {
         zephyrTX.addTm(report_bytes.at(i));
     }
 
     // Send the TM!
     zephyrTX.TM();
-
-    MCB_TM_buffer_idx = 0; //reset the MCB buffer pointer
+    TM_ack_flag = NO_ACK;
 
     SerialUSB.print("RATS report bytes: ");
-    SerialUSB.println(report_bytes.size()); 
+    SerialUSB.println(report_size); 
     rats_report.print(false);
     rats_report.initReport(rats_id, paired_ecu); // Reset the RATS report for the next collection
 
 }
 
 void StratoRATS::SendRATSTextTM(String text_data, StateFlag_t state_flag) {
+    SendTM("RATSTEXT", state_flag, getModeName(my_inst_mode), FINE, text_data, FINE);
+}
+
+void StratoRATS::SendTM(String details1, StateFlag_t state_flag1, String details2, StateFlag_t state_flag2, String details3, StateFlag_t state_flag3) {
+    
     zephyrTX.clearTm();
 
-    String Message = "";
+    zephyrTX.setStateFlagValue(1, state_flag1);
+    zephyrTX.setStateDetails(1, details1);
 
-    // First
-    Message = "RATSTEXT";
-    zephyrTX.setStateFlagValue(1, state_flag);
-    zephyrTX.setStateDetails(1, Message);
+    zephyrTX.setStateFlagValue(2, state_flag2);
+    zephyrTX.setStateDetails(2, details2);
 
-    // Second
-    zephyrTX.setStateFlagValue(2, FINE);
-    Message = getModeName(my_inst_mode);
-    zephyrTX.setStateDetails(2, Message);
-
-    // Third: Text Data
-    zephyrTX.setStateFlagValue(3, FINE);
-    zephyrTX.setStateDetails(3, text_data.c_str());
+    zephyrTX.setStateFlagValue(3, state_flag3);
+    zephyrTX.setStateDetails(3, details3);
 
     // Send the TM!
-    zephyrTX.TM();  
+    zephyrTX.TM();
+
+    TM_ack_flag = NO_ACK;
+
+    String log_msg = details1 + " | " + details2 + " | " + details3;
+    if (state_flag1 == FINE) {
+        log_nominal(log_msg.c_str());
+    } else if (state_flag1 == WARN) {
+        log_error(log_msg.c_str());
+    } else if (state_flag1 == CRIT) {
+        log_error(log_msg.c_str());
+    }
 }
 
 bool StratoRATS::StartMCBMotion()
@@ -398,14 +407,14 @@ void StratoRATS::InitMCBMotionTracking()
     //zephyrTX.clearTm(); // empty the TM buffer for incoming MCB motion data
     MCB_TM_buffer_idx = 0;
     // Add the start time to the MCB TM Header if not in real-time mode
-    if (!ratsConfigs.real_time_mcb.Read()) {
+    //if (!ratsConfigs.real_time_mcb.Read()) {
         //zephyrTX.addTm((uint32_t) now()); // as a header, add the current seconds since epoch
         uint32_t ProfileStartEpoch  = now();
         MCB_TM_buffer[MCB_TM_buffer_idx++] = (uint8_t) (ProfileStartEpoch >> 24);
         MCB_TM_buffer[MCB_TM_buffer_idx++] = (uint8_t) (ProfileStartEpoch >> 16);
         MCB_TM_buffer[MCB_TM_buffer_idx++] = (uint8_t) (ProfileStartEpoch >> 8);
         MCB_TM_buffer[MCB_TM_buffer_idx++] = (uint8_t) (ProfileStartEpoch & 0xFF);
-    }
+    //}
 }
 
 void StratoRATS::AddMCBTM()
@@ -417,7 +426,7 @@ void StratoRATS::AddMCBTM()
     }
 
     // if not in real-time mode, add the sync and time
-    if (!ratsConfigs.real_time_mcb.Read()) {
+    //if (!ratsConfigs.real_time_mcb.Read()) {
         // sync byte        
         MCB_TM_buffer[MCB_TM_buffer_idx++] = (uint8_t) 0xA5;
                 
@@ -425,7 +434,7 @@ void StratoRATS::AddMCBTM()
         uint16_t elapsed_time = (uint16_t)((millis() - reel_motion_start) / 100);
         MCB_TM_buffer[MCB_TM_buffer_idx++] = (uint8_t) (elapsed_time >> 8);
         MCB_TM_buffer[MCB_TM_buffer_idx++] = (uint8_t) (elapsed_time & 0xFF);
-    }
+    //}
 
     // add each byte of data to the message
     for (int i = 0; i < MOTION_TM_SIZE; i++) {
@@ -434,46 +443,44 @@ void StratoRATS::AddMCBTM()
 
     // if real-time mode, send the TM packet
     if (ratsConfigs.real_time_mcb.Read()) {
-        snprintf(log_array, LOG_ARRAY_SIZE, "MCB TM (Packet %u)", ++mcb_tm_counter);
-        zephyrTX.addTm(MCB_TM_buffer, MCB_TM_buffer_idx);
-        zephyrTX.setStateDetails(1, "MCBREALTIME");
-        zephyrTX.setStateFlagValue(1, FINE);
-        zephyrTX.setStateDetails(2, (String("Packet ") + String(mcb_tm_counter) + String(", Reel: ") + String(reel_pos, 2)).c_str());
-        zephyrTX.setStateFlagValue(2, FINE);
-        zephyrTX.setStateDetails(3, "");
-        zephyrTX.setStateFlagValue(3, NOMESS);
-        zephyrTX.TM();
-        log_nominal(log_array);
-        //reset the MCB buffer pointer
-        MCB_TM_buffer_idx = 0; 
+        String msg = String("MCB Real-time Packet ") + String(mcb_tm_counter);
+        SendMCBTM(FINE, msg.c_str());
+        log_nominal(msg.c_str());
     }
-
 }
 
-void StratoRATS::SendMCBTM(StateFlag_t state_flag, const char * message)
+void StratoRATS::SendMCBTM(StateFlag_t state_flag1, const char * message2)
 {
 
     // use only the first flag to report the motion
     zephyrTX.clearTm();
     zephyrTX.addTm(MCB_TM_buffer,MCB_TM_buffer_idx);
 
-    zephyrTX.setStateDetails(1, "MCBTEXT");
-    zephyrTX.setStateFlagValue(1, state_flag);
+    zephyrTX.setStateDetails(1, "MCBREPORT");
+    zephyrTX.setStateFlagValue(1, state_flag1);
 
-    zephyrTX.setStateDetails(2, message);
+    zephyrTX.setStateDetails(2, message2);
     zephyrTX.setStateFlagValue(2, FINE);
 
-    if (state_flag == FINE) {
-        zephyrTX.setStateDetails(3, (String("Reel: ") + String(reel_pos, 2)).c_str());
-        zephyrTX.setStateFlagValue(3, FINE);
-    } else {
-        zephyrTX.setStateDetails(3, "");
-        zephyrTX.setStateFlagValue(3, NOMESS);
-    }
+    zephyrTX.setStateDetails(3, (String("Reel: ") + String(reel_pos, 2)).c_str());
+    zephyrTX.setStateFlagValue(3, FINE);
 
     TM_ack_flag = NO_ACK;
     zephyrTX.TM();
-    MCB_TM_buffer_idx = 0; //reset the MCB buffer pointer
+
+    //reset the MCB buffer pointer
+    MCB_TM_buffer_idx = 0;
+
+    // HandleMCBAck() calls InitMotionTracking() sets these bytes to now(), but it's not clear
+    // if that function will always be called before the first call to SendMCBTM(), 
+    // so set these bytes here just in case. 
+    // TODO: Track down what is really intended with the MCB tracking. Seems like RACHUTS has 
+    // two different formats the MCB binary payload; was thois really necessary?
+    MCB_TM_buffer[MCB_TM_buffer_idx++] = 0;
+    MCB_TM_buffer[MCB_TM_buffer_idx++] = 0;
+    MCB_TM_buffer[MCB_TM_buffer_idx++] = 0;
+    MCB_TM_buffer[MCB_TM_buffer_idx++] = 0;
+
     if (!WriteFileTM("MCB")) {
         log_error("Unable to write MCB TM to SD file");
     }
@@ -494,7 +501,6 @@ void StratoRATS::SendMCBEEPROM()
     // send as TM
     TM_ack_flag = NO_ACK;
     zephyrTX.TM();
-    MCB_TM_buffer_idx = 0; //reset the MCB buffer pointer
 
     log_nominal("MCB EEPROM TM");
 }
@@ -522,7 +528,6 @@ void StratoRATS::SendRATSEEPROM()
     // send as TM
     TM_ack_flag = NO_ACK;
     zephyrTX.TM();
-    MCB_TM_buffer_idx = 0; //reset the MCB buffer pointer
 
     log_nominal("Sent RATS EEPROM as TM");
 }

@@ -224,7 +224,7 @@ public:
         }
     };
 
-    auto& getReportBytes()
+    auto& getReportBytes(uint& used_size)
     {
         // The report bytes include the serialized header and the ECU reports.
         this->serializeHeader();
@@ -237,6 +237,7 @@ public:
                 _report_bytes[RATS_REPORT_HEADER_SIZE_BYTES + (i * ECU_DATA_REPORT_SIZE_BYTES) + j] = _ecu_reports[i][j];
             }
         }
+        used_size = RATS_REPORT_HEADER_SIZE_BYTES + (_header.num_ecu_records * ECU_DATA_REPORT_SIZE_BYTES);
         return _report_bytes;
     };
 
@@ -273,6 +274,7 @@ protected:
     RATSReportHeader_t _header;
 
     // The ECU report data is collected here. There may be zero records if the ECU was not powered on.
+    // This will always be sized to hold the max number of ECU reports, but only the first num_ecu_records will be valid.
     ECUReportBytes_t _ecu_reports[N_ECU_REPORTS];
 
     // The storage for the complete RATS report TM binary payload.

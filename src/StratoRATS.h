@@ -249,14 +249,38 @@ private:
     void HandleMCBString();
     // Start any type of MCB motion
     bool StartMCBMotion();
+
+    // MCB motion tracking and TM functions. 
+    // These are used to track the progress of a reel motion, and to build and send TMs 
+    // with the motion data. The motion data is received from the MCB in binary messages, 
+    // which are processed in HandleMCBBin() and added to the MCB_TM_buffer via AddMCBTM().
+    //
+    // If in real-time MCB reporting mode, the MCB binary messages are sent immediately as 
+    // MCBREPORT TMs.
+    //
+    // If not in real-time MCB reporting mode, the MCB binary messages are 
+    // collected in MCB_TM_buffer, and sent as a single MCBREPORT TM when a certain
+    // condition is met. The condition could be the completion of the motion, a timeout, 
+    // reception of an MCB error message, or something else.
+    //
+    // It seems like there is an opportunity for a MCM_TM_buffer to overflow,
+    // because the value if MCM_TM_buffer_idx is never checked against the size of MCB_TM_buffer. 
+    // However, in practice this might not be an issue, because the MCB binary messages are 
+    // expected to be small and infrequent, and the MCB_TM_buffer is large (8192 bytes). 
+    // We could add a check in AddMCBTM() to ensure that we don't 
+    // write past the end of the buffer. We could also consider implementing some logic to 
+    // handle the case where the buffer does fill up, such as sending a TM with the data 
+    // collected so far and then clearing the buffer to make room for more data.
+    //
     // Set variables and initialize the TM for MCB binary data collection.
-    // AddMCBTM() will add append MCB binary data to the TM buffer.
     void InitMCBMotionTracking();
-    // Add the current MCB motion binary data to the TM buffer.
-    // IF WE ARE IN REAL-TIME MODE, THE TM PACKET WILL BE SENT IMMEDIATELY.
+    // **If we are not in real-time mcb reporting mode, data from mcbComm.binary_rx.bin_buffer 
+    // will be appended to MCB_TM_buffer.**
+    // **If we are in real-time mcb reporting mode, data from mcbComm.binary_rx.bin_buffer 
+    // will be sent immediately as a MCBREPORT TM.**
     void AddMCBTM();
-    // Send a TM with a StateMessage1 message, and the aggregated MCB binary info.
-    // All of the aggregated MCB binary data are included in the TM packet.
+    // Send an MCBREPORT TM with a StateMessage1 message, and the aggregated 
+    // data in MCB_TM_buffer.
     void SendMCBTM(StateFlag_t state_flag, const char * message);
     bool mcb_low_power = false;
     // Set when a reel motion is initiated, cleared when the motion is complete.
@@ -286,6 +310,10 @@ private:
     void SendMCBEEPROM();
     // Send a TM with RATS EEPROM contents
     void SendRATSEEPROM();
+    // Send a TM
+    void SendTM(String details1, StateFlag_t state_flag1, 
+        String details2, StateFlag_t state_flag2, 
+        String details3, StateFlag_t state_flag3);
     // Send a RATSTEXT TM with text data
     void SendRATSTextTM(String text_data, StateFlag_t state_flag = FINE);
 
@@ -302,7 +330,7 @@ private:
     // If time_based is false, the report will be sent based on ACTION_RATS_REPORT.
     void ratsReportCheck(bool time_based=false);
     // Send a TM with the ratsReport message
-    void ratsReportTM();
+    void SendRATSReportTM();
     // Time of last RATS report
     time_t last_rats_report = 0;
     // Build and manage the RATS data report here. ECUReports are accumulated
