@@ -44,7 +44,7 @@ protected:
     // 6. Update RATSReportPrint() to print the new fields (scaled).
 
     // The RATS report header revision. Increment this whenever the header structure is modified.
-#define RATS_REPORT_REV 3
+#define RATS_REPORT_REV 4
 
     // The RATS report header structure.
     // The type of each field will be the next larger unsigned type that can hold the required number of bits.
@@ -54,6 +54,7 @@ protected:
     {
         uint8_t version :           4;       // The version of the RATS report header.
         uint16_t rats_id :         16;       // RATS unique identifier
+        uint32_t epoch :           32;       // Epoch time in seconds when the report is generated.
         uint8_t paired_ecu :        8;       // Paired ECU ID
         uint8_t header_size_bytes : 8;       // The size of the RATS report header in bytes.
         uint16_t num_ecu_records : 10;       // The number of ECU records in the report.
@@ -67,7 +68,7 @@ protected:
     };
 
 //    You can use the copilot to create this sum by prompting: "sum of bitfield sizes in RATSReportHeader_t".
-#define RATS_REPORT_HEADER_SIZE_BITS (4 + 16 + 8 + 8 + 10 + 9 + 1 + 13 + 11 + 10 + 10 + 11)
+#define RATS_REPORT_HEADER_SIZE_BITS (4 + 16 + 32 + 8 + 8 + 10 + 9 + 1 + 13 + 11 + 10 + 10 + 11)
 #define RATS_REPORT_HEADER_SIZE_BYTES DIV_ROUND_UP(RATS_REPORT_HEADER_SIZE_BITS, 8)
 
     // Serialize the RATS report into the header bytes.
@@ -83,6 +84,7 @@ protected:
         // Serialize the header
         writer.write_unchecked(_header.version, 4);
         writer.write_unchecked(_header.rats_id, 16);
+        writer.write_unchecked(_header.epoch, 32);
         writer.write_unchecked(_header.paired_ecu, 8);
         writer.write_unchecked(_header.header_size_bytes, 8);
         writer.write_unchecked(_header.num_ecu_records, 10);
@@ -98,9 +100,10 @@ protected:
 public:
     void fillReportHeader(double lora_rssi, double lora_snr, double inst_imon_mA, uint16_t rats_id, uint8_t paired_ecu)
     {
-        // *** Modify this function whenever the RATSReportHeader_t struct is modified
+        // *** Modify this function whenever the RATSReportHeader_t struct is modified ***
 
         _header.rats_id = rats_id;
+        _header.epoch = (uint32_t)time(nullptr);
         _header.paired_ecu = paired_ecu;
         _header.ecu_pwr_on = digitalRead(ECU_PWR_EN);
         _header.v56 = 1000 * analogRead(V56_MON) * (3.3 / 1024.0) * (R8 + R9) / R8;
@@ -131,6 +134,13 @@ public:
         if (print_bin)
             binPrint(_header.rats_id, 16);
         SerialUSB.print(String(_header.rats_id));
+        SerialUSB.println();
+
+        // Epoch time
+        SerialUSB.print("epoch: ");
+        if (print_bin) 
+            binPrint(_header.epoch, 32);
+        SerialUSB.print(String(_header.epoch) + "s");
         SerialUSB.println();
 
         // Paired ECU ID
