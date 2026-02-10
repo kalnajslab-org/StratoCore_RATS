@@ -310,11 +310,8 @@ void StratoRATS::SendRATSReportTM() {
     rats_report.fillReportHeader(ecu_lora_rssi(), ecu_lora_snr(), inst_imon_mA, rats_id, paired_ecu);
     uint report_size;
     auto report_bytes = rats_report.getReportBytes(report_size);
-
     // Add the RATSReport to the TM
-    for (uint i = 0; i < report_size; i++) {
-        zephyrTX.addTm(report_bytes.at(i));
-    }
+    zephyrTX.addTm(report_bytes.cbegin(), report_size);
 
     // Send the TM!
     zephyrTX.TM();
