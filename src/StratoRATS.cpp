@@ -490,7 +490,7 @@ void StratoRATS::SendMCBEEPROM()
     zephyrTX.addTm(mcbComm.binary_rx.bin_buffer, mcbComm.binary_rx.bin_length);
 
     // use only the first flag to preface the contents
-    zephyrTX.setStateDetails(1, "MCB EEPROM Contents");
+    zephyrTX.setStateDetails(1, "MCBEEPROM");
     zephyrTX.setStateFlagValue(1, FINE);
     zephyrTX.setStateFlagValue(2, NOMESS);
     zephyrTX.setStateFlagValue(3, NOMESS);
@@ -517,7 +517,7 @@ void StratoRATS::SendRATSEEPROM()
     zephyrTX.addTm(mcbComm.binary_rx.bin_buffer, mcbComm.binary_rx.bin_length);
 
     // use only the first flag to preface the contents
-    zephyrTX.setStateDetails(1, String("RATSEEPROM").c_str());
+    zephyrTX.setStateDetails(1, "RATSEEPROM");
     zephyrTX.setStateFlagValue(1, FINE);
     zephyrTX.setStateFlagValue(2, NOMESS);
     zephyrTX.setStateFlagValue(3, NOMESS);
