@@ -65,10 +65,13 @@ protected:
         uint16_t lora_rssi :       10;       // (Lora RSSI + 100)*10 (0-1023 : -100.0dBm to +10.2dBm)
         uint16_t lora_snr :        10;       // (Lora SNR + 70)*10 (0-1023 : -70.0dB to +32.3dB)
         uint16_t inst_imon :       11;       // (Inst IMon)*10 (0-2047 : 0.0mA to 204.7mA)
+        int32_t  gps_lat :         32;       // GPS Latitude*1e6 (degrees*1e6)
+        int32_t  gps_lon :         32;       // GPS Longitude*1e6 (degrees*1e6)
+        uint16_t gps_alt:          16;       // GPS Altitude (meters)
     };
 
 //    You can use the copilot to create this sum by prompting: "sum of bitfield sizes in RATSReportHeader_t".
-#define RATS_REPORT_HEADER_SIZE_BITS (4 + 16 + 32 + 8 + 8 + 10 + 9 + 1 + 13 + 11 + 10 + 10 + 11)
+#define RATS_REPORT_HEADER_SIZE_BITS (4 + 16 + 32 + 8 + 8 + 10 + 9 + 1 + 13 + 11 + 10 + 10 + 11 + 32 + 32 + 16)
 #define RATS_REPORT_HEADER_SIZE_BYTES DIV_ROUND_UP(RATS_REPORT_HEADER_SIZE_BITS, 8)
 
     // Serialize the RATS report into the header bytes.
@@ -95,10 +98,13 @@ protected:
         writer.write_unchecked(_header.lora_rssi, 10);
         writer.write_unchecked(_header.lora_snr, 10);
         writer.write_unchecked(_header.inst_imon, 11);
+        writer.write_unchecked(_header.gps_lat, 32);
+        writer.write_unchecked(_header.gps_lon, 32);
+        writer.write_unchecked(_header.gps_alt, 16);
     };
 
 public:
-    void fillReportHeader(double lora_rssi, double lora_snr, double inst_imon_mA, uint16_t rats_id, uint8_t paired_ecu)
+    void fillReportHeader(double lora_rssi, double lora_snr, double inst_imon_mA, uint16_t rats_id, uint8_t paired_ecu, float zephyr_lat, float zephyr_lon, float zephyr_alt)
     {
         // *** Modify this function whenever the RATSReportHeader_t struct is modified ***
 
@@ -111,6 +117,9 @@ public:
         _header.lora_rssi = (lora_rssi + 100.0) * 10;
         _header.lora_snr = (lora_snr + 70) * 10;
         _header.inst_imon = (inst_imon_mA) * 10;
+        _header.gps_lat = (int32_t)(zephyr_lat * 1e6);
+        _header.gps_lon = (int32_t)(zephyr_lon * 1e6);
+        _header.gps_alt = (uint16_t)(zephyr_alt);
     };
 
     void print(bool print_bin)
@@ -211,6 +220,24 @@ public:
         if (print_bin)
             binPrint(_header.inst_imon, 11);
         SerialUSB.print(String(_header.inst_imon / 10.0) + "mA");
+        SerialUSB.println();
+
+        // GPS Latitude
+        SerialUSB.print("gps_lat: ");
+        if (print_bin)            binPrint(_header.gps_lat, 32);
+        SerialUSB.print(String(_header.gps_lat / 1e6) + "°");
+        SerialUSB.println();
+
+        // GPS Longitude
+        SerialUSB.print("gps_lon: ");
+        if (print_bin)            binPrint(_header.gps_lon, 32);
+        SerialUSB.print(String(_header.gps_lon / 1e6) + "°");
+        SerialUSB.println();
+
+        // GPS Altitude
+        SerialUSB.print("gps_alt: ");
+        if (print_bin)            binPrint(_header.gps_alt, 16);
+        SerialUSB.print(String(_header.gps_alt) + "m");
         SerialUSB.println();
 
     };
