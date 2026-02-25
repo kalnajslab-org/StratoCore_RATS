@@ -291,11 +291,12 @@ void StratoRATS::SendRATSReportTM() {
     // Second
     zephyrTX.setStateFlagValue(2, FINE);
     Message = getModeName(my_inst_mode);
-    Message += " " + String(rats_report.numECUrecords()) + " records";
+    Message += ", ECUrecs:" + String(rats_report.numECUrecords());
+    Message += ", Reel:" + String(reel_pos,1);
     zephyrTX.setStateDetails(2, Message);
 
     // Third: GPS Position
-    Message = "";   
+    Message = "";
     zephyrTX.setStateFlagValue(3, FINE);
     Message.concat(zephyrRX.zephyr_gps.latitude);
     Message.concat(',');
@@ -538,11 +539,11 @@ uint32_t StratoRATS::lora_count_check(bool reset) {
 
 String StratoRATS::getModeName(const uint8_t mode) {
     switch (mode) {
-        case MODE_STANDBY:  return "STANDBY mode";
-        case MODE_FLIGHT:   return "FLIGHT mode";
-        case MODE_LOWPOWER: return "LOWPOWER mode";
-        case MODE_SAFETY:   return "SAFETY mode";
-        case MODE_EOF:      return "EOF mode";
-        default:            return "Unknown mode";
+        case MODE_STANDBY:  return "mode:STANDBY";
+        case MODE_FLIGHT:   return "mode:FLIGHT";
+        case MODE_LOWPOWER: return "mode:LOWPOWER";
+        case MODE_SAFETY:   return "mode:SAFETY";
+        case MODE_EOF:      return "mode:EOF";
+        default:            return "mode:UNKNOWN";
     }
 };
