@@ -308,7 +308,7 @@ void StratoRATS::SendRATSReportTM() {
 
     // Add RATSReport to the TM
 
-    rats_report.fillReportHeader(ecu_lora_rssi(), ecu_lora_snr(), inst_imon_mA, rats_id, paired_ecu, zephyrRX.zephyr_gps.latitude, zephyrRX.zephyr_gps.longitude, zephyrRX.zephyr_gps.altitude);
+    rats_report.fillReportHeader(ecu_lora_rssi(), ecu_lora_snr(), inst_imon_mA, rats_id, paired_ecu, zephyrRX.zephyr_gps.latitude, zephyrRX.zephyr_gps.longitude, zephyrRX.zephyr_gps.altitude, reel_pos);
     uint report_size;
     auto report_bytes = rats_report.getReportBytes(report_size);
     // Add the RATSReport to the TM
