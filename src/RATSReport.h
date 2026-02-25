@@ -68,11 +68,11 @@ protected:
         int32_t  gps_lat :         32;       // GPS Latitude*1e6 (degrees*1e6)
         int32_t  gps_lon :         32;       // GPS Longitude*1e6 (degrees*1e6)
         uint16_t gps_alt:          16;       // GPS Altitude (meters)
-        uint16_t reel_revs:        16;       // (-Reel revolutions+100)*100 (0-65535 : -100.00 to 555.35 revolutions)     
+        uint16_t reel_revs:        14;       // (-Reel revolutions+100)*10 (0-16383 : -100.0 revs to +1638.3 revs)    
     };
 
 //    You can use the copilot to create this sum by prompting: "sum of bitfield sizes in RATSReportHeader_t".
-#define RATS_REPORT_HEADER_SIZE_BITS (4 + 16 + 32 + 8 + 8 + 10 + 9 + 1 + 13 + 11 + 10 + 10 + 11 + 32 + 32 + 16 + 16)
+#define RATS_REPORT_HEADER_SIZE_BITS (4 + 16 + 32 + 8 + 8 + 10 + 9 + 1 + 13 + 11 + 10 + 10 + 11 + 32 + 32 + 16 + 14)
 #define RATS_REPORT_HEADER_SIZE_BYTES DIV_ROUND_UP(RATS_REPORT_HEADER_SIZE_BITS, 8)
 
     // Serialize the RATS report into the header bytes.
@@ -122,7 +122,7 @@ public:
         _header.gps_lat = (int32_t)(zephyr_lat * 1e6);
         _header.gps_lon = (int32_t)(zephyr_lon * 1e6);
         _header.gps_alt = (uint16_t)(zephyr_alt);
-        _header.reel_revs = (uint16_t)((-reel_revs + 100.0) * 100);
+        _header.reel_revs = (uint16_t)((-reel_revs + 100.0) * 10);
     };
 
     void print(bool print_bin)
@@ -245,8 +245,8 @@ public:
 
         // Reel revolutions
         SerialUSB.print("reel_revs: ");
-        if (print_bin)            binPrint(_header.reel_revs, 16);
-        SerialUSB.print(String((_header.reel_revs / 100.0) - 100.0) + " revs");
+        if (print_bin)            binPrint(_header.reel_revs, 14);
+        SerialUSB.print(String((_header.reel_revs / 10.0) - 100.0) + " revs");
         SerialUSB.println();
     };
 
