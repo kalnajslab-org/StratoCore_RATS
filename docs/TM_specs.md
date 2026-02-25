@@ -39,6 +39,7 @@ Rules:
 | MCB ascii | **MCBASCII** | FINE | MCB message | FINE | | | | |
 | MCB ack | **MCBACK** | FINE | MCB message | FINE | | | | |
 | MCB binary | **MCBREPORT** | FINE\|WARN\|CRIT | MCB related message| FINE | | | `MonitorMCB::SendMotionData()` | Motion data |
+| MCB eeprom | **MCBEEPROM** | FINE | | | | | | MCB EEPROM data |
 
 | \<mode\>     |
 |--------------|
