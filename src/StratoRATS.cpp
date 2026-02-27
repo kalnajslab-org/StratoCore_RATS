@@ -64,6 +64,11 @@ void StratoRATS::InstrumentSetup()
 
     mcbComm.AssignBinaryRXBuffer(binary_mcb, MCB_BINARY_BUFFER_SIZE);
 
+    // Do a tiny tiny reel motion so that we get an MCB message, which will 
+    // initialize the reel position.
+    bool success = mcbComm.TX_Reel_Out(0.001, ratsConfigs.deploy_velocity.Read());
+    log_nominal((String("Initial Reel Out Command Sent: ") + (success ? "Success" : "Failure")).c_str());
+
 }
 
 void StratoRATS::InstrumentLoop()
