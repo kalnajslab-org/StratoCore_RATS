@@ -13,12 +13,10 @@ enum EFStates_t : uint8_t {
 void StratoRATS::EndOfFlightMode()
 {
     my_inst_mode = MODE_EOF;
-    ratsReportCheck();
     switch (inst_substate) {
     case EF_ENTRY:
-        // perform setup
-        // Register ACTION_RATS_REPORT to trigger the first status message 
-        scheduler.AddAction(ACTION_RATS_REPORT, 1);
+        // send immediate RATSREPORT on entry to EOF
+        ratsReportCheck(true); 
         inst_substate = EF_LOOP;
         log_nominal("Entering EF_LOOP");
         break;

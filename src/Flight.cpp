@@ -9,8 +9,9 @@
 void StratoRATS::FlightMode()
 {
     my_inst_mode = MODE_FLIGHT;
-    // Send a status TM, if it is time. 
-    ratsReportCheck(true);
+
+    // Send a RATSREPORT, if it is time. 
+    ratsReportCheck(false);
 
     // Save the flight mode substate to the global variable 
     flight_mode_substate = inst_substate;
@@ -26,6 +27,9 @@ void StratoRATS::FlightMode()
     switch (inst_substate) {
     case FL_ENTRY:
         log_nominal("Entering FL");
+        // send immediate RATSREPORT on entry to FLIGHT
+        ratsReportCheck(true); 
+
         // Transition to waiting for a GPS message.
         scheduler.AddAction(ACTION_GPS_WAIT_MSG, 5);
         inst_substate = FL_GPS_WAIT;
@@ -56,6 +60,9 @@ void StratoRATS::FlightMode()
         }
         break;
     case FL_MEASURE:
+        // Send a RATSREPORT, if it is time. 
+        ratsReportCheck(false);
+
         if(CheckAction(ACTION_REEL_OUT)) {
             // Turn off the ECU
             ECUPowerControl(false);

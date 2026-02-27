@@ -14,12 +14,11 @@ enum SAStates_t : uint8_t {
 void StratoRATS::SafetyMode()
 {
     my_inst_mode = MODE_SAFETY;
-    ratsReportCheck();
     switch (inst_substate) {
     case SA_ENTRY:
         RATS_Shutdown();
-        // Register ACTION_RATS_REPORT to trigger the first status message 
-        scheduler.AddAction(ACTION_RATS_REPORT, 1);
+        // send immediate RATSREPORT on entry to SAFETY
+        ratsReportCheck(true); 
         log_nominal(" Shut down, Entering SA");
         inst_substate = SA_SEND_S;
         log_nominal("Entering SA_SEND_S");

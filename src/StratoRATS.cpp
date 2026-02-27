@@ -64,10 +64,6 @@ void StratoRATS::InstrumentSetup()
 
     mcbComm.AssignBinaryRXBuffer(binary_mcb, MCB_BINARY_BUFFER_SIZE);
 
-    // Do a tiny tiny reel motion so that we get an MCB message, which will 
-    // initialize the reel position.
-    bool success = mcbComm.TX_Reel_Out(0.001, ratsConfigs.deploy_velocity.Read());
-    log_nominal((String("Initial Reel Out Command Sent: ") + (success ? "Success" : "Failure")).c_str());
 
 }
 
@@ -229,7 +225,7 @@ void StratoRATS::RATS_Shutdown()
     ECUPowerControl(false);
 }
 
-void StratoRATS::ratsReportCheck(bool timed_check)
+void StratoRATS::ratsReportCheck(bool immediate)
 {
     static uint32_t imon_count = 0;
     a3_v_sum += analogRead(A3_INST_IMON)  * (3.3 / 1024.0);
@@ -241,14 +237,10 @@ void StratoRATS::ratsReportCheck(bool timed_check)
         a3_v_sum = 0.0;
     }
 
-    if (!timed_check)
+    if (immediate)
     {
-        if (CheckAction(ACTION_RATS_REPORT))
-        {
             SendRATSReportTM();
             last_rats_report = now();
-            scheduler.AddAction(ACTION_RATS_REPORT, RATS_REPORT_PERIOD_SECS);
-        }
     }
     else
     {
@@ -556,3 +548,10 @@ String StratoRATS::getModeName(const uint8_t mode) {
         default:            return "mode:UNKNOWN";
     }
 };
+
+void StratoRATS::InitializeReelPosition() {
+    // Do a tiny tiny reel motion so that we get an MCB message, which will
+    // initialize the reel position.
+    bool success = mcbComm.TX_Reel_Out(0.001, ratsConfigs.deploy_velocity.Read());
+    log_nominal((String("Initial Reel Out Command Sent: ") + (success ? "Success" : "Failure")).c_str());
+}

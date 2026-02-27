@@ -91,9 +91,9 @@ enum ScheduleAction_t : uint8_t {
     ACTION_REEL_IN,
     ACTION_IN_NO_LW,
     ACTION_LORA_TX_TEST,
-
     ACTION_MOTION_STOP,
     ACTION_MOTION_TIMEOUT,
+    ACTION_MCB_INIT_MOTION,
 
     NUM_ACTIONS
 };
@@ -326,9 +326,8 @@ private:
     // Accumulate RATS reports for transmission
     void ratsReportAccumulate(ECUReportBytes_t& ecu_report_bytes);
     // Check if it's time for a ratsReport and send a TM if true.
-    // If time_based is true, the report will be sent if the time period has elapsed.
-    // If time_based is false, the report will be sent based on ACTION_RATS_REPORT.
-    void ratsReportCheck(bool time_based=false);
+    // If immediate is true, the report will be sent immediately.
+    void ratsReportCheck(bool immediate);
     // Send a TM with the ratsReport message
     void SendRATSReportTM();
     // Time of last RATS report
@@ -353,6 +352,10 @@ private:
 
     // Get the name of the current mode
     String getModeName(const uint8_t mode);
+
+    // Send a tiny command to the MCB so that we will get an MCB message containing
+    // the reel position. This will cause reel_pos to be initialized.
+    void InitializeReelPosition();
 
 };
 #endif /* STRATORATS_H */
