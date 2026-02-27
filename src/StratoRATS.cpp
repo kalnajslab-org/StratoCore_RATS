@@ -258,12 +258,16 @@ void StratoRATS::ratsReportCheck(bool timed_check)
 void StratoRATS::ECUPowerControl(bool enable)
 {
     if (enable) {
-        digitalWrite(ECU_PWR_EN, HIGH);
-        log_nominal("ECU Power Enabled");
+        if (!IsECUPowerEnabled()) {
+            digitalWrite(ECU_PWR_EN, HIGH);
+            log_nominal("ECU Power Enabled");
+        }
     } else {
-        digitalWrite(ECU_PWR_EN, LOW);
-        log_nominal("ECU Power Disabled");
-    }
+        if (IsECUPowerEnabled()) {
+            digitalWrite(ECU_PWR_EN, LOW);
+            log_nominal("ECU Power Disabled");
+        }
+    }   
 }
 
 bool StratoRATS::IsECUPowerEnabled()
