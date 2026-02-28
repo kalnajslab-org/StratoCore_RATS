@@ -102,7 +102,7 @@ protected:
         writer.write_unchecked(_header.gps_lat, 32);
         writer.write_unchecked(_header.gps_lon, 32);
         writer.write_unchecked(_header.gps_alt, 16);
-        writer.write_unchecked(_header.reel_revs, 16);
+        writer.write_unchecked(_header.reel_revs, 14);
     };
 
 public:
