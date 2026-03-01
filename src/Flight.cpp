@@ -99,7 +99,11 @@ void StratoRATS::FlightMode()
         break;
     case FL_SHUTDOWN:
         RATS_Shutdown();
-        log_nominal("Shutdown warning received in FL");
+        static elapsedMillis shutdown_warning_timer;
+        if (shutdown_warning_timer >= WARNING_INTERVAL_MS) {
+            log_nominal("Shutdown warning received in FL");
+            shutdown_warning_timer = 0;
+        }
         break;
     case FL_EXIT:
         RATS_Shutdown();

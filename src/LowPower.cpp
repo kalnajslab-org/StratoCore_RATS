@@ -28,7 +28,11 @@ void StratoRATS::LowPowerMode()
     case LP_SHUTDOWN:
         // prep for shutdown
         RATS_Shutdown();
-        log_nominal("Shutdown warning received in LP");
+        static elapsedMillis shutdown_warning_timer;
+        if (shutdown_warning_timer >= WARNING_INTERVAL_MS) {
+            log_nominal("Shutdown warning received in LP");
+            shutdown_warning_timer = 0;
+        }
         break;
     case LP_EXIT:
         // perform cleanup

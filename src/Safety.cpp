@@ -54,7 +54,11 @@ void StratoRATS::SafetyMode()
         break;
     case SA_SHUTDOWN:
         RATS_Shutdown();
-        log_nominal("Shutdown warning received in SA");
+        static elapsedMillis shutdown_warning_timer;
+        if (shutdown_warning_timer >= WARNING_INTERVAL_MS) {
+            log_nominal("Shutdown warning received in SA");
+            shutdown_warning_timer = 0;
+        }
         break;
     case SA_EXIT:
         // perform cleanup

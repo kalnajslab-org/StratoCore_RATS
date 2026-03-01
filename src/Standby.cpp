@@ -73,9 +73,13 @@ void StratoRATS::StandbyMode()
         break;
     case SB_SHUTDOWN:
         // prep for shutdown
-        log_nominal("Shutdown warning received in SB");
         RATS_Shutdown();
         lora_tx_test = false;
+        static elapsedMillis shutdown_warning_timer;
+        if (shutdown_warning_timer >= WARNING_INTERVAL_MS) {
+            log_nominal("Shutdown warning received in SB");
+            shutdown_warning_timer = 0;
+        }
         break;
     case SB_EXIT:
         // perform cleanup

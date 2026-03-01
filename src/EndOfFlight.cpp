@@ -26,7 +26,11 @@ void StratoRATS::EndOfFlightMode()
         break;
     case EF_SHUTDOWN:
         // prep for shutdown
-        log_nominal("Shutdown warning received in EF");
+        static elapsedMillis shutdown_warning_timer;
+        if (shutdown_warning_timer >= WARNING_INTERVAL_MS) {
+            log_nominal("Shutdown warning received in EF");
+            shutdown_warning_timer = 0;
+        }
         break;
     case EF_EXIT:
         // perform cleanup

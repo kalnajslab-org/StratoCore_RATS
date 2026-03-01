@@ -15,6 +15,9 @@
 // Set this true to disable some error checking and logging during development testing.
 #define DISABLE_DEVEL_ERROR_CHECKING false
 
+// Minimum interval (ms) between repeated shutdown warning log messages
+#define WARNING_INTERVAL_MS 2000
+
 #define EXTRA_LOGGING false
 
 // RATSReport reporting period, when scheduled by ACTION_RATS_REPORT.
