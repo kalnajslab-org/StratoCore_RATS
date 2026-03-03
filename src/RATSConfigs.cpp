@@ -31,6 +31,7 @@ void RATSConfigs::RegisterAll()
     bool success = true;
 
     success &= Register(&data_proc_method);
+    success &= Register(&ecu_tempC);
     success &= Register(&deploy_velocity);
     success &= Register(&retract_velocity);
     success &= Register(&motion_timeout);

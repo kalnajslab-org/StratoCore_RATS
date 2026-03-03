@@ -34,10 +34,8 @@ public:
     EEPROMData<float> deploy_velocity;   // revs/min
     EEPROMData<float> retract_velocity;  // revs/min
     EEPROMData<uint16_t> motion_timeout;
-    EEPROMData<uint8_t> paired_ecu;     // ECU ID to pair with
-
-    // MCB TM mode
     EEPROMData<bool> real_time_mcb;
+    EEPROMData<uint8_t> paired_ecu;     // ECU ID to pair with
 
 };
 
