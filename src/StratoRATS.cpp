@@ -69,7 +69,6 @@ void StratoRATS::InstrumentSetup()
 
 void StratoRATS::InstrumentLoop()
 {
-    static uint32_t serial_keepalive_millis = 0;
     
     WatchFlags();
 
@@ -81,13 +80,6 @@ void StratoRATS::InstrumentLoop()
     // Check for incoming LoRa messages
     LoRaRX();
 
-    // Keep the serial port alive. The MAX3381 has a 30 second timeout,
-    // so we send a character every 29 seconds to keep it alive.
-    int32_t millis_delta = (int32_t) (millis() - serial_keepalive_millis);
-    if (millis_delta > 29000 || millis_delta < 0) {
-        ZEPHYR_SERIAL.write('\n');
-        serial_keepalive_millis = millis();
-    }
 }
 
 void StratoRATS::LoRaTx(char* ecu_cmd, bool immediate) {
@@ -316,7 +308,7 @@ void StratoRATS::SendRATSReportTM() {
     zephyrTX.addTm(report_bytes.cbegin(), report_size);
 
     // Send the TM!
-    zephyrTX.TM();
+    ZephyrTXpoke(ZEPHYRTX_TM);
     TM_ack_flag = NO_ACK;
 
     SerialUSB.print("RATS report bytes: ");
@@ -344,7 +336,7 @@ void StratoRATS::SendTM(String details1, StateFlag_t state_flag1, String details
     zephyrTX.setStateDetails(3, details3);
 
     // Send the TM!
-    zephyrTX.TM();
+    ZephyrTXpoke(ZEPHYRTX_TM);
 
     TM_ack_flag = NO_ACK;
 
@@ -465,7 +457,7 @@ void StratoRATS::SendMCBTM(StateFlag_t state_flag1, const char * message2)
     zephyrTX.setStateFlagValue(3, FINE);
 
     TM_ack_flag = NO_ACK;
-    zephyrTX.TM();
+    ZephyrTXpoke(ZEPHYRTX_TM);
 
     //reset the MCB buffer pointer
     MCB_TM_buffer_idx = 0;
@@ -499,7 +491,7 @@ void StratoRATS::SendMCBEEPROM()
 
     // send as TM
     TM_ack_flag = NO_ACK;
-    zephyrTX.TM();
+    ZephyrTXpoke(ZEPHYRTX_TM);
 
     log_nominal("MCB EEPROM TM");
 }
@@ -526,7 +518,7 @@ void StratoRATS::SendRATSEEPROM()
 
     // send as TM
     TM_ack_flag = NO_ACK;
-    zephyrTX.TM();
+    ZephyrTXpoke(ZEPHYRTX_TM);
 
     log_nominal("Sent RATS EEPROM as TM");
 }
@@ -548,6 +540,22 @@ String StratoRATS::getModeName(const uint8_t mode) {
         default:            return "mode:UNKNOWN";
     }
 };
+
+void StratoRATS::ZephyrTXpoke(ZephyrTXMsgType_t msg_type)
+{
+    ZEPHYR_SERIAL.write(' ');
+    switch (msg_type) {
+    case ZEPHYRTX_TM:
+        zephyrTX.TM();
+        break;
+    case ZEPHYRTX_S:
+        zephyrTX.S();
+        break;
+    case ZEPHYRTX_IMR:
+        zephyrTX.IMR();
+        break;
+    }
+}
 
 void StratoRATS::InitializeReelPosition() {
     // Do a tiny tiny reel motion so that we get an MCB message, which will

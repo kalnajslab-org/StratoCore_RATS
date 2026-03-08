@@ -115,6 +115,13 @@ enum WarmupStatus_t : uint8_t {
     WARMUP_COMPLETE
 };
 
+// Specifies which ZephyrTX member function to call in ZephyrTXpoke().
+enum ZephyrTXMsgType_t : uint8_t {
+    ZEPHYRTX_TM,
+    ZEPHYRTX_S,
+    ZEPHYRTX_IMR
+};
+
 class StratoRATS : public StratoCore {
     
 public:
@@ -309,6 +316,10 @@ private:
     MCBMotion_t mcb_motion = NO_MOTION;
 
     // *** Other TC/TM handlers ***
+    // Wake up the MAX3381 serial transceiver by sending a blank character to ZEPHYR_SERIAL
+    // before calling the specified ZephyrTX member function. The MAX3381 has a 30-second
+    // inactivity timeout, after which it powers down and can drop the first transmitted byte.
+    void ZephyrTXpoke(ZephyrTXMsgType_t msg_type);
     // Send a TM with MCB EEPROM contents
     void SendMCBEEPROM();
     // Send a TM with RATS EEPROM contents

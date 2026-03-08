@@ -307,7 +307,7 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
     zephyrTX.setStateFlagValue(3, FINE);
 
     TM_ack_flag = NO_ACK;
-    zephyrTX.TM();
+    ZephyrTXpoke(ZEPHYRTX_TM);
 
     // Log the TC summary message
     switch (msg1_flag) {

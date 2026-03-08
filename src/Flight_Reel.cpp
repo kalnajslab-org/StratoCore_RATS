@@ -107,7 +107,7 @@ bool StratoRATS::Flight_Reel(bool restart_state)
         } else if (NAK == TM_ack_flag || CheckAction(RESEND_TM)) {
             // attempt one resend
             log_error("FLIGHT_REEL: Needed to resend TM");
-            zephyrTX.TM(); // message is still saved in XMLWriter, no need to reconstruct
+            ZephyrTXpoke(ZEPHYRTX_TM); // message is still saved in XMLWriter, no need to reconstruct
             return true;
         }
         break;

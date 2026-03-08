@@ -25,7 +25,7 @@ void StratoRATS::SafetyMode()
         break;
     case SA_SEND_S:
         log_nominal("Sending safety message");
-        zephyrTX.S();
+        ZephyrTXpoke(ZEPHYRTX_S);
         scheduler.AddAction(RESEND_SAFETY, 60);
         inst_substate = SA_ACK_WAIT;
         log_nominal("Entering SA_ACK_WAIT");
