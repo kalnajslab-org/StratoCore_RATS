@@ -132,7 +132,7 @@ bool StratoRATS::Flight_Warmup(bool restart)
                 {
                     log_nominal("WARMUP_LORA_WAIT2 Required LoRa messages received");
                     log_nominal("Warmup complete");
-                    SendRATSTextTM("Warmup complete");
+                    SendRATSTextTM("Warmup complete", FINE);
                     warmup_status = WARMUP_COMPLETE;
                     return true;
                 }

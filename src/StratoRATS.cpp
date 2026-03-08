@@ -153,7 +153,7 @@ void StratoRATS::LoRaRX()
                     for (uint8_t i = 0; i < ecu_report.n_bytes; ++i) {
                         text_data += (char)ecu_report.raw[i];
                     }
-                    SendRATSTextTM(text_data);
+                    SendRATSTextTM(text_data, FINE);
                 }
             }
         }
@@ -384,7 +384,7 @@ bool StratoRATS::StartMCBMotion()
         return false;
     }
 
-    SendMCBTM(FINE, msg.c_str());
+    SendRATSTextTM(msg, FINE);
     log_nominal(msg.c_str());
 
     return success;
@@ -434,20 +434,28 @@ void StratoRATS::AddMCBTM()
 
     // if real-time mode, send the TM packet
     if (ratsConfigs.real_time_mcb.Read()) {
-        String msg = String("MCB Real-time Packet ") + String(mcb_tm_counter);
-        SendMCBTM(FINE, msg.c_str());
+        String msg = String("MCB Real-time Packet ") + String(mcb_tm_counter++);
+        
+        // Put the time stamp at the beginning
+        uint32_t ProfileStartEpoch  = now();
+        MCB_TM_buffer[0] = (uint8_t) (ProfileStartEpoch >> 24);
+        MCB_TM_buffer[1] = (uint8_t) (ProfileStartEpoch >> 16);
+        MCB_TM_buffer[2] = (uint8_t) (ProfileStartEpoch >> 8);
+        MCB_TM_buffer[3] = (uint8_t) (ProfileStartEpoch & 0xFF);
+
+        SendMCBTM("MCBREPORT", FINE, msg.c_str());
         log_nominal(msg.c_str());
     }
 }
 
-void StratoRATS::SendMCBTM(StateFlag_t state_flag1, const char * message2)
+void StratoRATS::SendMCBTM(const char* TMname, StateFlag_t state_flag1, const char * message2)
 {
 
     // use only the first flag to report the motion
     zephyrTX.clearTm();
-    zephyrTX.addTm(MCB_TM_buffer,MCB_TM_buffer_idx);
+    zephyrTX.addTm(MCB_TM_buffer, MCB_TM_buffer_idx);
 
-    zephyrTX.setStateDetails(1, "MCBREPORT");
+    zephyrTX.setStateDetails(1, TMname);
     zephyrTX.setStateFlagValue(1, state_flag1);
 
     zephyrTX.setStateDetails(2, message2);

@@ -38,9 +38,9 @@ void StratoRATS::HandleMCBASCII()
         if (mcbComm.RX_Voltages(mcb_voltages, mcb_voltages+1, mcb_voltages+2, mcb_voltages+3)) {
             snprintf(log_array, LOG_ARRAY_SIZE, "MCBASCII: MCB voltages: %.1f,%.1f,%.1f,%.1f", mcb_voltages[0], mcb_voltages[1],
                      mcb_voltages[2], mcb_voltages[3]);
-            SendMCBTM(FINE, log_array);
+            SendMCBTM("MCBASCII", FINE, log_array);
         } else {
-            SendMCBTM(CRIT, "MCBASCII: Error receiving MCB voltages");
+            SendMCBTM("MCBASCII", CRIT, "MCBASCII: Error receiving MCB voltages");
         }
         break;
     case MCB_MOTION_FINISHED:
@@ -62,7 +62,7 @@ void StratoRATS::HandleMCBASCII()
             mcb_motion_ongoing = false;
             snprintf(log_array, LOG_ARRAY_SIZE, "MCBASCII: MCB Fault: %x,%x,%x,%x,%x,%x,%x,%x", motion_fault[0], motion_fault[1],
                      motion_fault[2], motion_fault[3], motion_fault[4], motion_fault[5], motion_fault[6], motion_fault[7]);
-            SendMCBTM(CRIT, log_array);
+            SendMCBTM("MCBASCII", CRIT, log_array);
             inst_substate = MODE_ERROR;
             log_error(log_array);
             log_error("MCBASCII: Entering FL_ERROR MCB_MOTION_FAULT");
@@ -70,7 +70,7 @@ void StratoRATS::HandleMCBASCII()
             // The MCB MCB_MOTION_FAULT message was unsuccessfully decoded. 
             // However, there was still a motion fault.
             mcb_motion_ongoing = false;
-            SendMCBTM(CRIT, "MCBASCII: MCB fault, error receiving MCB parameters, motion terminated");
+            SendMCBTM("MCBASCII", CRIT, "MCBASCII: MCB fault, error receiving MCB parameters, motion terminated");
             inst_substate = MODE_ERROR;
             log_error("MCBASCII: MCB fault, error receiving parameters");
             log_error("MCBASCII: Entering FL_ERROR");
@@ -113,34 +113,34 @@ void StratoRATS::HandleMCBAck()
         mcb_reeling_in = true;
         break;
     case MCB_IN_ACC:
-        SendMCBTM(FINE, "MCBACK: acked retract acc");
+        SendMCBTM("MCBACK", FINE, "MCBACK: acked retract acc");
         break;
     case MCB_OUT_ACC:
-        SendMCBTM(FINE, "MCBACK: acked deploy acc");
+        SendMCBTM("MCBACK", FINE, "MCBACK: acked deploy acc");
         break;
     case MCB_ZERO_REEL:
-        SendMCBTM(FINE, "MCBACK: acked zero reel");
+        SendMCBTM("MCBACK", FINE, "MCBACK: acked zero reel");
         break;
     case MCB_TEMP_LIMITS:
-        SendMCBTM(FINE, "MCBACK: acked temp limits");
+        SendMCBTM("MCBACK", FINE, "MCBACK: acked temp limits");
         break;
     case MCB_TORQUE_LIMITS:
-        SendMCBTM(FINE, "MCBACK: acked torque limits");
+        SendMCBTM("MCBACK", FINE, "MCBACK: acked torque limits");
         break;
     case MCB_CURR_LIMITS:
-        SendMCBTM(FINE, "MCBACK: acked curr limits");
+        SendMCBTM("MCBACK", FINE, "MCBACK: acked curr limits");
         break;
     case MCB_IGNORE_LIMITS:
-        SendMCBTM(FINE, "MCBACK: acked ignore limits");
+        SendMCBTM("MCBACK", FINE, "MCBACK: acked ignore limits");
         break;
     case MCB_USE_LIMITS:
-        SendMCBTM(FINE, "MCBACK: acked use limits");
+        SendMCBTM("MCBACK", FINE, "MCBACK: acked use limits");
         break;
     case MCB_GET_EEPROM:
-        SendMCBTM(FINE, "MCBACK: acked get MCB eeprom");
+        SendMCBTM("MCBACK", FINE, "MCBACK: acked get MCB eeprom");
         break;
     case MCB_GET_VOLTAGES:
-        SendMCBTM(FINE, "MCBACK: acked get MCB voltages");
+        SendMCBTM("MCBACK", FINE, "MCBACK: acked get MCB voltages");
         break;
     default:
         log_error(String(String("MCBACK: Unexpected MCB ACK received:")+String(mcbComm.ack_id)).c_str());
@@ -178,7 +178,7 @@ void StratoRATS::HandleMCBString()
     case MCB_ERROR:
         if (mcbComm.RX_Error(log_array, LOG_ARRAY_SIZE)) {
             String msg = String("MCBString: ") + String(log_array);
-            SendMCBTM(CRIT, msg.c_str());
+            SendMCBTM("MCBSTRING", CRIT, msg.c_str());
 #if not DISABLE_DEVEL_ERROR_CHECKING
             inst_substate = MODE_ERROR;
             log_error("MCBString: Entering FL_ERROR HandleMCBString()");

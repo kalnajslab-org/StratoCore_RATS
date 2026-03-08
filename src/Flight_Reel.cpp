@@ -35,7 +35,7 @@ bool StratoRATS::Flight_Reel(bool restart_state)
 
     case REEL_START_MOTION:
         if (mcb_motion_ongoing) {
-            SendMCBTM(WARN, "FLIGHT_REEL: Motion commanded while motion ongoing");
+            SendMCBTM("MCBREPORT", WARN, "Motion commanded while motion ongoing");
             log_error("FLIGHT_REEL: Motion commanded while motion ongoing");
             inst_substate = MODE_ERROR;
             log_error("FLIGHT_REEL: Entering MODE_ERROR");
@@ -46,7 +46,7 @@ bool StratoRATS::Flight_Reel(bool restart_state)
             reel_state = REEL_VERIFY_MOTION;
             log_nominal("FLIGHT_REEL: Entering REEL_VERIFY_MOTION");
         } else {
-            SendMCBTM(WARN, "FLIGHT_REEL: MCB start motion error");
+            SendMCBTM("MCBREPORT", WARN, "MCB start motion error");
             log_error("FLIGHT_REEL: MCB start motion error");
             inst_substate = MODE_ERROR; 
             log_error("FLIGHT_REEL: Entering MODE_ERROR");
@@ -68,7 +68,7 @@ bool StratoRATS::Flight_Reel(bool restart_state)
                 log_nominal("FLIGHT_REEL: Entering REEL_START_MOTION");
             } else {
                 resend_attempted = false;
-                SendMCBTM(WARN, "FLIGHT_REEL: MCB never confirmed motion");
+                SendMCBTM("MCBREPORT", WARN, "MCB never confirmed motion");
                 log_error("FLIGHT_REEL: MCB never confirmed motion");
                 inst_substate = MODE_ERROR; // will force exit of Flight_Profile
                 log_error("FLIGHT_REEL: Entering MODE_ERROR");
@@ -79,13 +79,13 @@ bool StratoRATS::Flight_Reel(bool restart_state)
     case REEL_MONITOR_MOTION:
         if (CheckAction(ACTION_MOTION_STOP)) {
             // todo: verification of motion stop
-            SendMCBTM(FINE, "FLIGHT_REEL: Commanded motion stop");
+            SendMCBTM("MCBREPORT", FINE, "Commanded motion stop");
 
             return true;
             break;
         }
         if (CheckAction(ACTION_MOTION_TIMEOUT)) {
-            SendMCBTM(CRIT, "FLIGHT_REEL: MCB Motion took longer than expected");
+            SendMCBTM("MCBREPORT", CRIT, "MCB Motion took longer than expected");
             log_error("FLIGHT_REEL: MCB Motion took longer than expected");
             mcbComm.TX_ASCII(MCB_CANCEL_MOTION);
             inst_substate = MODE_ERROR; // will force exit of Flight_Profile
@@ -93,7 +93,7 @@ bool StratoRATS::Flight_Reel(bool restart_state)
             break;
         }
         if (!mcb_motion_ongoing) {
-            SendMCBTM(FINE, "FLIGHT_REEL: Finished commanded reel motion");
+            SendMCBTM("MCBREPORT", FINE, "Finished commanded reel motion");
             reel_state = REEL_TM_ACK;
             scheduler.AddAction(RESEND_TM, ZEPHYR_RESEND_TIMEOUT);
             log_nominal("FLIGHT_REEL: Entering REEL_TM_ACK");

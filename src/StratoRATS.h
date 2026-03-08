@@ -291,7 +291,7 @@ private:
     void AddMCBTM();
     // Send an MCBREPORT TM with a StateMessage1 message, and the aggregated 
     // data in MCB_TM_buffer.
-    void SendMCBTM(StateFlag_t state_flag, const char * message);
+    void SendMCBTM(const char* TMname, StateFlag_t state_flag, const char * message);
     bool mcb_low_power = false;
     // Set when a reel motion is initiated, cleared when the motion is complete.
     bool mcb_motion_ongoing = false;
@@ -329,7 +329,7 @@ private:
         String details2, StateFlag_t state_flag2, 
         String details3, StateFlag_t state_flag3);
     // Send a RATSTEXT TM with text data
-    void SendRATSTextTM(String text_data, StateFlag_t state_flag = FINE);
+    void SendRATSTextTM(String text_data, StateFlag_t state_flag);
 
     // A running sum of the voltage for inst_imon.
     float a3_v_sum = 0.0;
