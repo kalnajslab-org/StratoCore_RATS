@@ -551,7 +551,7 @@ String StratoRATS::getModeName(const uint8_t mode) {
 
 void StratoRATS::ZephyrTXpoke(ZephyrTXMsgType_t msg_type)
 {
-    ZEPHYR_SERIAL.write(' ');
+    ZEPHYR_SERIAL.write('\n'); 
     switch (msg_type) {
     case ZEPHYRTX_TM:
         zephyrTX.TM();
