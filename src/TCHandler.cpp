@@ -1,5 +1,6 @@
 #include <ArduinoJson.h>
 #include "StratoRATS.h"
+#include "rats_version.h"
 
 static JsonDocument ecu_json;
 static char ecu_json_str[ECU_LORA_DATA_BUFSIZE];
@@ -39,6 +40,7 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
     StateFlag_t msg1_flag = FINE;
     bool send_rats_eeprom = false;
     bool send_mcm_eeprom = false;
+    bool send_version_tm = false;
 
     switch (telecommand) {
     // MCB Telecommands -----------------------------------
@@ -289,6 +291,10 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
         paired_ecu = ratsParam.paired_ecu;
         msg2 = "TC set the paired ECU ID: " + String(ratsConfigs.paired_ecu.Read());
         break;
+    case RATSGETVERSION:
+        msg2 = "TC get version";
+        send_version_tm = true;
+        break;
     default:
         msg1_flag = CRIT;
         msg3 = "Unknown TC " + String(telecommand) + " received";
@@ -331,6 +337,16 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
     if (send_mcm_eeprom) {
         // Request the MCB EEPROM. MCBRouter will handle the response
         mcbComm.TX_ASCII(MCB_GET_EEPROM);
+    }
+
+    if (send_version_tm) {
+        JsonDocument version_json;
+        char version_str[128];
+        version_json["version"] = RATS_VERSION;
+        version_json["build"] = __DATE__ " " __TIME__;
+        version_json["rats_id"] = rats_id;
+        serializeJson(version_json, version_str);
+        SendRATSTextTM(version_str, FINE);
     }
 
     return true;
