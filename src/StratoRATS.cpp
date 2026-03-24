@@ -120,6 +120,8 @@ void StratoRATS::LoRaRX()
             // It's an ECU report message
             // Extract the revision and message type
             std::array<uint8_t, 3> rev_msg_type_id = ecu_report_deserialize_rev_msg_type_id(payload);
+            // snprintf(log_array, LOG_ARRAY_SIZE, "LoRa rev:%u type:%u id:%u", rev_msg_type_id[0], rev_msg_type_id[1], rev_msg_type_id[2]);
+            //log_nominal(log_array);
 
             // See if it is one that we are interested in
             uint8_t ecu_id = rev_msg_type_id[2];
@@ -127,6 +129,8 @@ void StratoRATS::LoRaRX()
 
                 // It's from our paired ECU (or we accept any ECU)
                 ECU_REPORT_TYPE_t msg_type = static_cast<ECU_REPORT_TYPE_t>(rev_msg_type_id[1]);
+                //snprintf(log_array, LOG_ARRAY_SIZE, "LoRa msg_type:%u", (uint8_t)msg_type);
+                // log_nominal(log_array);
 
                 // Process based on message type
                 if (msg_type == ECU_REPORT_DATA) { 
