@@ -73,8 +73,8 @@
 
 // The number of instrument current measurements to average.
 // Empirically determined to calculate an average about every
-// 15 seconds while in flight mode.
-#define INST_IMON_AVERAGE_COUNT 50
+// 60 seconds while in flight mode.
+#define INST_IMON_AVERAGE_COUNT 250
 
     // Actions
 enum ScheduleAction_t : uint8_t {
