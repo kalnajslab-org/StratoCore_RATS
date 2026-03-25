@@ -152,12 +152,12 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
         break;
 
     // RATS Telecommands -----------------------------------
-    case RATSDATAPROCTYPE:
-        msg2 = "TC set processing mode" + String(ratsParam.data_proc_method);
-        ratsConfigs.data_proc_method.Write(ratsParam.data_proc_method);
+    case RATSECUDECIMATEFACTOR:
+        msg2 = "TC set decimate factor:" + String(ratsParam.decimate_factor);
+        ratsConfigs.decimate_factor.Write(ratsParam.decimate_factor);
         break;
     case RATSREALTIMEMCBON:
-        msg2 = "Enabled real-time MCB mode";
+        msg2 = "TC Enabled real-time MCB mode";
         if (mcb_motion_ongoing) {
             msg3 = "Can't start real-time MCB mode while reel is in motion";
             msg1_flag = WARN;
@@ -166,7 +166,7 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
         }
         break;
     case RATSREALTIMEMCBOFF:
-        msg2 = "Disabled real-time MCB mode";
+        msg2 = "TC Disabled real-time MCB mode";
         if (mcb_motion_ongoing) {
             msg3 = "Can't start real-time MCB mode off while reel is in motion";
             msg1_flag = WARN;
@@ -201,7 +201,7 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
             ecu_json["tempC"] = ratsConfigs.ecu_tempC.Read();
             sendEcuJson(paired_ecu);
         } else {
-            msg3 = "Cannot send ECU temp, ECU power is off";
+            msg3 = "TC Cannot send ECU temp, ECU power is off";
             msg1_flag = WARN;
         }
         break;
@@ -227,7 +227,7 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
             sendEcuJson(paired_ecu);
             LoRaTx(ecu_json_str);
         } else {
-            msg3 = "Cannot send RS41 regen, ECU power is off";
+            msg3 = "TC Cannot send RS41 regen, ECU power is off";
             msg1_flag = WARN;
         }
         break;
@@ -238,7 +238,7 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
             ecu_json["rs41Metadata"] = true;
             sendEcuJson(paired_ecu);
         } else {
-            msg3 = "Cannot send RS41 metadata request, ECU power is off";
+            msg3 = "TC Cannot send RS41 metadata request, ECU power is off";
             msg1_flag = WARN;
         }
         break;
@@ -249,7 +249,7 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
             ecu_json["rs41Enable"] = true;
             sendEcuJson(paired_ecu);
         } else {
-            msg3 = "Cannot send RS41 enable, ECU power is off";
+            msg3 = "TC Cannot send RS41 enable, ECU power is off";
             msg1_flag = WARN;
         }
         break;
@@ -260,7 +260,7 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
             ecu_json["rs41Enable"] = false;
             sendEcuJson(paired_ecu);
         } else {
-            msg3 = "Cannot send RS41 enable off, ECU power is off";
+            msg3 = "TC Cannot send RS41 enable off, ECU power is off";
             msg1_flag = WARN;
         }
         break;
@@ -271,7 +271,7 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
             ecu_json["tsenPower"] = true;
             sendEcuJson(paired_ecu);
         } else {
-            msg3 = "Cannot send TSEN power on, ECU power is off";
+            msg3 = "TC Cannot send TSEN power on, ECU power is off";
             msg1_flag = WARN;
         }
         break;

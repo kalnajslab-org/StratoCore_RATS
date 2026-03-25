@@ -270,7 +270,13 @@ bool StratoRATS::IsECUPowerEnabled()
 
 void StratoRATS::ratsReportAccumulate(ECUReportBytes_t& ecu_report_bytes) {
     // Must be called with an ecu report of type ECU_REPORT_DATA
-    // Add the ECU report bytes to the RATS report
+    // Apply decimation: only accumulate every decimate_factor-th report
+    static uint16_t decimate_count = 0;
+    uint16_t factor = ratsConfigs.decimate_factor.Read();
+    if (++decimate_count < factor ) {
+        return;
+    }
+    decimate_count = 0;
     rats_report.addECUReport(ecu_report_bytes);
 }
 

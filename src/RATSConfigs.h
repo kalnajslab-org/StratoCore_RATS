@@ -29,7 +29,7 @@ public:
     static const uint16_t BASE_ADDRESS = 0x0000;
 
     // ------------------ Configurations ------------------
-    EEPROMData<uint16_t> data_proc_method;
+    EEPROMData<uint16_t> decimate_factor;
     EEPROMData<float> ecu_tempC;
     EEPROMData<float> deploy_velocity;   // revs/min
     EEPROMData<float> retract_velocity;  // revs/min
