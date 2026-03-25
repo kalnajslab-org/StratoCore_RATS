@@ -57,12 +57,31 @@ void StratoRATS::HandleMCBASCII()
 
         if (mcbComm.RX_Motion_Fault(motion_fault, motion_fault+1, motion_fault+2, motion_fault+3,
                                     motion_fault+4, motion_fault+5, motion_fault+6, motion_fault+7)) {
-            // The MCB MCB_MOTION_FAULT message was successfully decoded. 
+            // The MCB MCB_MOTION_FAULT message was successfully decoded.
             // However, there was still a motion fault.
+
+            // motion_fault[] fields, to decode, use the following maps:
+            //   [0] rl_status_lo  — Reel SRL (Status Register Low),  use SRLmap()
+            //   [1] rl_status_hi  — Reel SRH (Status Register High), use SRHmap()
+            //   [2] rl_detailed_err — Reel detailed error (MCB-specific, no bit map)
+            //   [3] rl_motion_err — Reel MER (Motion Error Register), use MERmap()
+            //   [4] lw_status_lo  — Level Wind SRL,                  use SRLmap()
+            //   [5] lw_status_hi  — Level Wind SRH,                  use SRHmap()
+            //   [6] lw_detailed_err — Level Wind detailed error (MCB-specific, no bit map)
+            //   [7] lw_motion_err — Level Wind MER,                  use MERmap()
+
             mcb_motion_ongoing = false;
+
             snprintf(log_array, LOG_ARRAY_SIZE, "MCBASCII: MCB Fault: %x,%x,%x,%x,%x,%x,%x,%x", motion_fault[0], motion_fault[1],
                      motion_fault[2], motion_fault[3], motion_fault[4], motion_fault[5], motion_fault[6], motion_fault[7]);
             SendMCBTM("MCBASCII", CRIT, log_array);
+            if (motion_fault[3]) { 
+                SendMCBTM("MCBASCII", CRIT, String("RL MER:" + MERmap(motion_fault[3])).c_str()); 
+            }
+            if (motion_fault[7]) { 
+                SendMCBTM("MCBASCII", CRIT, String("LW MER:" + MERmap(motion_fault[7])).c_str()); 
+            }
+
             inst_substate = MODE_ERROR;
             log_error(log_array);
             log_error("MCBASCII: Entering FL_ERROR MCB_MOTION_FAULT");
@@ -193,3 +212,82 @@ void StratoRATS::HandleMCBString()
     }
 }
 
+String StratoRATS::MERmap(uint16_t mer) {
+    // MER - Motion Error Register: https://www.technosoftmotion.com/ESM-um-html/tml_mer.htm
+    static const char* const bit_names[16] = {
+        "CANBER",   // 0:  CAN bus error
+        "SCER",     // 1:  Short-circuit protection
+        "STPTBL",   // 2:  Invalid setup table
+        "CTRER",    // 3:  Control error
+        "SCIER",    // 4:  Serial/internal communication error
+        "WRPSER",   // 5:  Hall/resolver/BiSS/wrap-around error
+        "LSPST",    // 6:  Positive limit switch active
+        "LSNST",    // 7:  Negative limit switch active
+        "OCER",     // 8:  Over-current error
+        "I2TER",    // 9:  I2T protection error
+        "OTERM",    // 10: Motor over-temperature error
+        "OTERD",    // 11: Drive over-temperature error
+        "OVER",     // 12: Over-voltage error
+        "UVER",     // 13: Under-voltage error
+        "CMDER",    // 14: Command error
+        "ENST",     // 15: Drive/motor disabled
+    };
+    String result = "";
+    for (uint8_t i = 0; i < 16; i++) {
+        if (mer & (1 << i)) {
+            if (result.length() > 0) result += ",";
+            result += bit_names[i];
+        }
+    }
+    return result.length() > 0 ? result : "none";
+}
+
+String StratoRATS::SRLmap(uint16_t srl) {
+    // SRL - Status Register Low: https://www.technosoftmotion.com/ESM-um-html/tml_srl.htm
+    // Only defined bits listed; reserved bits skipped.
+    struct { uint8_t bit; const char* name; } bits[] = {
+        { 15, "AXISST" },    // Axis on
+        { 14, "EVNS" },      // Last programmed event reached
+        { 10, "MOTS" },      // Motion complete
+        {  8, "CALLSST" },   // Function running via cancelable call
+        {  7, "CALLWRG" },   // Cancelable call warning
+    };
+    String result = "";
+    for (auto& b : bits) {
+        if (srl & (1 << b.bit)) {
+            if (result.length() > 0) result += ",";
+            result += b.name;
+        }
+    }
+    return result.length() > 0 ? result : "none";
+}
+
+String StratoRATS::SRHmap(uint16_t srh) {
+    // SRH - Status Register High: https://www.technosoftmotion.com/ESM-um-html/tml_srh.htm
+    static const char* const bit_names[16] = {
+        "ENDINIT",   // 0:  Drive/motor initialization complete
+        "PTRG1",     // 1:  Position trigger 1 active
+        "PTRG2",     // 2:  Position trigger 2 active
+        "PTRG3",     // 3:  Position trigger 3 active
+        "PTRG4",     // 4:  Position trigger 4 active
+        "AUTORUN",   // 5:  AUTORUN mode enabled
+        "LSWPS",     // 6:  Positive limit switch event
+        "LSWNS",     // 7:  Negative limit switch event
+        "PCAPS",     // 8:  Capture event triggered
+        "TRGR",      // 9:  Target command achieved
+        "I2TWRGM",   // 10: Motor I2T warning
+        "I2TWRGD",   // 11: Drive I2T warning
+        "INGEAR",    // 12: Electronic gearing ratio achieved
+        nullptr,     // 13: Reserved
+        "INCAM",     // 14: Absolute electronic camming position reached
+        "FAULT",     // 15: Drive/motor in fault
+    };
+    String result = "";
+    for (uint8_t i = 0; i < 16; i++) {
+        if (bit_names[i] && (srh & (1 << i))) {
+            if (result.length() > 0) result += ",";
+            result += bit_names[i];
+        }
+    }
+    return result.length() > 0 ? result : "none";
+}

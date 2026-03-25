@@ -330,6 +330,12 @@ private:
         String details3, StateFlag_t state_flag3);
     // Send a RATSTEXT TM with text data
     void SendRATSTextTM(String text_data, StateFlag_t state_flag);
+    // Map set bits in a Technosoft MER (Motion Error Register) to a comma-separated string
+    String MERmap(uint16_t mer);
+    // Map set bits in a Technosoft SRL (Status Register Low) to a comma-separated string
+    String SRLmap(uint16_t srl);
+    // Map set bits in a Technosoft SRH (Status Register High) to a comma-separated string
+    String SRHmap(uint16_t srh);
 
     // A running sum of the voltage for inst_imon.
     float a3_v_sum = 0.0;
