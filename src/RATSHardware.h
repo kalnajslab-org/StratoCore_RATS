@@ -19,7 +19,9 @@
 #define RATS_LORA_MOSI  26
 
 // LoRa Settings
-#define FREQUENCY       868500000
+// Sub-band g1, which is 869.525 MHz center frequency with 250 kHz bandwidth. 
+// This is the only sub-band that allows a 10% duty cycle
+#define FREQUENCY       869525000
 #define BANDWIDTH       250E3
 #define SF              9
 #define TX_POWER        19

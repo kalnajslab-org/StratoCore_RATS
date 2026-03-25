@@ -8,14 +8,14 @@ static char ecu_json_str[ECU_LORA_DATA_BUFSIZE];
 void sendEcuJson(uint8_t paired_ecu) {
     // Serialize and send the ECU JSON message.
     // Note: ecu_json must already be populated.
-    serializeJson(ecu_json, ecu_json_str);
+    serializeJson(ecu_json, ecu_json_str, sizeof(ecu_json_str));
     // Don't forget that the message will not be sent until we receive a message from the ECU.
     // So it will not work to try to send two messages back-to-back.
     // Also keep in mind that the ECU might not even be powered up right now.
 
     std::array<uint8_t, ECU_LORA_DATA_BUFSIZE> payload = {0};
 
-    int json_len = strlen(ecu_json_str);
+    size_t json_len = strlen(ecu_json_str);
 
     // Set the first byte to zero
     payload[0] = 0;
@@ -24,7 +24,7 @@ void sendEcuJson(uint8_t paired_ecu) {
     payload[1] = static_cast<uint8_t>(paired_ecu);
 
     // Copy the command string into the payload starting at byte 2
-    for (int i = 0; i < json_len && (i + 2) < ECU_LORA_DATA_BUFSIZE; i++) {
+    for (size_t i = 0; i < json_len && (i + 2) < ECU_LORA_DATA_BUFSIZE; i++) {
         payload[i + 2] = static_cast<uint8_t>(ecu_json_str[i]);
     }
     ecu_lora_tx(payload.data(), json_len + 2);
@@ -291,7 +291,7 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
         paired_ecu = ratsParam.paired_ecu;
         msg2 = "TC set the paired ECU ID: " + String(ratsConfigs.paired_ecu.Read());
         break;
-    case RATSGETVERSION:
+    case RATSINFO:
         msg2 = "TC get version";
         send_version_tm = true;
         break;
@@ -340,12 +340,18 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
     }
 
     if (send_version_tm) {
+        // XMLWriter_v5::writeAndUpdateCRC(const char*) hard-limits strings to 100 chars,
+        // so the serialized JSON must fit within that. Keep keys short accordingly.
         JsonDocument version_json;
-        char version_str[128];
-        version_json["version"] = RATS_VERSION;
-        version_json["build"] = __DATE__ " " __TIME__;
-        version_json["rats_id"] = rats_id;
-        serializeJson(version_json, version_str);
+        char version_str[100];
+        version_json["v"]  = RATS_VERSION;
+        version_json["id"] = rats_id;
+        ECULoRaConfig_t lora_config = ecu_lora_get_config();
+        version_json["f"]   = lora_config.frequency;
+        version_json["bw"]  = lora_config.bandwidth;
+        version_json["sf"]  = lora_config.sf;
+        version_json["pwr"] = lora_config.power;
+        serializeJson(version_json, version_str, sizeof(version_str));
         SendRATSTextTM(version_str, FINE);
     }
 
