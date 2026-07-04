@@ -60,6 +60,14 @@ void setup()
 
   Serial.println(String("StratoCore_RATS ") + RATS_VERSION + " Build: " + __DATE__ + " " + __TIME__);
 
+  // If the previous boot ended in a hard fault, the Teensy preserves a crash
+  // report across the reset. Print it so we can see exactly what faulted.
+  if (CrashReport) {
+    Serial.println("---- CrashReport from previous boot ----");
+    Serial.print(CrashReport);
+    Serial.println("---- end CrashReport ----");
+  }
+
 #ifndef LOG_ZEPHYR_COMMS_SHARED
     // Zephyr serial is on digital I/O pins
     ZEPHYR_SERIAL.addMemoryForRead(&Zephyr_serial_RX_buffer, sizeof(Zephyr_serial_RX_buffer));
@@ -74,8 +82,8 @@ void setup()
 #endif
 
     // MCB serial will always be on digital I/O pins
-    MCB_SERIAL.addMemoryForRead(&Zephyr_serial_RX_buffer, sizeof(Zephyr_serial_RX_buffer));
-    MCB_SERIAL.addMemoryForWrite(&Zephyr_serial_TX_buffer, sizeof(Zephyr_serial_TX_buffer));
+    MCB_SERIAL.addMemoryForRead(&mcb_serial_RX_buffer, sizeof(mcb_serial_RX_buffer));
+    MCB_SERIAL.addMemoryForWrite(&mcb_serial_TX_buffer, sizeof(mcb_serial_TX_buffer));
 
   // Timer interrupt setup for main loop timing
   Timer1.initialize(100000); // 0.1 s
