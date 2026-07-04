@@ -1,15 +1,6 @@
 #include "StratoRATS.h"
 
-enum SAStates_t : uint8_t {
-    SA_ENTRY = MODE_ENTRY,
-    
-    // add any desired states between entry and shutdown
-    SA_LOOP,
-    SA_SEND_S,
-    SA_ACK_WAIT,
-    SA_SHUTDOWN = MODE_SHUTDOWN,
-    SA_EXIT = MODE_EXIT
-};
+// SAStates_t (SA_ENTRY, SA_LOOP, SA_SEND_S, ...) is defined in StratoRATS.h
 
 void StratoRATS::SafetyMode()
 {

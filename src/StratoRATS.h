@@ -175,6 +175,40 @@ private:
         FL_EXIT = MODE_EXIT
     };
 
+    // The substates for the remaining modes. Kept here (rather than local to
+    // each mode's .cpp) so that getStateName() can label them by symbol and
+    // any inserted substate becomes a compile error instead of silent bad
+    // telemetry. Each mode's handler still owns the logic in its own file.
+    enum SBStates_t : uint8_t {
+        SB_ENTRY = MODE_ENTRY,
+        SB_LOOP,
+        SB_SHUTDOWN = MODE_SHUTDOWN,
+        SB_EXIT = MODE_EXIT
+    };
+
+    enum LPStates_t : uint8_t {
+        LP_ENTRY = MODE_ENTRY,
+        LP_LOOP,
+        LP_SHUTDOWN = MODE_SHUTDOWN,
+        LP_EXIT = MODE_EXIT
+    };
+
+    enum SAStates_t : uint8_t {
+        SA_ENTRY = MODE_ENTRY,
+        SA_LOOP,
+        SA_SEND_S,
+        SA_ACK_WAIT,
+        SA_SHUTDOWN = MODE_SHUTDOWN,
+        SA_EXIT = MODE_EXIT
+    };
+
+    enum EFStates_t : uint8_t {
+        EF_ENTRY = MODE_ENTRY,
+        EF_LOOP,
+        EF_SHUTDOWN = MODE_SHUTDOWN,
+        EF_EXIT = MODE_EXIT
+    };
+
     // Flight states (each in own .cpp file)
     // When starting a state, initiate it by calling with state = true,
     // then call with restart==false until the function returns true,
@@ -370,8 +404,11 @@ private:
     // Prepend the RATS message header to a string and send to ECU via LoRa.
     void LoRaTx(char* ecu_cmd, bool immediate=false);
 
-    // Get the name of the current mode
-    String getModeName(const uint8_t mode);
+    // Get the "mode:NAME:SUBSTATE" label for the given mode/substate, e.g.
+    // "mode:FLIGHT:FL_MEASURE". Substate values are per-mode enums that reuse
+    // the same numbers, so the mode is required to disambiguate; unmapped
+    // substates are shown as their raw numeric value.
+    String getStateName(const uint8_t mode, const uint8_t substate);
 
     // Send a tiny command to the MCB so that we will get an MCB message containing
     // the reel position. This will cause reel_pos to be initialized.

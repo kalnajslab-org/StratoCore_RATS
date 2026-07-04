@@ -1,14 +1,6 @@
 #include "StratoRATS.h"
 
-enum EFStates_t : uint8_t {
-    EF_ENTRY = MODE_ENTRY,
-    
-    // add any desired states between entry and shutdown
-    EF_LOOP,
-    
-    EF_SHUTDOWN = MODE_SHUTDOWN,
-    EF_EXIT = MODE_EXIT
-};
+// EFStates_t (EF_ENTRY, EF_LOOP, ...) is defined in StratoRATS.h
 
 void StratoRATS::EndOfFlightMode()
 {

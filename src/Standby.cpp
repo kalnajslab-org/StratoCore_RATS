@@ -1,12 +1,6 @@
 #include "StratoRATS.h"
 
-enum SBStates_t : uint8_t {
-    SB_ENTRY = MODE_ENTRY,
-    // add any desired states between entry and shutdown
-    SB_LOOP,
-    SB_SHUTDOWN = MODE_SHUTDOWN,
-    SB_EXIT = MODE_EXIT
-};
+// SBStates_t (SB_ENTRY, SB_LOOP, ...) is defined in StratoRATS.h
 
 static bool first_standby_mode_call = true;
 

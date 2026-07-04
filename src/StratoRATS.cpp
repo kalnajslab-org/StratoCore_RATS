@@ -293,7 +293,7 @@ void StratoRATS::SendRATSReportTM() {
 
     // Second
     zephyrTX.setStateFlagValue(2, FINE);
-    Message = getModeName(my_inst_mode);
+    Message = getStateName(my_inst_mode, inst_substate);
     Message += ", ECUrecs:" + String(rats_report.numECUrecords());
     Message += ", Reel:" + String(reel_pos,1);
     zephyrTX.setStateDetails(2, Message);
@@ -329,7 +329,7 @@ void StratoRATS::SendRATSReportTM() {
 }
 
 void StratoRATS::SendRATSTextTM(String text_data, StateFlag_t state_flag) {
-    SendTM("RATSTEXT", state_flag, getModeName(my_inst_mode), FINE, text_data, FINE);
+    SendTM("RATSTEXT", state_flag, getStateName(my_inst_mode, inst_substate), FINE, text_data, FINE);
 }
 
 void StratoRATS::SendTM(String details1, StateFlag_t state_flag1, String details2, StateFlag_t state_flag2, String details3, StateFlag_t state_flag3) {
@@ -558,15 +558,62 @@ uint32_t StratoRATS::lora_count_check(bool reset) {
     return total_lora_count - lora_count;
 }
 
-String StratoRATS::getModeName(const uint8_t mode) {
+String StratoRATS::getStateName(const uint8_t mode, const uint8_t substate) {
+    // Substate enums are defined per mode (FLStates_t in StratoRATS.h; the
+    // others local to each mode's .cpp) and reuse the same numeric values, so
+    // switch on the mode first. Mid-state values that are not named symbols
+    // here (e.g. *_LOOP == 1) are given as literals to avoid pulling every
+    // mode's enum into this file. Unmapped substates fall through to the raw
+    // numeric value.
     switch (mode) {
-        case MODE_STANDBY:  return "mode:STANDBY";
-        case MODE_FLIGHT:   return "mode:FLIGHT";
-        case MODE_LOWPOWER: return "mode:LOWPOWER";
-        case MODE_SAFETY:   return "mode:SAFETY";
-        case MODE_EOF:      return "mode:EOF";
-        default:            return "mode:UNKNOWN";
+    case MODE_FLIGHT:
+        switch (substate) {
+        case FL_ENTRY:      return "mode:FLIGHT:FL_ENTRY";
+        case FL_GPS_WAIT:   return "mode:FLIGHT:FL_GPS_WAIT";
+        case FL_WARMUP:     return "mode:FLIGHT:FL_WARMUP";
+        case FL_MEASURE:    return "mode:FLIGHT:FL_MEASURE";
+        case FL_REEL:       return "mode:FLIGHT:FL_REEL";
+        case FL_ERROR:      return "mode:FLIGHT:FL_ERROR";
+        case FL_SHUTDOWN:   return "mode:FLIGHT:FL_SHUTDOWN";
+        case FL_EXIT:       return "mode:FLIGHT:FL_EXIT";
+        }
+        return "mode:FLIGHT:" + String(substate);
+    case MODE_STANDBY:
+        switch (substate) {
+        case SB_ENTRY:      return "mode:STANDBY:SB_ENTRY";
+        case SB_LOOP:       return "mode:STANDBY:SB_LOOP";
+        case SB_SHUTDOWN:   return "mode:STANDBY:SB_SHUTDOWN";
+        case SB_EXIT:       return "mode:STANDBY:SB_EXIT";
+        }
+        return "mode:STANDBY:" + String(substate);
+    case MODE_LOWPOWER:
+        switch (substate) {
+        case LP_ENTRY:      return "mode:LOWPOWER:LP_ENTRY";
+        case LP_LOOP:       return "mode:LOWPOWER:LP_LOOP";
+        case LP_SHUTDOWN:   return "mode:LOWPOWER:LP_SHUTDOWN";
+        case LP_EXIT:       return "mode:LOWPOWER:LP_EXIT";
+        }
+        return "mode:LOWPOWER:" + String(substate);
+    case MODE_SAFETY:
+        switch (substate) {
+        case SA_ENTRY:      return "mode:SAFETY:SA_ENTRY";
+        case SA_LOOP:       return "mode:SAFETY:SA_LOOP";
+        case SA_SEND_S:     return "mode:SAFETY:SA_SEND_S";
+        case SA_ACK_WAIT:   return "mode:SAFETY:SA_ACK_WAIT";
+        case SA_SHUTDOWN:   return "mode:SAFETY:SA_SHUTDOWN";
+        case SA_EXIT:       return "mode:SAFETY:SA_EXIT";
+        }
+        return "mode:SAFETY:" + String(substate);
+    case MODE_EOF:
+        switch (substate) {
+        case EF_ENTRY:      return "mode:EOF:EF_ENTRY";
+        case EF_LOOP:       return "mode:EOF:EF_LOOP";
+        case EF_SHUTDOWN:   return "mode:EOF:EF_SHUTDOWN";
+        case EF_EXIT:       return "mode:EOF:EF_EXIT";
+        }
+        return "mode:EOF:" + String(substate);
     }
+    return "mode:UNKNOWN:" + String(substate);
 };
 
 void StratoRATS::ZephyrTXpoke(ZephyrTXMsgType_t msg_type)

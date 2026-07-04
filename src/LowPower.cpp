@@ -1,14 +1,6 @@
 #include "StratoRATS.h"
 
-enum LPStates_t : uint8_t {
-    LP_ENTRY = MODE_ENTRY,
-    
-    // add any desired states between entry and shutdown
-    LP_LOOP,
-    
-    LP_SHUTDOWN = MODE_SHUTDOWN,
-    LP_EXIT = MODE_EXIT
-};
+// LPStates_t (LP_ENTRY, LP_LOOP, ...) is defined in StratoRATS.h
 
 void StratoRATS::LowPowerMode()
 {
