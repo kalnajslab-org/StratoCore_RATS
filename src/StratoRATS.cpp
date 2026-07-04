@@ -426,6 +426,16 @@ void StratoRATS::AddMCBTM()
         return;
     }
 
+    // Guard against MCB_TM_buffer overflow. Each record appends a 3-byte
+    // (sync + elapsed-time) header plus MOTION_TM_SIZE data bytes. If the next
+    // record won't fit, flush the accumulated buffer as a partial MCBREPORT;
+    // SendMCBTM() resets MCB_TM_buffer_idx so there is room to continue.
+    const uint16_t mcb_record_size = 3 + MOTION_TM_SIZE;
+    if ((uint32_t)MCB_TM_buffer_idx + mcb_record_size > sizeof(MCB_TM_buffer)) {
+        SendMCBTM("MCBREPORT", FINE, "MCB Partial Packet");
+        log_error("MCB_TM_buffer full, flushed partial packet");
+    }
+
     // if not in real-time mode, add the sync and time
     //if (!ratsConfigs.real_time_mcb.Read()) {
         // sync byte        
