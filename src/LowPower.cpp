@@ -10,6 +10,8 @@ void StratoRATS::LowPowerMode()
         // perform setup
         log_nominal("Entering LP");
         RATS_Shutdown();
+        // flush any RATS report accumulated in the previous mode
+        ratsReportCheck(true);
         inst_substate = LP_LOOP;
         log_nominal("Entering LP_LOOP");
         break;

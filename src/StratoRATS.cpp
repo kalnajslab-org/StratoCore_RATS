@@ -270,6 +270,15 @@ bool StratoRATS::IsECUPowerEnabled()
 
 void StratoRATS::ratsReportAccumulate(ECUReportBytes_t& ecu_report_bytes) {
     // Must be called with an ecu report of type ECU_REPORT_DATA
+
+    // Only STANDBY and FLIGHT accumulate ECU reports. Other modes flush the
+    // buffer on entry (via ratsReportCheck) and do not collect, so the fixed
+    // 175-record buffer cannot overflow while sitting in them (e.g. EndOfFlight,
+    // which previously spammed "RATS report buffer full").
+    if (my_inst_mode != MODE_STANDBY && my_inst_mode != MODE_FLIGHT) {
+        return;
+    }
+
     // Apply decimation: only accumulate every decimate_factor-th report
     static uint16_t decimate_count = 0;
     uint16_t factor = ratsConfigs.decimate_factor.Read();
