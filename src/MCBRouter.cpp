@@ -36,11 +36,11 @@ void StratoRATS::HandleMCBASCII()
     case MCB_VOLTAGES:
         float mcb_voltages[4];
         if (mcbComm.RX_Voltages(mcb_voltages, mcb_voltages+1, mcb_voltages+2, mcb_voltages+3)) {
-            snprintf(log_array, LOG_ARRAY_SIZE, "MCBASCII: MCB voltages: %.1f,%.1f,%.1f,%.1f", mcb_voltages[0], mcb_voltages[1],
+            snprintf(log_array, LOG_ARRAY_SIZE, "MCB voltages: %.1f,%.1f,%.1f,%.1f", mcb_voltages[0], mcb_voltages[1],
                      mcb_voltages[2], mcb_voltages[3]);
             SendMCBTM("MCBASCII", FINE, log_array);
         } else {
-            SendMCBTM("MCBASCII", CRIT, "MCBASCII: Error receiving MCB voltages");
+            SendMCBTM("MCBASCII", CRIT, "Error receiving MCB voltages");
         }
         break;
     case MCB_MOTION_FINISHED:
@@ -72,7 +72,7 @@ void StratoRATS::HandleMCBASCII()
 
             mcb_motion_ongoing = false;
 
-            snprintf(log_array, LOG_ARRAY_SIZE, "MCBASCII: MCB Fault: %x,%x,%x,%x,%x,%x,%x,%x", motion_fault[0], motion_fault[1],
+            snprintf(log_array, LOG_ARRAY_SIZE, "MCB Fault: %x,%x,%x,%x,%x,%x,%x,%x", motion_fault[0], motion_fault[1],
                      motion_fault[2], motion_fault[3], motion_fault[4], motion_fault[5], motion_fault[6], motion_fault[7]);
             SendMCBTM("MCBASCII", CRIT, log_array);
             if (motion_fault[3]) { 
