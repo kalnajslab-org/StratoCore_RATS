@@ -187,7 +187,20 @@ void StratoRATS::HandleMCBBin()
         SendMCBEEPROM();
         break;
     default:
-        log_error("Unknown MCB bin received");
+        // Report the id/length and a few payload bytes so an unexpected binary
+        // message (unhandled MCB type vs. a framing desync) can be identified.
+        {
+            int n = snprintf(log_array, LOG_ARRAY_SIZE,
+                             "Unknown MCB bin received: id=%u len=%u data=",
+                             mcbComm.binary_rx.bin_id, mcbComm.binary_rx.bin_length);
+            uint16_t dump = mcbComm.binary_rx.bin_length;
+            if (dump > 8) { dump = 8; }
+            for (uint16_t i = 0; i < dump && n > 0 && n < LOG_ARRAY_SIZE; i++) {
+                n += snprintf(log_array + n, LOG_ARRAY_SIZE - n, "%02x ",
+                              mcbComm.binary_rx.bin_buffer[i]);
+            }
+            log_error(log_array);
+        }
     }
 }
 
