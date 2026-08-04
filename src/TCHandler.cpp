@@ -291,6 +291,10 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
         paired_ecu = ratsParam.paired_ecu;
         msg2 = "TC set the paired ECU ID: " + String(ratsConfigs.paired_ecu.Read());
         break;
+    case RATSSETMOTIONTIMEOUT:
+        msg2 = "TC set motion timeout: " + String(ratsParam.motion_timeout);
+        ratsConfigs.motion_timeout.Write(ratsParam.motion_timeout);
+        break;
     case RATSINFO:
         msg2 = "TC get version";
         send_version_tm = true;
