@@ -25,12 +25,12 @@
 
 // Send a RATSReport when NUM_ECU_REPORTS have been received.
 // But if RATS_REPORT_PERIOD_SECS has elapsed, the report will be sent regardless.
-#define NUM_ECU_REPORTS 175
+#define NUM_ECU_REPORTS 170
 
 // RATS_REPORT_MAX_BYTES is the maximum size of a RATS report in bytes. 
-#define RATS_REPORT_MAX_BYTES (RATS_HEADER_SIZE_BYTES+(NUM_ECU_REPORTS+1)*ECU_REPORT_SIZE_BYTES)
+#define RATS_REPORT_MAX_BYTES (RATS_REPORT_HEADER_SIZE_BYTES+(NUM_ECU_REPORTS+1)*ECU_DATA_REPORT_SIZE_BYTES)
 
-// Verify that a RATS report will fit in the TM message buffer.
+// Verify that a RATS report will fit in the TM message buffer. 
 #if RATS_REPORT_MAX_BYTES > 8192
 // TODO: Verify that this is the true limit for the TM binary payload. It's
 // likely that the limit is actually includes all of the XML header and other
