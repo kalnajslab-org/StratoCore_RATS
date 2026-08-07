@@ -51,8 +51,10 @@
 
 // Number of LoRa messages to wait for before moving on
 #define LORA_MSG_COUNT  3
-// Seconds to wait for all LoRa messages to be received during warmup
-#define LORA_WARMUP_MSG_TIMEOUT 15
+// Seconds to wait for all LoRa messages to be received during warmup.
+// The ECU will suspend LoRa for up to 2 minutes while waiting for GPS lock.
+// Allow up to 15 seconds after that.
+#define LORA_WARMUP_MSG_TIMEOUT 135
 
 #define MCB_SERIAL_BUFFER_SIZE    4096
 

@@ -295,6 +295,17 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
         msg2 = "TC set motion timeout: " + String(ratsParam.motion_timeout);
         ratsConfigs.motion_timeout.Write(ratsParam.motion_timeout);
         break;
+    case RATSLORASUSPEND:
+        msg2 = "TC LoRa suspend: " + String(ratsParam.lora_suspend_sec) + " s";
+        if (IsECUPowerEnabled()) {
+            ecu_json.clear();
+            ecu_json["loraSuspendSec"] = ratsParam.lora_suspend_sec;
+            sendEcuJson(paired_ecu);
+        } else {
+            msg3 = "TC Cannot send LoRa suspend, ECU power is off";
+            msg1_flag = WARN;
+        }
+        break;
     case RATSINFO:
         msg2 = "TC get version";
         send_version_tm = true;
