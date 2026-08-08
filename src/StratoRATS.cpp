@@ -114,14 +114,22 @@ void StratoRATS::LoRaRX()
             payload[i] = lora_msg.data[i];
         }
 
-        // See if this is an ECU report message rather than a RATS message
-        if (payload[0]) {
+        // See if this is an ECU report message rather than a RATS message.
+        // Require at least the header bytes (rev/msg_type + ecu_id) before
+        // attempting to decode, to reject truncated/corrupt LoRa receptions.
+        if (payload[0] && lora_msg.data_len >= 2) {
 
             // It's an ECU report message
             // Extract the revision and message type
             std::array<uint8_t, 3> rev_msg_type_id = ecu_report_deserialize_rev_msg_type_id(payload);
             // snprintf(log_array, LOG_ARRAY_SIZE, "LoRa rev:%u type:%u id:%u", rev_msg_type_id[0], rev_msg_type_id[1], rev_msg_type_id[2]);
             //log_nominal(log_array);
+
+            if (rev_msg_type_id[0] != ECU_REPORT_REV) {
+                snprintf(log_array, LOG_ARRAY_SIZE, "LoRa report rev mismatch: got %u, expected %u", rev_msg_type_id[0], ECU_REPORT_REV);
+                log_error(log_array);
+                return;
+            }
 
             // See if it is one that we are interested in
             uint8_t ecu_id = rev_msg_type_id[2];
@@ -153,7 +161,7 @@ void StratoRATS::LoRaRX()
                     ECUReport_t ecu_report = ecu_report_deserialize(payload);
                     ecu_report_print(ecu_report);
                     // Create and send a text TM with the raw data
-                    String text_data;
+                    String text_data = "ECU:";
                     for (uint8_t i = 0; i < ecu_report.n_bytes; ++i) {
                         text_data += (char)ecu_report.raw[i];
                     }
