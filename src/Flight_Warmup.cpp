@@ -89,6 +89,13 @@ bool StratoRATS::Flight_Warmup(bool restart)
         // with flexibility to set any collection of parameters. This can be
         // shared with the TC handler.
         ecu_json["tempC"] = ratsConfigs.ecu_tempC.Read();
+        // Seed the ECU's RTC from our own GPS-disciplined time, in case the
+        // ECU hasn't gotten a fix from its own GPS yet. The ECU refuses this
+        // once its own GPS has set its RTC (see isRTCSetByGPS() in the ECU
+        // firmware), so it's safe to send on every warmup.
+        if (time_valid) {
+            ecu_json["setTimeEpoch"] = (uint32_t) now();
+        }
         serializeJson(ecu_json, ecu_json_str);
         log_nominal((String("ECU command: ") + ecu_json_str).c_str());
         // Send the configuration message to the ECU
