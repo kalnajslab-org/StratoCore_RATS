@@ -10,8 +10,13 @@ void StratoRATS::FlightMode()
 {
     my_inst_mode = MODE_FLIGHT;
 
-    // Send a RATSREPORT, if it is time. 
-    ratsReportCheck(false);
+    // Send a RATSREPORT, if it is time. Skipped on FL_ENTRY: that state
+    // always sends its own immediate report below, so checking here too
+    // could double-send if the periodic interval happened to already be
+    // due at the moment FLIGHT mode was entered.
+    if (inst_substate != FL_ENTRY) {
+        ratsReportCheck(false);
+    }
 
     // Save the flight mode substate to the global variable 
     flight_mode_substate = inst_substate;
