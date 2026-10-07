@@ -111,7 +111,7 @@ public:
         // *** Modify this function whenever the RATSReportHeader_t struct is modified ***
 
         _header.rats_id = rats_id;
-        _header.epoch = (uint32_t)time(nullptr);
+        _header.epoch = (uint32_t)now(); // TimeLib clock (GPS-synced); time(nullptr) reads the unset hardware RTC
         _header.paired_ecu = paired_ecu;
         _header.ecu_pwr_on = digitalRead(ECU_PWR_EN);
         _header.v56 = 1000 * analogRead(V56_MON) * (3.3 / 1024.0) * (R8 + R9) / R8;
