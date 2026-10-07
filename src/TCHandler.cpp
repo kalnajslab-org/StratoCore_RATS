@@ -107,6 +107,15 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
             mcbComm.TX_ASCII(MCB_ZERO_REEL);
         }
         break;
+    case CENTERLW:
+        msg2 = "TC Center Level Wind";
+        if (mcb_motion_ongoing) {
+            msg3 = "Can't center level wind, motion ongoing";
+            msg1_flag = WARN;
+        } else {
+            mcbComm.TX_ASCII(MCB_CENTER_LW);
+        }
+        break;
     case TORQUELIMITS:
         msg2 = "TC Torque Limits";
         if (!mcbComm.TX_Torque_Limits(mcbParam.torqueLimits[0],mcbParam.torqueLimits[1])) {
