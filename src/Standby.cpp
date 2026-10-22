@@ -47,7 +47,7 @@ void StratoRATS::StandbyMode()
         if (CheckAction(SEND_IMR)) {
             log_nominal("Sending mode request to OBC");
             ZephyrTXpoke(ZEPHYRTX_IMR);
-            scheduler.AddAction(SEND_IMR, 5);
+            scheduler.AddAction(SEND_IMR, 60);
         }
         // Enable LoRa transmit testing, for RF interference validation.
         if (CheckAction(ACTION_LORA_TX_TEST) && lora_tx_test) {
