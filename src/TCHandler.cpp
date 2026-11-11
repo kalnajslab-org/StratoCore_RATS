@@ -315,6 +315,31 @@ bool StratoRATS::TCHandler(Telecommand_t telecommand)
             msg1_flag = WARN;
         }
         break;
+    case RATSECUSETTIME:
+        // Send our Zephyr-disciplined time to the ECU, as Flight_Warmup does.
+        // The ECU sets its RTC from it unless its own GPS already has, so GPS
+        // stays the time priority. Use after an ECU reset or power-on when the
+        // ECU GPS has no fix and the records come back without a time.
+        msg2 = "TC ECU set time";
+        if (!IsECUPowerEnabled()) {
+            msg3 = "TC Cannot set ECU time, ECU power is off";
+            msg1_flag = WARN;
+        } else if (!time_valid || (uint32_t) now() < RATS_TIME_MIN_EPOCH) {
+            msg3 = "TC Cannot set ECU time, RATS time not valid";
+            msg1_flag = WARN;
+        } else if ((uint32_t)(millis() - last_lora_rx_ms) > ECU_HEARD_WINDOW_MS) {
+            // A queued command waits for the next ECU message; if the ECU is
+            // silent (boot suspend, LoRa suspend) the epoch would arrive stale.
+            msg3 = "TC Cannot set ECU time, ECU not heard in " + String(ECU_HEARD_WINDOW_MS / 1000) + " s";
+            msg1_flag = WARN;
+        } else {
+            uint32_t epoch = (uint32_t) now();
+            ecu_json.clear();
+            ecu_json["setTimeEpoch"] = epoch;
+            sendEcuJson(paired_ecu);
+            msg2 += ": epoch " + String(epoch);
+        }
+        break;
     case RATSINFO:
         msg2 = "TC get version";
         send_version_tm = true;

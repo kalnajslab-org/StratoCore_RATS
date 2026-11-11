@@ -56,6 +56,14 @@
 // Allow up to 15 seconds after that.
 #define LORA_WARMUP_MSG_TIMEOUT 135
 
+// TC RATSECUSETTIME (79): RATS is the LoRa follower, so a queued command only
+// leaves on the next ECU message. Refuse to queue the time unless the ECU was
+// heard this recently (ms), or the epoch would be stale by the wait.
+#define ECU_HEARD_WINDOW_MS 15000UL
+// Refuse to relay a RATS time earlier than 2025-01-01 UTC; an OBC without a
+// GPS fix hands out 1970, and time_valid alone does not catch that.
+#define RATS_TIME_MIN_EPOCH 1735689600UL
+
 #define MCB_SERIAL_BUFFER_SIZE    4096
 
 // Buffers for msg reception and transmission to/from Zephyr. Should be large enough
@@ -254,6 +262,8 @@ private:
     ECULoRaMsg_t lora_msg;
     // The total number of LoRa messages received since the application started.
     uint32_t total_lora_count = 0;
+    // millis() when the last LoRa message was received (see ECU_HEARD_WINDOW_MS).
+    uint32_t last_lora_rx_ms = 0;
     // A temporary counter to track the number of LoRa messages received during warmup.
     uint32_t lora_count = 0;
     // Count incoming lora messages. If reset is set, the

@@ -104,6 +104,7 @@ void StratoRATS::LoRaRX()
 {
     if (ecu_lora_rx(&lora_msg)) {
         total_lora_count++;
+        last_lora_rx_ms = millis();
         if (lora_msg.count != total_lora_count) {
             log_error((String("LoRa message count mismatch ") + String(lora_msg.count) + " " + String(total_lora_count)).c_str());
             total_lora_count = lora_msg.count;
