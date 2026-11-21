@@ -362,9 +362,10 @@ private:
     MCBMotion_t mcb_motion = NO_MOTION;
 
     // *** Other TC/TM handlers ***
-    // Wake up the MAX3381 serial transceiver by sending a blank character to ZEPHYR_SERIAL
-    // before calling the specified ZephyrTX member function. The MAX3381 has a 30-second
-    // inactivity timeout, after which it powers down and can drop the first transmitted byte.
+    // Wake up the MAX3381 serial transceiver by sending throwaway newlines (ZEPHYR_WAKE_BYTES)
+    // to ZEPHYR_SERIAL before calling the specified ZephyrTX member function. The MAX3381 has
+    // a 30-second inactivity timeout, after which it powers down and drops what is sent while
+    // it wakes; cold, that takes longer than one byte time.
     void ZephyrTXpoke(ZephyrTXMsgType_t msg_type);
     // Send a TM with MCB EEPROM contents
     void SendMCBEEPROM();

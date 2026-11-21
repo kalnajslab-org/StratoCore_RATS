@@ -634,9 +634,18 @@ String StratoRATS::getStateName(const uint8_t mode, const uint8_t substate) {
     return "mode:UNKNOWN:" + String(substate);
 };
 
+// Wake the MAX3381 transceiver with throwaway bytes (absorbing the dropped
+// first byte after its 30 s inactivity powerdown), then send the requested
+// Zephyr message. Six newlines (~520 us at 115200 baud) rather than one give
+// a cold transceiver more time to wake before the real message starts: with
+// one byte, whole TMs were lost on flight ST2_C2_14_STR5 when the board was cold.
+#define ZEPHYR_WAKE_BYTES   6
+
 void StratoRATS::ZephyrTXpoke(ZephyrTXMsgType_t msg_type)
 {
-    ZEPHYR_SERIAL.write('\n'); 
+    for (int i = 0; i < ZEPHYR_WAKE_BYTES; i++) {
+        ZEPHYR_SERIAL.write('\n');
+    }
     switch (msg_type) {
     case ZEPHYRTX_TM:
         zephyrTX.TM();
